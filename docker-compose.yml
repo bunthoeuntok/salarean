@@ -1,0 +1,387 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # FRONTEND
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sms-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://api-gateway:8080
+    networks:
+      - frontend-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  # ============================================
+  # REVERSE PROXY
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: sms-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - frontend-network
+      - backend-network
+    depends_on:
+      - frontend
+      - api-gateway
+    restart: unless-stopped
+
+  # ============================================
+  # API GATEWAY
+  # ============================================
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: sms-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    networks:
+      - backend-network
+      - cache-network
+    depends_on:
+      - eureka-server
+      - redis
+    restart: unless-stopped
+
+  # ============================================
+  # SERVICE DISCOVERY
+  # ============================================
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: sms-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - backend-network
+    restart: unless-stopped
+
+  # ============================================
+  # AUTH SERVICE
+  # ============================================
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: sms-auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/auth_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - backend-network
+      - database-network
+      - cache-network
+    depends_on:
+      - postgres-auth
+      - eureka-server
+      - redis
+    restart: unless-stopped
+
+  # ============================================
+  # STUDENT SERVICE
+  # ============================================
+  student-service:
+    build:
+      context: ./student-service
+      dockerfile: Dockerfile
+    container_name: sms-student-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-student:5432/student_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - backend-network
+      - database-network
+      - cache-network
+    depends_on:
+      - postgres-student
+      - eureka-server
+      - redis
+    restart: unless-stopped
+
+  # ============================================
+  # ATTENDANCE SERVICE
+  # ============================================
+  attendance-service:
+    build:
+      context: ./attendance-service
+      dockerfile: Dockerfile
+    container_name: sms-attendance-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-attendance:5432/attendance_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - backend-network
+      - database-network
+      - message-network
+    depends_on:
+      - postgres-attendance
+      - eureka-server
+      - rabbitmq
+    restart: unless-stopped
+
+  # ============================================
+  # GRADE SERVICE
+  # ============================================
+  grade-service:
+    build:
+      context: ./grade-service
+      dockerfile: Dockerfile
+    container_name: sms-grade-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-grade:5432/grade_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - backend-network
+      - database-network
+      - message-network
+    depends_on:
+      - postgres-grade
+      - eureka-server
+      - rabbitmq
+    restart: unless-stopped
+
+  # ============================================
+  # REPORT SERVICE
+  # ============================================
+  report-service:
+    build:
+      context: ./report-service
+      dockerfile: Dockerfile
+    container_name: sms-report-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-report:5432/report_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - backend-network
+      - database-network
+    depends_on:
+      - postgres-report
+      - eureka-server
+    restart: unless-stopped
+
+  # ============================================
+  # NOTIFICATION SERVICE
+  # ============================================
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: sms-notification-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-notification:5432/notification_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+    networks:
+      - backend-network
+      - database-network
+      - message-network
+    depends_on:
+      - postgres-notification
+      - eureka-server
+      - rabbitmq
+    restart: unless-stopped
+
+  # ============================================
+  # DATABASES
+  # ============================================
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: sms-postgres-auth
+    environment:
+      - POSTGRES_DB=auth_db
+      - POSTGRES_USER=sms_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+    restart: unless-stopped
+
+  postgres-student:
+    image: postgres:15-alpine
+    container_name: sms-postgres-student
+    environment:
+      - POSTGRES_DB=student_db
+      - POSTGRES_USER=sms_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-student-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+    restart: unless-stopped
+
+  postgres-attendance:
+    image: postgres:15-alpine
+    container_name: sms-postgres-attendance
+    environment:
+      - POSTGRES_DB=attendance_db
+      - POSTGRES_USER=sms_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-attendance-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+    restart: unless-stopped
+
+  postgres-grade:
+    image: postgres:15-alpine
+    container_name: sms-postgres-grade
+    environment:
+      - POSTGRES_DB=grade_db
+      - POSTGRES_USER=sms_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-grade-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+    restart: unless-stopped
+
+  postgres-report:
+    image: postgres:15-alpine
+    container_name: sms-postgres-report
+    environment:
+      - POSTGRES_DB=report_db
+      - POSTGRES_USER=sms_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-report-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+    restart: unless-stopped
+
+  postgres-notification:
+    image: postgres:15-alpine
+    container_name: sms-postgres-notification
+    environment:
+      - POSTGRES_DB=notification_db
+      - POSTGRES_USER=sms_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-notification-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+    restart: unless-stopped
+
+  # ============================================
+  # REDIS CACHE
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: sms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - cache-network
+    restart: unless-stopped
+
+  # ============================================
+  # RABBITMQ MESSAGE BROKER
+  # ============================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: sms-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=sms_user
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - message-network
+    restart: unless-stopped
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  frontend-network:
+    driver: bridge
+  backend-network:
+    driver: bridge
+  database-network:
+    driver: bridge
+  cache-network:
+    driver: bridge
+  message-network:
+    driver: bridge
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  postgres-auth-data:
+  postgres-student-data:
+  postgres-attendance-data:
+  postgres-grade-data:
+  postgres-report-data:
+  postgres-notification-data:
+  redis-data:
+  rabbitmq-data:
+  uploads:
