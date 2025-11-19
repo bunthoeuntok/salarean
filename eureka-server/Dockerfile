@@ -2,19 +2,13 @@
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 
-# Copy Maven wrapper and pom
+# Copy pom and download dependencies
 COPY pom.xml .
-COPY .mvn .mvn 2>/dev/null || true
-COPY mvnw mvnw 2>/dev/null || true
-
-# Download dependencies (if mvnw exists, otherwise use mvn directly)
-RUN if [ -f mvnw ]; then chmod +x mvnw && ./mvnw dependency:go-offline -B; \
-    else apk add --no-cache maven && mvn dependency:go-offline -B; fi
+RUN apk add --no-cache maven && mvn dependency:go-offline -B
 
 # Copy source and build
 COPY src src
-RUN if [ -f mvnw ]; then ./mvnw clean package -DskipTests -B; \
-    else mvn clean package -DskipTests -B; fi
+RUN mvn clean package -DskipTests -B
 
 # Extract layers
 RUN java -Djarmode=layertools -jar target/*.jar extract
