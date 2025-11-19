@@ -1,18 +1,24 @@
-FROM eclipse-temurin:21-jre-alpine AS builder
+# Build stage
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
-COPY target/*.jar app.jar
-RUN java -Djarmode=layertools -jar app.jar extract
 
+COPY pom.xml .
+RUN apk add --no-cache maven && mvn dependency:go-offline -B
+
+COPY src src
+RUN mvn clean package -DskipTests -B
+
+RUN java -Djarmode=layertools -jar target/*.jar extract
+
+# Runtime stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copy layers
 COPY --from=builder /app/dependencies/ ./
 COPY --from=builder /app/spring-boot-loader/ ./
 COPY --from=builder /app/snapshot-dependencies/ ./
 COPY --from=builder /app/application/ ./
 
-# Add non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
