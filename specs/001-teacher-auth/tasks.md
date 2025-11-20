@@ -53,9 +53,9 @@ Note: User Story 4 (Multilingual) is handled in frontend, not backend
 
 ### Tasks
 
-- [ ] T001 Create Flyway migration V1__create_users_table.sql in auth-service/src/main/resources/db/migration/
-- [ ] T002 Create Flyway migration V2__create_login_attempts_table.sql in auth-service/src/main/resources/db/migration/
-- [ ] T003 Create Flyway migration V3__create_sessions_table.sql in auth-service/src/main/resources/db/migration/
+- [X] T001 Create Flyway migration V1__create_users_table.sql in auth-service/src/main/resources/db/migration/
+- [X] T002 Create Flyway migration V2__create_login_attempts_table.sql in auth-service/src/main/resources/db/migration/
+- [X] T003 Create Flyway migration V3__create_sessions_table.sql in auth-service/src/main/resources/db/migration/
 
 **Verification**: Run `mvn spring-boot:run -Dspring-boot.run.profiles=docker` and verify all 3 tables created in auth_db
 
