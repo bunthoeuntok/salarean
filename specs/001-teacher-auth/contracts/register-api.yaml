@@ -1,0 +1,301 @@
+openapi: 3.0.3
+info:
+  title: Teacher Registration API
+  description: |
+    API endpoint for teacher account registration in the Student Management System.
+
+    **Feature**: 001-teacher-auth
+    **Service**: auth-service
+    **Base URL**: /api/auth
+
+    **Functional Requirements Covered**:
+    - FR-001: Register with email, phone, password
+    - FR-002: Email validation (RFC 5322)
+    - FR-003: Cambodia phone validation (+855 format)
+    - FR-004: Password strength requirements
+    - FR-005: Prevent duplicate emails
+    - FR-006: Prevent duplicate phones
+    - FR-012: Language selection during registration
+
+    **Internationalization (i18n)**:
+    - Backend returns **English error messages** for debugging/logging
+    - Backend returns **machine-readable error codes** (ErrorCode enum)
+    - Frontend is responsible for translating error codes to Khmer/English based on user preference
+    - This approach simplifies backend and provides frontend flexibility
+
+  version: 1.0.0
+  contact:
+    name: SMS Development Team
+
+servers:
+  - url: http://localhost:8081
+    description: Local development (auth-service)
+  - url: http://localhost:8080/auth-service
+    description: Local API Gateway
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new teacher account
+      description: |
+        Creates a new teacher account with email, Cambodia phone number, and password.
+
+        **Validation Rules**:
+        - Email: RFC 5322 compliant format
+        - Phone: Cambodia format `+855 XX XXX XXX` (country code +855 followed by 8-9 digits)
+        - Password: Minimum 8 characters, at least one uppercase, one lowercase, one number, one special character
+        - Language: 'en' (English) or 'km' (Khmer)
+
+        **Success Flow**:
+        1. Validate all inputs
+        2. Check for duplicate email/phone
+        3. Hash password with BCrypt (cost factor 12)
+        4. Create user record in database
+        5. Generate JWT token (24-hour expiration)
+        6. Return user info + token
+
+        **Error Codes**:
+        - `DUPLICATE_EMAIL`: Email already registered (FR-005)
+        - `DUPLICATE_PHONE`: Phone already registered (FR-006)
+        - `INVALID_EMAIL_FORMAT`: Email doesn't match RFC 5322 (FR-002)
+        - `INVALID_PHONE_FORMAT`: Phone doesn't match Cambodia format (FR-003)
+        - `INVALID_PASSWORD`: Password doesn't meet strength requirements (FR-004)
+        - `INTERNAL_ERROR`: Server error during registration
+
+      operationId: registerTeacher
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              validRegistration:
+                summary: Valid registration with English preference
+                value:
+                  email: "teacher@school.edu.kh"
+                  phoneNumber: "+85512345678"
+                  password: "SecurePass123!"
+                  preferredLanguage: "en"
+              khmerPreference:
+                summary: Valid registration with Khmer preference
+                value:
+                  email: "sovannara@school.edu.kh"
+                  phoneNumber: "+855961234567"
+                  password: "StrongP@ss2024"
+                  preferredLanguage: "km"
+
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterSuccessResponse'
+              examples:
+                successEnglish:
+                  summary: Successful registration (English)
+                  value:
+                    errorCode: "SUCCESS"
+                    data:
+                      userId: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "teacher@school.edu.kh"
+                      phoneNumber: "+85512345678"
+                      preferredLanguage: "en"
+                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJpYXQiOjE3MDA1NjMzMDAsImV4cCI6MTcwMDY0OTcwMCwicm9sZXMiOlsiVEVBQ0hFUiJdLCJsYW5nIjoiZW4ifQ.abcdef123456"
+                      createdAt: "2025-11-20T10:30:00Z"
+
+        '400':
+          description: Validation error or duplicate registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateEmail:
+                  summary: Email already registered
+                  value:
+                    errorCode: "DUPLICATE_EMAIL"
+                    data: null
+                duplicatePhone:
+                  summary: Phone already registered
+                  value:
+                    errorCode: "DUPLICATE_PHONE"
+                    data: null
+                invalidEmailFormat:
+                  summary: Invalid email format
+                  value:
+                    errorCode: "INVALID_EMAIL_FORMAT"
+                    data: null
+                invalidPhoneFormat:
+                  summary: Invalid Cambodia phone format
+                  value:
+                    errorCode: "INVALID_PHONE_FORMAT"
+                    data: null
+                weakPassword:
+                  summary: Password doesn't meet strength requirements
+                  value:
+                    errorCode: "INVALID_PASSWORD"
+                    data: null
+                invalidLanguage:
+                  summary: Invalid language code
+                  value:
+                    errorCode: "INVALID_LANGUAGE"
+                    data: null
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalError:
+                  summary: Server error during registration
+                  value:
+                    errorCode: "INTERNAL_ERROR"
+                    data: null
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - phoneNumber
+        - password
+        - preferredLanguage
+      properties:
+        email:
+          type: string
+          format: email
+          description: Teacher's email address (RFC 5322 compliant)
+          example: "teacher@school.edu.kh"
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+          maxLength: 255
+        phoneNumber:
+          type: string
+          description: Cambodia phone number in E.164 format (+855 followed by 8-9 digits)
+          example: "+85512345678"
+          pattern: '^\+855[1-9]\d{7,8}$'
+          minLength: 12
+          maxLength: 13
+        password:
+          type: string
+          format: password
+          description: |
+            Password meeting strength requirements:
+            - Minimum 8 characters
+            - At least one uppercase letter
+            - At least one lowercase letter
+            - At least one number
+            - At least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)
+          example: "SecurePass123!"
+          minLength: 8
+          maxLength: 128
+        preferredLanguage:
+          type: string
+          description: Teacher's preferred language for UI and error messages
+          enum:
+            - en
+            - km
+          example: "en"
+          default: "en"
+
+    RegisterSuccessResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - SUCCESS
+          description: Error code (SUCCESS for successful registration)
+          example: "SUCCESS"
+        data:
+          $ref: '#/components/schemas/AuthResponse'
+
+    AuthResponse:
+      type: object
+      required:
+        - userId
+        - email
+        - phoneNumber
+        - preferredLanguage
+        - token
+        - createdAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique teacher identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: Teacher's registered email
+          example: "teacher@school.edu.kh"
+        phoneNumber:
+          type: string
+          description: Teacher's registered Cambodia phone number
+          example: "+85512345678"
+        preferredLanguage:
+          type: string
+          enum:
+            - en
+            - km
+          description: Teacher's language preference
+          example: "en"
+        token:
+          type: string
+          description: JWT authentication token (24-hour expiration)
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJpYXQiOjE3MDA1NjMzMDAsImV4cCI6MTcwMDY0OTcwMH0.abcdef123456"
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp (ISO 8601)
+          example: "2025-11-20T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - SUCCESS
+            - DUPLICATE_EMAIL
+            - DUPLICATE_PHONE
+            - INVALID_EMAIL_FORMAT
+            - INVALID_PHONE_FORMAT
+            - INVALID_PASSWORD
+            - INVALID_LANGUAGE
+            - INTERNAL_ERROR
+          description: |
+            Machine-readable error code.
+            Frontend is responsible for translating error codes to localized messages (Khmer/English).
+          example: "DUPLICATE_EMAIL"
+        data:
+          type: object
+          nullable: true
+          description: Error data (null for error responses)
+          example: null
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from registration or login.
+        Note: Registration endpoint does not require authentication.
+
+tags:
+  - name: Authentication
+    description: Teacher authentication operations (registration, login, session management)
