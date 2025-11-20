@@ -19,6 +19,14 @@ spring:
           filters:
             - RewritePath=/api/auth/(?<segment>.*), /api/auth/${segment}
 
+        # Auth Service OpenAPI Docs
+        - id: auth-service-openapi
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth-service/v3/api-docs/**
+          filters:
+            - RewritePath=/auth-service/v3/api-docs/(?<segment>.*), /v3/api-docs/${segment}
+
         # Student Service
         - id: student-service
           uri: lb://STUDENT-SERVICE
@@ -75,3 +83,11 @@ management:
   endpoint:
     health:
       show-details: always
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: auth-service
+        url: /auth-service/v3/api-docs
+  api-docs:
+    enabled: true
