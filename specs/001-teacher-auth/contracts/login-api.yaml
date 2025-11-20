@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: Teacher Login API
+  description: |
+    API endpoint for teacher authentication (login) in the Student Management System.
+
+    **Feature**: 001-teacher-auth
+    **Service**: auth-service
+    **Base URL**: /api/auth
+
+    **Functional Requirements Covered**:
+    - FR-007: Login with email OR phone + password
+    - FR-008: Secure credential authentication (BCrypt password verification)
+    - FR-009: Session creation and persistence
+    - FR-010: 24-hour session timeout
+    - FR-015: Rate limiting (5 failed attempts per 15 minutes)
+
+    **Internationalization (i18n)**:
+    - Backend returns **English error messages** for debugging/logging
+    - Backend returns **machine-readable error codes** (ErrorCode enum)
+    - Frontend is responsible for translating error codes to Khmer/English based on user preference
+    - This approach simplifies backend and provides frontend flexibility
+
+  version: 1.0.0
+  contact:
+    name: SMS Development Team
+
+servers:
+  - url: http://localhost:8081
+    description: Local development (auth-service)
+  - url: http://localhost:8080/auth-service
+    description: Local API Gateway
+
+paths:
+  /api/auth/login:
+    post:
+      summary: Authenticate a teacher and create session
+      description: |
+        Authenticates a teacher using either email or phone number combined with password.
+
+        **Authentication Flow**:
+        1. Check rate limiting (5 failed attempts in 15 minutes)
+        2. Identify user by email OR phone
+        3. Verify password with BCrypt
+        4. Create session record (expires in 24 hours)
+        5. Generate JWT token (24-hour expiration)
+        6. Record login attempt (success/failure)
+        7. Return user info + token
+
+        **Rate Limiting (FR-015)**:
+        - Maximum 5 failed login attempts within 15 minutes
+        - Lockout period: 15 minutes (rolling window)
+        - Rate limit per identifier (email/phone), not per IP
+        - After lockout expires, teacher can try again
+
+        **Validation Rules**:
+        - Identifier: Must be valid email OR Cambodia phone format
+        - Password: Required (minimum 1 character)
+
+        **Error Codes**:
+        - `INVALID_CREDENTIALS`: Incorrect email/phone or password (FR-007)
+        - `RATE_LIMIT_EXCEEDED`: Too many failed attempts (FR-015)
+        - `ACCOUNT_LOCKED`: Account administratively locked (future feature)
+        - `INTERNAL_ERROR`: Server error during login
+
+      operationId: loginTeacher
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              loginWithEmail:
+                summary: Login with email
+                value:
+                  emailOrPhone: "teacher@school.edu.kh"
+                  password: "SecurePass123!"
+              loginWithPhone:
+                summary: Login with Cambodia phone number
+                value:
+                  emailOrPhone: "+85512345678"
+                  password: "SecurePass123!"
+
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccessResponse'
+              examples:
+                successLogin:
+                  summary: Successful login
+                  value:
+                    errorCode: "SUCCESS"
+                    data:
+                      userId: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "teacher@school.edu.kh"
+                      phoneNumber: "+85512345678"
+                      preferredLanguage: "en"
+                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJpYXQiOjE3MDA1NjMzMDAsImV4cCI6MTcwMDY0OTcwMCwicm9sZXMiOlsiVEVBQ0hFUiJdLCJsYW5nIjoiZW4ifQ.abcdef123456"
+                      lastLoginAt: "2025-11-20T10:30:00Z"
+
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidCredentials:
+                  summary: Invalid email/phone or password
+                  value:
+                    errorCode: "INVALID_CREDENTIALS"
+                    data: null
+                accountLocked:
+                  summary: Account administratively locked (future feature)
+                  value:
+                    errorCode: "ACCOUNT_LOCKED"
+                    data: null
+
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rateLimitExceeded:
+                  summary: Too many failed login attempts
+                  value:
+                    errorCode: "RATE_LIMIT_EXCEEDED"
+                    data: null
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalError:
+                  summary: Server error during login
+                  value:
+                    errorCode: "INTERNAL_ERROR"
+                    data: null
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - emailOrPhone
+        - password
+      properties:
+        emailOrPhone:
+          type: string
+          description: |
+            Teacher's registered email OR Cambodia phone number.
+
+            **Accepted Formats**:
+            - Email: RFC 5322 compliant (e.g., teacher@school.edu.kh)
+            - Phone: Cambodia format +855 followed by 8-9 digits (e.g., +85512345678)
+          example: "teacher@school.edu.kh"
+          minLength: 1
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          description: Teacher's password
+          example: "SecurePass123!"
+          minLength: 1
+          maxLength: 128
+
+    LoginSuccessResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - SUCCESS
+          description: Error code (SUCCESS for successful login)
+          example: "SUCCESS"
+        data:
+          $ref: '#/components/schemas/AuthResponse'
+
+    AuthResponse:
+      type: object
+      required:
+        - userId
+        - email
+        - phoneNumber
+        - preferredLanguage
+        - token
+        - lastLoginAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique teacher identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: Teacher's registered email
+          example: "teacher@school.edu.kh"
+        phoneNumber:
+          type: string
+          description: Teacher's registered Cambodia phone number
+          example: "+85512345678"
+        preferredLanguage:
+          type: string
+          enum:
+            - en
+            - km
+          description: Teacher's language preference
+          example: "en"
+        token:
+          type: string
+          description: |
+            JWT authentication token with 24-hour expiration.
+
+            **Token Claims**:
+            - `sub`: User ID (UUID)
+            - `iat`: Issued at timestamp
+            - `exp`: Expiration timestamp (24 hours from issuance)
+            - `roles`: User roles (e.g., ["TEACHER"])
+            - `lang`: Preferred language ('en' or 'km')
+
+            **Usage**: Include in Authorization header as `Bearer <token>` for authenticated requests.
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJpYXQiOjE3MDA1NjMzMDAsImV4cCI6MTcwMDY0OTcwMCwicm9sZXMiOlsiVEVBQ0hFUiJdLCJsYW5nIjoiZW4ifQ.abcdef123456"
+        lastLoginAt:
+          type: string
+          format: date-time
+          description: Timestamp of this login (ISO 8601)
+          example: "2025-11-20T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - SUCCESS
+            - INVALID_CREDENTIALS
+            - RATE_LIMIT_EXCEEDED
+            - ACCOUNT_LOCKED
+            - INTERNAL_ERROR
+          description: |
+            Machine-readable error code.
+            Frontend is responsible for translating error codes to Khmer/English.
+
+            **Frontend Translation Examples:**
+            - English: INVALID_CREDENTIALS → "Invalid email/phone or password"
+            - Khmer: INVALID_CREDENTIALS → "អ៊ីមែល/លេខទូរស័ព្ទ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ"
+            - English: RATE_LIMIT_EXCEEDED → "Too many failed login attempts. Please try again in 15 minutes"
+            - Khmer: RATE_LIMIT_EXCEEDED → "មានការព្យាយាមចូលបរាជ័យច្រើនពេក។ សូមព្យាយាមម្តងទៀតក្នុងរយៈពេល 15 នាទី។"
+          example: "INVALID_CREDENTIALS"
+        data:
+          type: object
+          nullable: true
+          description: Error data (null for error responses)
+          example: null
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from registration or login.
+        Note: Login endpoint does not require authentication.
+
+tags:
+  - name: Authentication
+    description: Teacher authentication operations (registration, login, session management)
