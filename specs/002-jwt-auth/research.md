@@ -267,52 +267,82 @@ private String phoneNumber;
 
 ---
 
-### 8. Internationalization (i18n) for Error Messages
+### 8. API Response Format Standard
 
-**Decision**: Spring MessageSource with Khmer/English resource bundles
+**Decision**: Standardized response envelope `{errorCode: string, data: T}` for all API endpoints
 
 **Rationale**:
-- **Spring Built-in**: No additional dependencies required
-- **Language from JWT**: User's preferred language stored in JWT claims (`lang`)
-- **Fallback**: Default to English if translation missing
+- **Frontend i18n**: Backend returns only error codes; frontend handles all internationalization
+- **Consistency**: All endpoints use same response structure (success and error)
+- **Type Safety**: Generic data field `T` provides type flexibility per endpoint
+- **Simplicity**: No backend message bundles, no MessageSource configuration
+- **Client Control**: Frontend can update translations without backend changes
 
 **Implementation**:
 ```java
-// messages_en.properties
-error.token.invalid=Invalid or expired token
-error.token.replay=Token has already been used
-error.profile.phone.duplicate=Phone number already registered
-error.password.weak=Password does not meet strength requirements
-error.photo.size=Photo size exceeds 5MB limit
+// Base response wrapper
+@Data
+@AllArgsConstructor
+public class ApiResponse<T> {
+    private String errorCode;  // "SUCCESS" or error code
+    private T data;            // Response payload or null on error
 
-// messages_km.properties (Khmer)
-error.token.invalid=តូខឹនមិនត្រឹមត្រូវ ឬផុតកំណត់
-error.token.replay=តូខឹននេះត្រូវបានប្រើរួចហើយ
-error.profile.phone.duplicate=លេខទូរស័ព្ទនេះត្រូវបានចុះឈ្មោះរួចហើយ
-error.password.weak=ពាក្យសម្ងាត់មិនបំពេញតាមតម្រូវការ
-error.photo.size=រូបភាពលើសពី 5MB
-```
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>("SUCCESS", data);
+    }
 
-**Usage in Controllers**:
-```java
+    public static <T> ApiResponse<T> error(String errorCode) {
+        return new ApiResponse<>(errorCode, null);
+    }
+}
+
+// Controller usage
 @RestController
 public class ProfileController {
-    @Autowired
-    private MessageSource messageSource;
+    @GetMapping("/api/auth/me")
+    public ApiResponse<ProfileResponse> getCurrentProfile(@AuthenticationPrincipal User user) {
+        ProfileResponse profile = profileService.getProfile(user.getId());
+        return ApiResponse.success(profile);
+    }
 
-    private String getMessage(String key, String lang) {
-        Locale locale = "km".equals(lang) ? new Locale("km") : Locale.ENGLISH;
-        return messageSource.getMessage(key, null, locale);
+    @ExceptionHandler(InvalidPhoneFormatException.class)
+    public ApiResponse<Void> handleInvalidPhone(InvalidPhoneFormatException ex) {
+        return ApiResponse.error("INVALID_PHONE_FORMAT");
     }
 }
 ```
 
-**Alternatives Considered**:
-- **Accept-Language header**: Rejected - language preference should persist in user profile
-- **Client-side only i18n**: Rejected - server validation errors must be localized
-- **Third-party i18n library**: Rejected - Spring built-in sufficient
+**Error Codes**: Machine-readable constants
+```java
+public class ErrorCodes {
+    // Authentication
+    public static final String INVALID_TOKEN = "INVALID_TOKEN";
+    public static final String TOKEN_REPLAY_DETECTED = "TOKEN_REPLAY_DETECTED";
+    public static final String UNAUTHORIZED = "UNAUTHORIZED";
 
-**Spring Dependencies**: `spring-context` (already present via spring-boot-starter)
+    // Profile
+    public static final String INVALID_PHONE_FORMAT = "INVALID_PHONE_FORMAT";
+    public static final String DUPLICATE_PHONE = "DUPLICATE_PHONE";
+
+    // Password
+    public static final String INCORRECT_PASSWORD = "INCORRECT_PASSWORD";
+    public static final String WEAK_PASSWORD = "WEAK_PASSWORD";
+    public static final String PASSWORD_TOO_SHORT = "PASSWORD_TOO_SHORT";
+
+    // Photo
+    public static final String PHOTO_SIZE_EXCEEDED = "PHOTO_SIZE_EXCEEDED";
+    public static final String INVALID_PHOTO_FORMAT = "INVALID_PHOTO_FORMAT";
+    public static final String CORRUPTED_IMAGE = "CORRUPTED_IMAGE";
+}
+```
+
+**Alternatives Considered**:
+- **Backend i18n with MessageSource**: Rejected - adds complexity, couples backend to UI translations
+- **Separate success/error response types**: Rejected - inconsistent structure across endpoints
+- **HTTP status codes only**: Rejected - insufficient granularity for frontend error handling
+- **Nested error details object**: Rejected - error code sufficient for client-side lookup
+
+**Spring Dependencies**: None required (standard Java)
 
 ---
 
@@ -327,7 +357,8 @@ public class ProfileController {
 | Session Invalidation | Cascade invalidation except current session | None |
 | JWT Claims | Minimal claims (sub, jti, iat, exp, roles, lang) | None (jjwt already present) |
 | Phone Validation | Existing regex (no changes) | None |
-| i18n Error Messages | Spring MessageSource (Khmer/English) | None (spring-context present) |
+| API Response Format | Standardized {errorCode, data} envelope | None (standard Java) |
+| Internationalization | Frontend-only (backend returns error codes) | None (no MessageSource needed) |
 
 ## Dependencies to Add
 

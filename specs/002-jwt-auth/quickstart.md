@@ -115,73 +115,15 @@ echo "auth-service/uploads/" >> .gitignore
 
 ---
 
-### 4. Add i18n Resource Bundles
+### 4. Verify API Standards Configuration
 
-Create message files for English and Khmer:
+**IMPORTANT**: This feature uses standardized API response format `{errorCode: string, data: T}`.
 
-**File**: `auth-service/src/main/resources/messages_en.properties`
-```properties
-# Token errors
-error.token.invalid=Invalid or expired token
-error.token.replay=Token has already been used. All sessions invalidated for security.
+- **Backend**: Returns only machine-readable error codes (e.g., "INVALID_TOKEN", "DUPLICATE_PHONE")
+- **Frontend**: Handles all internationalization by mapping error codes to localized messages
+- **No backend i18n**: Do NOT create messages_en.properties or messages_km.properties files
 
-# Profile errors
-error.profile.phone.duplicate=Phone number already registered
-error.profile.name.toolong=Name too long (max 255 characters)
-
-# Password errors
-error.password.incorrect=Current password is incorrect
-error.password.weak=Password does not meet strength requirements
-error.password.length=At least 8 characters required
-error.password.uppercase=At least 1 uppercase letter required
-error.password.lowercase=At least 1 lowercase letter required
-error.password.digit=At least 1 digit required
-error.password.special=At least 1 special character required
-error.password.common=Password too common, please choose a stronger password
-
-# Photo errors
-error.photo.size=Photo size exceeds 5MB limit
-error.photo.format=Only JPG and PNG formats allowed
-error.photo.corrupted=Invalid or corrupted image file
-
-# Success messages
-success.logout=Logged out successfully
-success.profile.updated=Profile updated successfully
-success.password.changed=Password changed successfully. Other sessions have been logged out.
-success.photo.uploaded=Profile photo uploaded successfully
-```
-
-**File**: `auth-service/src/main/resources/messages_km.properties`
-```properties
-# Token errors
-error.token.invalid=តូខឹនមិនត្រឹមត្រូវ ឬផុតកំណត់
-error.token.replay=តូខឹននេះត្រូវបានប្រើរួចហើយ។ សមាជិកភាពទាំងអស់ត្រូវបានបញ្ឈប់ដើម្បីសុវត្ថិភាព។
-
-# Profile errors
-error.profile.phone.duplicate=លេខទូរស័ព្ទនេះត្រូវបានចុះឈ្មោះរួចហើយ
-error.profile.name.toolong=ឈ្មោះវែងពេក (អតិបរមា 255 តួអក្សរ)
-
-# Password errors
-error.password.incorrect=ពាក្យសម្ងាត់បច្ចុប្បន្នមិនត្រឹមត្រូវ
-error.password.weak=ពាក្យសម្ងាត់មិនបំពេញតាមតម្រូវការ
-error.password.length=តម្រូវឱ្យយ៉ាងតិច 8 តួអក្សរ
-error.password.uppercase=តម្រូវឱ្យយ៉ាងតិច 1 អក្សរធំ
-error.password.lowercase=តម្រូវឱ្យយ៉ាងតិច 1 អក្សរតូច
-error.password.digit=តម្រូវឱ្យយ៉ាងតិច 1 លេខ
-error.password.special=តម្រូវឱ្យយ៉ាងតិច 1 តួអក្សរពិសេស
-error.password.common=ពាក្យសម្ងាត់ធម្មតាពេក សូមជ្រើសរើសពាក្យសម្ងាត់ខ្លាំងជាងនេះ
-
-# Photo errors
-error.photo.size=រូបភាពលើសពី 5MB
-error.photo.format=អនុញ្ញាតតែ JPG និង PNG
-error.photo.corrupted=រូបភាពមិនត្រឹមត្រូវ ឬខូច
-
-# Success messages
-success.logout=ចេញពីគណនីដោយជោគជ័យ
-success.profile.updated=ទម្រង់ត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ
-success.password.changed=ពាក្យសម្ងាត់ត្រូវបានប្តូរដោយជោគជ័យ។ សមាជិកភាពផ្សេងទៀតត្រូវបានចេញពីគណនី។
-success.photo.uploaded=រូបភាពត្រូវបានផ្ទុកឡើងដោយជោគជ័យ
-```
+**Error codes are defined in**: `auth-service/src/main/java/com/sms/auth/dto/ErrorCodes.java`
 
 ---
 
@@ -205,9 +147,12 @@ curl -X POST http://localhost:8080/api/auth/register \
 **Expected response**:
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "550e8400-e29b-41d4-a716-446655440000",
-  "expiresIn": 86400
+  "errorCode": "SUCCESS",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "550e8400-e29b-41d4-a716-446655440000",
+    "expiresIn": 86400
+  }
 }
 ```
 
@@ -231,9 +176,12 @@ curl -X POST http://localhost:8080/api/auth/refresh \
 **Expected response**:
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "expiresIn": 86400
+  "errorCode": "SUCCESS",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "expiresIn": 86400
+  }
 }
 ```
 
@@ -255,15 +203,18 @@ curl -X GET http://localhost:8080/api/auth/me \
 **Expected response**:
 ```json
 {
-  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "email": "teacher@test.com",
-  "phoneNumber": "+85512345678",
-  "name": null,
-  "preferredLanguage": "en",
-  "profilePhotoUrl": null,
-  "profilePhotoUploadedAt": null,
-  "accountStatus": "active",
-  "createdAt": "2025-11-20T10:00:00Z"
+  "errorCode": "SUCCESS",
+  "data": {
+    "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "email": "teacher@test.com",
+    "phoneNumber": "+85512345678",
+    "name": null,
+    "preferredLanguage": "en",
+    "profilePhotoUrl": null,
+    "profilePhotoUploadedAt": null,
+    "accountStatus": "active",
+    "createdAt": "2025-11-20T10:00:00Z"
+  }
 }
 ```
 
@@ -286,14 +237,17 @@ curl -X PUT http://localhost:8080/api/users/me \
 **Expected response**:
 ```json
 {
-  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "email": "teacher@test.com",
-  "phoneNumber": "+85587654321",
-  "name": "Sok Dara",
-  "preferredLanguage": "km",
-  "profilePhotoUrl": null,
-  "accountStatus": "active",
-  "createdAt": "2025-11-20T10:00:00Z"
+  "errorCode": "SUCCESS",
+  "data": {
+    "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "email": "teacher@test.com",
+    "phoneNumber": "+85587654321",
+    "name": "Sok Dara",
+    "preferredLanguage": "km",
+    "profilePhotoUrl": null,
+    "accountStatus": "active",
+    "createdAt": "2025-11-20T10:00:00Z"
+  }
 }
 ```
 
@@ -309,10 +263,8 @@ curl -X PUT http://localhost:8080/api/users/me \
 **Expected error**:
 ```json
 {
-  "error": "DUPLICATE_PHONE",
-  "message": "Phone number already registered",
-  "messageKm": "លេខទូរស័ព្ទនេះត្រូវបានចុះឈ្មោះរួចហើយ",
-  "field": "phoneNumber"
+  "errorCode": "DUPLICATE_PHONE",
+  "data": null
 }
 ```
 
@@ -334,8 +286,8 @@ curl -X PUT http://localhost:8080/api/users/me/password \
 **Expected response**:
 ```json
 {
-  "message": "Password changed successfully. Other sessions have been logged out.",
-  "messageKm": "ពាក្យសម្ងាត់ត្រូវបានប្តូរដោយជោគជ័យ។ សមាជិកភាពផ្សេងទៀតត្រូវបានចេញពីគណនី។"
+  "errorCode": "SUCCESS",
+  "data": null
 }
 ```
 
@@ -358,16 +310,12 @@ curl -X PUT http://localhost:8080/api/users/me/password \
 **Expected error**:
 ```json
 {
-  "error": "WEAK_PASSWORD",
-  "message": "Password does not meet strength requirements",
-  "messageKm": "ពាក្យសម្ងាត់មិនបំពេញតាមតម្រូវការ",
-  "details": [
-    "At least 8 characters required",
-    "At least 1 uppercase letter required",
-    "At least 1 digit required"
-  ]
+  "errorCode": "WEAK_PASSWORD",
+  "data": null
 }
 ```
+
+**Note**: Frontend is responsible for displaying specific password requirements based on the error code.
 
 ---
 
@@ -383,10 +331,11 @@ curl -X POST http://localhost:8080/api/users/me/photo \
 **Expected response**:
 ```json
 {
-  "photoUrl": "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg",
-  "uploadedAt": "2025-11-20T14:25:00Z",
-  "message": "Profile photo uploaded successfully",
-  "messageKm": "រូបភាពត្រូវបានផ្ទុកឡើងដោយជោគជ័យ"
+  "errorCode": "SUCCESS",
+  "data": {
+    "photoUrl": "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg",
+    "uploadedAt": "2025-11-20T14:25:00Z"
+  }
 }
 ```
 
@@ -407,9 +356,8 @@ curl -X POST http://localhost:8080/api/users/me/photo \
 **Expected error**:
 ```json
 {
-  "error": "PHOTO_SIZE_EXCEEDED",
-  "message": "Photo size exceeds 5MB limit",
-  "messageKm": "រូបភាពលើសពី 5MB"
+  "errorCode": "PHOTO_SIZE_EXCEEDED",
+  "data": null
 }
 ```
 
@@ -426,8 +374,8 @@ curl -X POST http://localhost:8080/api/auth/logout \
 **Expected response**:
 ```json
 {
-  "message": "Logged out successfully",
-  "messageKm": "ចេញពីគណនីដោយជោគជ័យ"
+  "errorCode": "SUCCESS",
+  "data": null
 }
 ```
 
@@ -441,9 +389,8 @@ curl -X GET http://localhost:8080/api/auth/me \
 **Expected error**:
 ```json
 {
-  "error": "UNAUTHORIZED",
-  "message": "Invalid or expired token",
-  "messageKm": "តូខឹនមិនត្រឹមត្រូវ ឬផុតកំណត់"
+  "errorCode": "UNAUTHORIZED",
+  "data": null
 }
 ```
 
@@ -492,9 +439,8 @@ curl -X POST http://localhost:8080/api/auth/refresh \
 **Expected response**:
 ```json
 {
-  "error": "TOKEN_REPLAY_DETECTED",
-  "message": "Token has already been used. All sessions invalidated for security.",
-  "messageKm": "តូខឹននេះត្រូវបានប្រើរួចហើយ។ សមាជិកភាពទាំងអស់ត្រូវបានបញ្ឈប់ដើម្បីសុវត្ថិភាព។"
+  "errorCode": "TOKEN_REPLAY_DETECTED",
+  "data": null
 }
 ```
 
@@ -541,19 +487,14 @@ cd auth-service
 ./mvnw flyway:info
 ```
 
-### Issue 4: "Khmer text not displaying"
+### Issue 4: "Error codes not recognized by frontend"
 
-**Cause**: Missing UTF-8 encoding in response
+**Cause**: Frontend i18n mapping missing or incorrect
 
-**Solution**: Verify `application.yml`:
-```yaml
-spring:
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-```
+**Solution**: Verify frontend has all error code translations:
+- Check frontend i18n files contain mappings for all error codes
+- Error codes must match exactly (case-sensitive): INVALID_TOKEN, DUPLICATE_PHONE, etc.
+- Frontend should handle unknown error codes gracefully with generic message
 
 ---
 

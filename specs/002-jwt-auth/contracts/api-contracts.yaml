@@ -5,6 +5,9 @@ info:
     API endpoints for JWT token lifecycle management (refresh, logout) and user profile operations.
     Extends the existing auth-service with refresh token support, profile CRUD, password management,
     language preferences, and profile photo uploads.
+
+    **API Standards**: All endpoints return responses in the format `{errorCode: string, data: T}`.
+    Backend returns only error codes; frontend handles all internationalization.
   version: 1.0.0
   contact:
     name: SMS Development Team
@@ -48,11 +51,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RefreshTokenResponse'
+                $ref: '#/components/schemas/ApiResponse_RefreshTokenResponse'
               example:
-                accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                refreshToken: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
-                expiresIn: 86400
+                errorCode: "SUCCESS"
+                data:
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  expiresIn: 86400
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
@@ -60,11 +65,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse_Error'
               example:
-                error: "TOKEN_REPLAY_DETECTED"
-                message: "Token has already been used. All sessions invalidated for security."
-                messageKm: "តូខឹននេះត្រូវបានប្រើរួចហើយ។ សមាជិកភាពទាំងអស់ត្រូវបានបញ្ឈប់ដើម្បីសុវត្ថិភាព។"
+                errorCode: "TOKEN_REPLAY_DETECTED"
+                data: null
 
   /api/auth/logout:
     post:
@@ -83,10 +87,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/ApiResponse_EmptyData'
               example:
-                message: "Logged out successfully"
-                messageKm: "ចេញពីគណនីដោយជោគជ័យ"
+                errorCode: "SUCCESS"
+                data: null
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -107,17 +111,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileResponse'
+                $ref: '#/components/schemas/ApiResponse_ProfileResponse'
               example:
-                id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
-                email: "teacher@school.edu.kh"
-                phoneNumber: "+85512345678"
-                name: "Sok Dara"
-                preferredLanguage: "km"
-                profilePhotoUrl: "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg"
-                profilePhotoUploadedAt: "2025-11-15T10:30:00Z"
-                accountStatus: "active"
-                createdAt: "2025-11-01T08:00:00Z"
+                errorCode: "SUCCESS"
+                data:
+                  id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  email: "teacher@school.edu.kh"
+                  phoneNumber: "+85512345678"
+                  name: "Sok Dara"
+                  preferredLanguage: "km"
+                  profilePhotoUrl: "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg"
+                  profilePhotoUploadedAt: "2025-11-15T10:30:00Z"
+                  accountStatus: "active"
+                  createdAt: "2025-11-01T08:00:00Z"
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -148,35 +154,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileResponse'
+                $ref: '#/components/schemas/ApiResponse_ProfileResponse'
               example:
-                id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
-                email: "teacher@school.edu.kh"
-                phoneNumber: "+85512345678"
-                name: "Sok Dara"
-                preferredLanguage: "km"
-                profilePhotoUrl: "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg"
-                accountStatus: "active"
-                createdAt: "2025-11-01T08:00:00Z"
+                errorCode: "SUCCESS"
+                data:
+                  id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  email: "teacher@school.edu.kh"
+                  phoneNumber: "+85512345678"
+                  name: "Sok Dara"
+                  preferredLanguage: "km"
+                  profilePhotoUrl: "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg"
+                  accountStatus: "active"
+                  createdAt: "2025-11-01T08:00:00Z"
         '400':
           description: Validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse_Error'
               examples:
                 invalidPhone:
                   value:
-                    error: "VALIDATION_ERROR"
-                    message: "Invalid Cambodia phone format"
-                    messageKm: "លេខទូរស័ព្ទមិនត្រឹមត្រូវ"
-                    field: "phoneNumber"
+                    errorCode: "INVALID_PHONE_FORMAT"
+                    data: null
                 duplicatePhone:
                   value:
-                    error: "DUPLICATE_PHONE"
-                    message: "Phone number already registered"
-                    messageKm: "លេខទូរស័ព្ទនេះត្រូវបានចុះឈ្មោះរួចហើយ"
-                    field: "phoneNumber"
+                    errorCode: "DUPLICATE_PHONE"
+                    data: null
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -206,31 +210,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/ApiResponse_EmptyData'
               example:
-                message: "Password changed successfully. Other sessions have been logged out."
-                messageKm: "ពាក្យសម្ងាត់ត្រូវបានប្តូរដោយជោគជ័យ។ សមាជិកភាពផ្សេងទៀតត្រូវបានចេញពីគណនី។"
+                errorCode: "SUCCESS"
+                data: null
         '400':
           description: Password validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse_Error'
               examples:
                 incorrectCurrent:
                   value:
-                    error: "INCORRECT_PASSWORD"
-                    message: "Current password is incorrect"
-                    messageKm: "ពាក្យសម្ងាត់បច្ចុប្បន្នមិនត្រឹមត្រូវ"
+                    errorCode: "INCORRECT_PASSWORD"
+                    data: null
                 weakPassword:
                   value:
-                    error: "WEAK_PASSWORD"
-                    message: "Password does not meet strength requirements"
-                    messageKm: "ពាក្យសម្ងាត់មិនបំពេញតាមតម្រូវការ"
-                    details:
-                      - "At least 8 characters required"
-                      - "At least 1 uppercase letter"
-                      - "At least 1 digit"
+                    errorCode: "WEAK_PASSWORD"
+                    data: null
+                passwordTooShort:
+                  value:
+                    errorCode: "PASSWORD_TOO_SHORT"
+                    data: null
+                passwordMissingUppercase:
+                  value:
+                    errorCode: "PASSWORD_MISSING_UPPERCASE"
+                    data: null
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -264,34 +270,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PhotoUploadResponse'
+                $ref: '#/components/schemas/ApiResponse_PhotoUploadResponse'
               example:
-                photoUrl: "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg"
-                uploadedAt: "2025-11-20T14:25:00Z"
-                message: "Profile photo uploaded successfully"
-                messageKm: "រូបភាពត្រូវបានផ្ទុកឡើងដោយជោគជ័យ"
+                errorCode: "SUCCESS"
+                data:
+                  photoUrl: "/uploads/profile-photos/7c9e6679-7425-40de-944b-e07fc1f90ae7/profile.jpg"
+                  uploadedAt: "2025-11-20T14:25:00Z"
         '400':
           description: Photo validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse_Error'
               examples:
                 sizeExceeded:
                   value:
-                    error: "PHOTO_SIZE_EXCEEDED"
-                    message: "Photo size exceeds 5MB limit"
-                    messageKm: "រូបភាពលើសពី 5MB"
+                    errorCode: "PHOTO_SIZE_EXCEEDED"
+                    data: null
                 invalidFormat:
                   value:
-                    error: "INVALID_PHOTO_FORMAT"
-                    message: "Only JPG and PNG formats allowed"
-                    messageKm: "អនុញ្ញាតតែ JPG និង PNG"
+                    errorCode: "INVALID_PHOTO_FORMAT"
+                    data: null
                 corruptedImage:
                   value:
-                    error: "CORRUPTED_IMAGE"
-                    message: "Invalid or corrupted image file"
-                    messageKm: "រូបភាពមិនត្រឹមត្រូវ ឬខូច"
+                    errorCode: "CORRUPTED_IMAGE"
+                    data: null
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -306,6 +309,77 @@ components:
         Include in Authorization header: `Bearer {token}`
 
   schemas:
+    ApiResponse_RefreshTokenResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          description: Error code for client-side i18n lookup, "SUCCESS" for successful operations
+          example: "SUCCESS"
+        data:
+          $ref: '#/components/schemas/RefreshTokenResponse'
+
+    ApiResponse_ProfileResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          description: Error code for client-side i18n lookup, "SUCCESS" for successful operations
+          example: "SUCCESS"
+        data:
+          $ref: '#/components/schemas/ProfileResponse'
+
+    ApiResponse_PhotoUploadResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          description: Error code for client-side i18n lookup, "SUCCESS" for successful operations
+          example: "SUCCESS"
+        data:
+          $ref: '#/components/schemas/PhotoUploadResponse'
+
+    ApiResponse_EmptyData:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          description: Error code for client-side i18n lookup, "SUCCESS" for successful operations
+          example: "SUCCESS"
+        data:
+          type: object
+          nullable: true
+          description: Null for operations without response payload
+          example: null
+
+    ApiResponse_Error:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          description: Machine-readable error code for client-side i18n lookup
+          example: "INVALID_TOKEN"
+        data:
+          type: object
+          nullable: true
+          description: Always null for error responses
+          example: null
+
     RefreshTokenRequest:
       type: object
       required:
@@ -429,51 +503,6 @@ components:
           format: date-time
           description: Upload timestamp
           example: "2025-11-20T14:25:00Z"
-        message:
-          type: string
-          description: Success message (English)
-          example: "Profile photo uploaded successfully"
-        messageKm:
-          type: string
-          description: Success message (Khmer)
-          example: "រូបភាពត្រូវបានផ្ទុកឡើងដោយជោគជ័យ"
-
-    SuccessResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: Success message (English)
-        messageKm:
-          type: string
-          description: Success message (Khmer)
-
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error code (machine-readable)
-          example: "VALIDATION_ERROR"
-        message:
-          type: string
-          description: Error message (English)
-          example: "Invalid Cambodia phone format"
-        messageKm:
-          type: string
-          description: Error message (Khmer)
-          example: "លេខទូរស័ព្ទមិនត្រឹមត្រូវ"
-        field:
-          type: string
-          nullable: true
-          description: Field name that caused the error (for validation errors)
-          example: "phoneNumber"
-        details:
-          type: array
-          nullable: true
-          items:
-            type: string
-          description: Detailed error messages (for complex errors like password strength)
 
   responses:
     UnauthorizedError:
@@ -481,11 +510,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/ApiResponse_Error'
           example:
-            error: "UNAUTHORIZED"
-            message: "Invalid or expired token"
-            messageKm: "តូខឹនមិនត្រឹមត្រូវ ឬផុតកំណត់"
+            errorCode: "UNAUTHORIZED"
+            data: null
 
 security:
   - bearerAuth: []

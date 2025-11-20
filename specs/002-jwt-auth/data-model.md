@@ -264,32 +264,36 @@ COMMENT ON COLUMN refresh_tokens.used_at IS 'Timestamp when token was consumed (
 
 ## Validation Summary
 
+**Note**: Backend returns only error codes (UPPER_SNAKE_CASE). Frontend handles all internationalization of error messages.
+
 ### User Profile Updates
 
-| Field | Validation | Error Message (EN) | Error Message (KM) |
-|-------|------------|-------------------|-------------------|
-| name | Max 255 chars, trimmed | Name too long | ឈ្មោះវែងពេក |
-| phone_number | Cambodia format, unique | Invalid phone or already registered | លេខទូរស័ព្ទមិនត្រឹមត្រូវ ឬត្រូវបានចុះឈ្មោះរួចហើយ |
-| preferred_language | 'en' or 'km' | Invalid language code | កូដភាសាមិនត្រឹមត្រូវ |
+| Field | Validation | Error Code |
+|-------|------------|------------|
+| name | Max 255 chars, trimmed | PROFILE_UPDATE_FAILED |
+| phone_number | Cambodia format, unique | INVALID_PHONE_FORMAT, DUPLICATE_PHONE |
+| preferred_language | 'en' or 'km' | VALIDATION_ERROR |
 
 ### Password Change
 
-| Rule | Validation | Error Message (EN) | Error Message (KM) |
-|------|------------|-------------------|-------------------|
-| Length | >= 8 characters | At least 8 characters required | តម្រូវឱ្យយ៉ាងតិច 8 តួអក្សរ |
-| Uppercase | >= 1 uppercase letter | At least 1 uppercase letter | យ៉ាងតិច 1 អក្សរធំ |
-| Lowercase | >= 1 lowercase letter | At least 1 lowercase letter | យ៉ាងតិច 1 អក្សរតូច |
-| Digit | >= 1 digit | At least 1 digit | យ៉ាងតិច 1 លេខ |
-| Special | >= 1 special char | At least 1 special character | យ៉ាងតិច 1 តួអក្សរពិសេស |
-| Common | Not in top 10k list | Password too common | ពាក្យសម្ងាត់ធម្មតាពេក |
+| Rule | Validation | Error Code |
+|------|------------|------------|
+| Current password | Must match existing password | INCORRECT_PASSWORD |
+| Length | >= 8 characters | PASSWORD_TOO_SHORT |
+| Uppercase | >= 1 uppercase letter | PASSWORD_MISSING_UPPERCASE |
+| Lowercase | >= 1 lowercase letter | PASSWORD_MISSING_LOWERCASE |
+| Digit | >= 1 digit | PASSWORD_MISSING_DIGIT |
+| Special | >= 1 special char | PASSWORD_MISSING_SPECIAL |
+| Common | Not in top 10k list | PASSWORD_TOO_COMMON |
+| General | Aggregated check | WEAK_PASSWORD |
 
 ### Profile Photo Upload
 
-| Rule | Validation | Error Message (EN) | Error Message (KM) |
-|------|------------|-------------------|-------------------|
-| Size | <= 5MB | Photo exceeds 5MB limit | រូបភាពលើសពី 5MB |
-| Format | JPEG or PNG | Only JPG/PNG allowed | អនុញ្ញាតតែ JPG/PNG |
-| Content | MIME type verified | Invalid or corrupted image | រូបភាពមិនត្រឹមត្រូវ ឬខូច |
+| Rule | Validation | Error Code |
+|------|------------|------------|
+| Size | <= 5MB | PHOTO_SIZE_EXCEEDED |
+| Format | JPEG or PNG | INVALID_PHOTO_FORMAT |
+| Content | MIME type verified | CORRUPTED_IMAGE |
 
 ---
 

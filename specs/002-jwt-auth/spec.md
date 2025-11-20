@@ -17,6 +17,86 @@
 - [ ] Language preference (Khmer/English)
 - [ ] Profile photo upload"
 
+## Clarifications
+
+### Session 2025-11-20
+
+- Q: Should backend implement i18n (internationalization) for error messages? → A: No, frontend will handle all internationalization. Backend returns only error codes.
+- Q: What is the standardized API response format? → A: All API responses must follow format: `{errorCode: string, data: T}`
+
+## API Standards *(mandatory)*
+
+### Response Format
+
+**All API responses MUST follow this standardized format:**
+
+```typescript
+{
+  errorCode: string,  // Error code for client-side i18n lookup, "SUCCESS" for successful operations
+  data: T             // Response payload (type varies by endpoint), null on errors
+}
+```
+
+**Success Response Example**:
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "email": "teacher@school.edu.kh",
+    "name": "Sok Dara"
+  }
+}
+```
+
+**Error Response Example**:
+```json
+{
+  "errorCode": "INVALID_PHONE_FORMAT",
+  "data": null
+}
+```
+
+### Error Codes
+
+Backend returns machine-readable error codes. Frontend is responsible for translating error codes to localized messages.
+
+**Authentication Errors**:
+- `INVALID_TOKEN` - Token is invalid or expired
+- `TOKEN_REPLAY_DETECTED` - Refresh token has been reused (security incident)
+- `UNAUTHORIZED` - Authentication required or failed
+
+**Profile Errors**:
+- `INVALID_PHONE_FORMAT` - Phone number doesn't match Cambodia format
+- `DUPLICATE_PHONE` - Phone number already registered
+- `PROFILE_UPDATE_FAILED` - Profile update operation failed
+
+**Password Errors**:
+- `INCORRECT_PASSWORD` - Current password verification failed
+- `WEAK_PASSWORD` - New password doesn't meet strength requirements
+- `PASSWORD_TOO_SHORT` - Password less than 8 characters
+- `PASSWORD_MISSING_UPPERCASE` - Password missing uppercase letter
+- `PASSWORD_MISSING_LOWERCASE` - Password missing lowercase letter
+- `PASSWORD_MISSING_DIGIT` - Password missing digit
+- `PASSWORD_MISSING_SPECIAL` - Password missing special character
+- `PASSWORD_TOO_COMMON` - Password is in common password dictionary
+
+**Photo Upload Errors**:
+- `PHOTO_SIZE_EXCEEDED` - Photo size exceeds 5MB limit
+- `INVALID_PHOTO_FORMAT` - Photo is not JPG or PNG
+- `CORRUPTED_IMAGE` - Photo file is corrupted or invalid
+
+**General Errors**:
+- `VALIDATION_ERROR` - Generic validation error
+- `INTERNAL_SERVER_ERROR` - Unexpected server error
+
+### Internationalization Strategy
+
+- **Backend**: Returns only error codes and data
+- **Frontend**: Responsible for all internationalization (i18n)
+- **Language Preference**: Stored in user profile, used by frontend to select appropriate translations
+- **Error Messages**: Frontend maintains translation mappings for all error codes in both English and Khmer
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Secure Session Management (Priority: P1)
@@ -49,7 +129,7 @@ Teachers need to view and update their basic profile information (name, phone nu
 1. **Given** an authenticated teacher, **When** they access their profile page, **Then** they see their current name, email, phone number, language preference, and profile photo
 2. **Given** a teacher on their profile page, **When** they update their name and save, **Then** the new name is displayed immediately and persists across sessions
 3. **Given** a teacher on their profile page, **When** they update their phone number with a valid Cambodia format, **Then** the new phone is saved and validated
-4. **Given** a teacher on their profile page, **When** they enter an invalid phone number format, **Then** they see an error message and the change is not saved
+4. **Given** a teacher on their profile page, **When** they enter an invalid phone number format, **Then** they receive an error code that the frontend translates to an appropriate message
 
 ---
 
@@ -64,8 +144,8 @@ Teachers need to change their password to maintain account security, especially 
 **Acceptance Scenarios**:
 
 1. **Given** an authenticated teacher on the change password page, **When** they provide their current password and a new password meeting strength requirements, **Then** their password is updated and they can login with the new password
-2. **Given** a teacher attempting to change password, **When** they provide an incorrect current password, **Then** they see an error message and the password is not changed
-3. **Given** a teacher attempting to change password, **When** they provide a new password that doesn't meet strength requirements, **Then** they see specific error messages about what requirements are not met
+2. **Given** a teacher attempting to change password, **When** they provide an incorrect current password, **Then** they receive error code INCORRECT_PASSWORD
+3. **Given** a teacher attempting to change password, **When** they provide a new password that doesn't meet strength requirements, **Then** they receive specific error codes (PASSWORD_TOO_SHORT, PASSWORD_MISSING_UPPERCASE, etc.) that frontend translates to detailed requirements
 4. **Given** a teacher has just changed their password, **When** the change is successful, **Then** all existing sessions except the current one are invalidated
 
 ---
@@ -80,9 +160,9 @@ Teachers can select their preferred language (Khmer or English) for the interfac
 
 **Acceptance Scenarios**:
 
-1. **Given** an authenticated teacher, **When** they change their language preference to Khmer, **Then** all interface text updates to Khmer immediately
-2. **Given** a teacher has set language preference to Khmer, **When** they logout and login again, **Then** the interface displays in Khmer automatically
-3. **Given** a teacher on the profile page, **When** they select a language option, **Then** they can choose between Khmer and English only
+1. **Given** an authenticated teacher, **When** they change their language preference to Khmer, **Then** the frontend immediately switches all interface text to Khmer using client-side i18n
+2. **Given** a teacher has set language preference to Khmer, **When** they logout and login again, **Then** the frontend reads the saved preference and displays interface in Khmer automatically
+3. **Given** a teacher on the profile page, **When** they select a language option, **Then** they can choose between Khmer ('km') and English ('en') only
 
 ---
 
@@ -97,7 +177,7 @@ Teachers can upload a profile photo to personalize their account and make their 
 **Acceptance Scenarios**:
 
 1. **Given** an authenticated teacher on their profile page, **When** they upload a valid image file (JPG, PNG) under 5MB, **Then** the image is saved and displayed as their profile photo
-2. **Given** a teacher attempting to upload a photo, **When** they select a file that exceeds size limits or is not an accepted format, **Then** they see an error message explaining the requirements
+2. **Given** a teacher attempting to upload a photo, **When** they select a file that exceeds size limits or is not an accepted format, **Then** they receive appropriate error codes (PHOTO_SIZE_EXCEEDED, INVALID_PHOTO_FORMAT)
 3. **Given** a teacher has uploaded a profile photo, **When** they upload a new photo, **Then** the old photo is replaced with the new one
 4. **Given** a teacher with a profile photo, **When** they view their profile from any device, **Then** they see the same profile photo
 
@@ -105,14 +185,14 @@ Teachers can upload a profile photo to personalize their account and make their 
 
 ### Edge Cases
 
-- What happens when a teacher tries to refresh a token that has already been used to generate a new token (token replay)?
-- How does the system handle concurrent login sessions from multiple devices?
-- What happens when a teacher attempts to update their phone number to one already used by another teacher?
-- How does the system handle profile photo uploads that are corrupted or contain malicious content?
-- What happens when a teacher's session expires while they are in the middle of updating their profile?
-- How does the system handle logout when the refresh token has already been invalidated or expired?
-- What happens when a teacher changes their password while logged in on multiple devices?
-- How does the system handle timezone differences for token expiry (24h/30d)?
+- What happens when a teacher tries to refresh a token that has already been used to generate a new token (token replay)? → Returns errorCode: TOKEN_REPLAY_DETECTED, invalidates all sessions
+- How does the system handle concurrent login sessions from multiple devices? → Each device gets independent refresh tokens, all sessions remain valid until explicitly logged out or token expires
+- What happens when a teacher attempts to update their phone number to one already used by another teacher? → Returns errorCode: DUPLICATE_PHONE
+- How does the system handle profile photo uploads that are corrupted or contain malicious content? → Returns errorCode: CORRUPTED_IMAGE after validation fails
+- What happens when a teacher's session expires while they are in the middle of updating their profile? → Returns errorCode: INVALID_TOKEN, frontend redirects to login
+- How does the system handle logout when the refresh token has already been invalidated or expired? → Returns errorCode: SUCCESS (idempotent operation)
+- What happens when a teacher changes their password while logged in on multiple devices? → Current session remains valid, all other sessions invalidated
+- How does the system handle timezone differences for token expiry (24h/30d)? → All timestamps stored and compared in UTC
 
 ## Requirements *(mandatory)*
 
@@ -131,19 +211,21 @@ Teachers can upload a profile photo to personalize their account and make their 
 - **FR-011**: System MUST enforce password strength requirements when users change their password
 - **FR-012**: System MUST require current password verification before allowing password changes
 - **FR-013**: System MUST invalidate all other sessions when a user changes their password (except the current session)
-- **FR-014**: System MUST allow users to select language preference between Khmer and English
-- **FR-015**: System MUST persist language preference and apply it to all user sessions
+- **FR-014**: System MUST allow users to select language preference between Khmer ('km') and English ('en')
+- **FR-015**: System MUST persist language preference in user profile
 - **FR-016**: System MUST allow users to upload profile photos in JPG or PNG format
 - **FR-017**: System MUST validate profile photo file size (maximum 5MB)
 - **FR-018**: System MUST sanitize and validate uploaded images to prevent malicious content
-- **FR-019**: System MUST return appropriate error messages in the user's selected language
+- **FR-019**: System MUST return machine-readable error codes in standardized response format {errorCode, data}
 - **FR-020**: System MUST prevent phone number duplication across teacher accounts
-- **FR-021**: System MUST handle token expiration gracefully and redirect users to login when refresh token expires
+- **FR-021**: System MUST handle token expiration gracefully by returning appropriate error codes
 - **FR-022**: System MUST include user identity information in JWT tokens for authorization decisions
+- **FR-023**: All API responses MUST follow standardized format: {errorCode: string, data: T}
+- **FR-024**: Backend MUST NOT implement internationalization - all error codes are machine-readable strings for frontend i18n lookup
 
 ### Key Entities
 
-- **User Profile**: Represents a teacher's personal information including name, email, phone number, language preference, and profile photo URL. Links to authentication credentials and session tokens.
+- **User Profile**: Represents a teacher's personal information including name, email, phone number, language preference ('en' or 'km'), and profile photo URL. Links to authentication credentials and session tokens.
 - **Access Token**: Short-lived authentication credential (24h) that proves user identity for API requests. Contains user ID, roles, and expiration timestamp.
 - **Refresh Token**: Long-lived authentication credential (30d) used to obtain new access tokens. Stored securely and can be invalidated on logout or password change.
 - **Session**: Represents an active user session linking a user to their current tokens. Tracks creation time, last activity, device information, and token validity status.
@@ -161,5 +243,6 @@ Teachers can upload a profile photo to personalize their account and make their 
 - **SC-006**: 95% of users successfully complete profile viewing on first attempt without errors
 - **SC-007**: Logout operations successfully invalidate all tokens within 1 second
 - **SC-008**: Zero unauthorized access attempts succeed after token invalidation or expiration
-- **SC-009**: Language preference changes apply to interface immediately (under 200ms)
+- **SC-009**: Language preference changes are saved and retrieved correctly (< 200ms), frontend applies language immediately
 - **SC-010**: System correctly handles 1000 concurrent token refresh requests without failures
+- **SC-011**: All API responses conform to standardized format {errorCode, data}
