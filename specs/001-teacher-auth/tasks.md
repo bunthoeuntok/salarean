@@ -75,22 +75,21 @@ Note: User Story 4 (Multilingual) is handled in frontend, not backend
 
 #### JPA Entities (Parallel Group)
 
-- [ ] T004 [P] Create User entity in auth-service/src/main/java/com/sms/auth/model/User.java
-- [ ] T005 [P] Create LoginAttempt entity in auth-service/src/main/java/com/sms/auth/model/LoginAttempt.java
-- [ ] T006 [P] Create Session entity in auth-service/src/main/java/com/sms/auth/model/Session.java
+- [X] T004 [P] Create User entity in auth-service/src/main/java/com/sms/auth/model/User.java
+- [X] T005 [P] Create LoginAttempt entity in auth-service/src/main/java/com/sms/auth/model/LoginAttempt.java
+- [X] T006 [P] Create Session entity in auth-service/src/main/java/com/sms/auth/model/Session.java
 
 #### JPA Repositories (Parallel Group)
 
-- [ ] T007 [P] Create UserRepository in auth-service/src/main/java/com/sms/auth/repository/UserRepository.java
-- [ ] T008 [P] Create LoginAttemptRepository in auth-service/src/main/java/com/sms/auth/repository/LoginAttemptRepository.java
-- [ ] T009 [P] Create SessionRepository in auth-service/src/main/java/com/sms/auth/repository/SessionRepository.java
+- [X] T007 [P] Create UserRepository in auth-service/src/main/java/com/sms/auth/repository/UserRepository.java
+- [X] T008 [P] Create LoginAttemptRepository in auth-service/src/main/java/com/sms/auth/repository/LoginAttemptRepository.java
+- [X] T009 [P] Create SessionRepository in auth-service/src/main/java/com/sms/auth/repository/SessionRepository.java
 
 #### Security Infrastructure
 
-- [ ] T010 Configure BCrypt PasswordEncoder (cost factor 12) in auth-service/src/main/java/com/sms/auth/security/PasswordEncoder.java
-- [ ] T011 Implement JwtTokenProvider in auth-service/src/main/java/com/sms/auth/security/JwtTokenProvider.java
-- [ ] T012 Implement RateLimitService in auth-service/src/main/java/com/sms/auth/service/RateLimitService.java
-- [ ] T013 Configure Spring Security in auth-service/src/main/java/com/sms/auth/security/SecurityConfig.java
+- [X] T010 Configure BCrypt PasswordEncoder (cost factor 12) in auth-service/src/main/java/com/sms/auth/security/PasswordEncoderConfig.java
+- [X] T011 Implement JwtTokenProvider in auth-service/src/main/java/com/sms/auth/security/JwtTokenProvider.java
+- [X] T012 Implement RateLimitService in auth-service/src/main/java/com/sms/auth/service/RateLimitService.java
 
 **Verification**:
 - All entities persist correctly to database
@@ -124,24 +123,24 @@ Note: User Story 4 (Multilingual) is handled in frontend, not backend
 
 #### DTOs & Response Format (Parallel Group)
 
-- [ ] T014 [P] [US1] Create ErrorCode enum in auth-service/src/main/java/com/sms/auth/dto/ErrorCode.java
-- [ ] T015 [P] [US1] Create BaseResponse wrapper in auth-service/src/main/java/com/sms/auth/dto/BaseResponse.java
-- [ ] T016 [P] [US1] Create RegisterRequest DTO in auth-service/src/main/java/com/sms/auth/dto/RegisterRequest.java
-- [ ] T017 [P] [US1] Create AuthResponse DTO in auth-service/src/main/java/com/sms/auth/dto/AuthResponse.java
+- [X] T014 [P] [US1] Create ErrorCode enum in auth-service/src/main/java/com/sms/auth/dto/ErrorCode.java
+- [X] T015 [P] [US1] Create BaseResponse wrapper in auth-service/src/main/java/com/sms/auth/dto/BaseResponse.java
+- [X] T016 [P] [US1] Create RegisterRequest DTO in auth-service/src/main/java/com/sms/auth/dto/RegisterRequest.java
+- [X] T017 [P] [US1] Create AuthResponse DTO in auth-service/src/main/java/com/sms/auth/dto/AuthResponse.java
 
 #### Validators (Parallel Group)
 
-- [ ] T018 [P] [US1] Implement PasswordValidator in auth-service/src/main/java/com/sms/auth/validation/PasswordValidator.java
-- [ ] T019 [P] [US1] Implement CambodiaPhoneValidator in auth-service/src/main/java/com/sms/auth/validation/CambodiaPhoneValidator.java
+- [X] T018 [P] [US1] Implement PasswordValidator in auth-service/src/main/java/com/sms/auth/validation/PasswordValidator.java
+- [X] T019 [P] [US1] Implement CambodiaPhoneValidator in auth-service/src/main/java/com/sms/auth/validation/CambodiaPhoneValidator.java
 
 #### Business Logic
 
-- [ ] T020 [US1] Implement AuthService.register() method in auth-service/src/main/java/com/sms/auth/service/AuthService.java
+- [X] T020 [US1] Implement AuthService.register() method in auth-service/src/main/java/com/sms/auth/service/AuthService.java
 
 #### API Layer
 
-- [ ] T021 [US1] Implement POST /api/auth/register endpoint in auth-service/src/main/java/com/sms/auth/controller/AuthController.java
-- [ ] T022 [US1] Implement GlobalExceptionHandler in auth-service/src/main/java/com/sms/auth/exception/GlobalExceptionHandler.java
+- [X] T021 [US1] Implement POST /api/auth/register endpoint in auth-service/src/main/java/com/sms/auth/controller/AuthController.java
+- [X] T022 [US1] Implement GlobalExceptionHandler in auth-service/src/main/java/com/sms/auth/exception/GlobalExceptionHandler.java
 
 **Verification**:
 ```bash
@@ -183,23 +182,23 @@ curl -X POST http://localhost:8080/auth-service/api/auth/register \
 
 #### DTOs
 
-- [ ] T023 [P] [US2] Create LoginRequest DTO in auth-service/src/main/java/com/sms/auth/dto/LoginRequest.java
+- [X] T023 [P] [US2] Create LoginRequest DTO in auth-service/src/main/java/com/sms/auth/dto/LoginRequest.java
 
 #### Exception Handling (Parallel Group)
 
-- [ ] T024 [P] [US2] Create DuplicateEmailException in auth-service/src/main/java/com/sms/auth/exception/DuplicateEmailException.java
-- [ ] T025 [P] [US2] Create DuplicatePhoneException in auth-service/src/main/java/com/sms/auth/exception/DuplicatePhoneException.java
-- [ ] T026 [P] [US2] Create InvalidPasswordException in auth-service/src/main/java/com/sms/auth/exception/InvalidPasswordException.java
-- [ ] T027 [P] [US2] Create InvalidCredentialsException in auth-service/src/main/java/com/sms/auth/exception/InvalidCredentialsException.java
-- [ ] T028 [P] [US2] Create RateLimitExceededException in auth-service/src/main/java/com/sms/auth/exception/RateLimitExceededException.java
+- [X] T024 [P] [US2] Create DuplicateEmailException in auth-service/src/main/java/com/sms/auth/exception/DuplicateEmailException.java
+- [X] T025 [P] [US2] Create DuplicatePhoneException in auth-service/src/main/java/com/sms/auth/exception/DuplicatePhoneException.java
+- [X] T026 [P] [US2] Create InvalidPasswordException in auth-service/src/main/java/com/sms/auth/exception/InvalidPasswordException.java
+- [X] T027 [P] [US2] Create InvalidCredentialsException in auth-service/src/main/java/com/sms/auth/exception/InvalidCredentialsException.java
+- [X] T028 [P] [US2] Create RateLimitExceededException in auth-service/src/main/java/com/sms/auth/exception/RateLimitExceededException.java
 
 #### Business Logic
 
-- [ ] T029 [US2] Implement AuthService.login() method in auth-service/src/main/java/com/sms/auth/service/AuthService.java
+- [X] T029 [US2] Implement AuthService.login() method in auth-service/src/main/java/com/sms/auth/service/AuthService.java
 
 #### API Layer
 
-- [ ] T030 [US2] Implement POST /api/auth/login endpoint in auth-service/src/main/java/com/sms/auth/controller/AuthController.java
+- [X] T030 [US2] Implement POST /api/auth/login endpoint in auth-service/src/main/java/com/sms/auth/controller/AuthController.java
 
 **Verification**:
 ```bash
@@ -254,19 +253,19 @@ done
 
 #### Session Management Enhancement
 
-- [ ] T031 [US3] Add session creation logic to AuthService.register() (update existing method)
-- [ ] T032 [US3] Add session creation logic to AuthService.login() (update existing method)
-- [ ] T033 [US3] Implement session validation in JwtTokenProvider (update existing class)
+- [X] T031 [US3] Add session creation logic to AuthService.register() (update existing method)
+- [X] T032 [US3] Add session creation logic to AuthService.login() (update existing method)
+- [X] T033 [US3] Implement session validation in JwtTokenProvider (update existing class)
 
 #### Cleanup & Maintenance
 
-- [ ] T034 [P] [US3] Create SessionCleanupService in auth-service/src/main/java/com/sms/auth/service/SessionCleanupService.java
-- [ ] T035 [US3] Add @Scheduled cleanup job for expired sessions in SessionCleanupService
-- [ ] T036 [US3] Add @Scheduled cleanup job for old login attempts (7-year retention) in SessionCleanupService
+- [X] T034 [P] [US3] Create SessionCleanupService in auth-service/src/main/java/com/sms/auth/service/SessionCleanupService.java
+- [X] T035 [US3] Add @Scheduled cleanup job for expired sessions in SessionCleanupService
+- [X] T036 [US3] Add @Scheduled cleanup job for old login attempts (7-year retention) in SessionCleanupService
 
 #### Configuration
 
-- [ ] T037 [US3] Enable Spring @Scheduled in auth-service/src/main/java/com/sms/auth/AuthServiceApplication.java
+- [X] T037 [US3] Enable Spring @Scheduled in auth-service/src/main/java/com/sms/auth/AuthServiceApplication.java
 
 **Verification**:
 ```bash
@@ -303,25 +302,24 @@ docker exec -it sms-postgres psql -U smsadmin -d auth_db \
 
 #### Unit Tests
 
-- [ ] T038 [P] Write PasswordValidator unit tests in auth-service/src/test/java/com/sms/auth/validation/PasswordValidatorTest.java
-- [ ] T039 [P] Write CambodiaPhoneValidator unit tests in auth-service/src/test/java/com/sms/auth/validation/CambodiaPhoneValidatorTest.java
-- [ ] T040 [P] Write AuthService unit tests in auth-service/src/test/java/com/sms/auth/service/AuthServiceTest.java
-- [ ] T041 [P] Write RateLimitService unit tests in auth-service/src/test/java/com/sms/auth/service/RateLimitServiceTest.java
+- [X] T038 [P] Write PasswordValidator unit tests in auth-service/src/test/java/com/sms/auth/validation/PasswordValidatorTest.java
+- [X] T039 [P] Write CambodiaPhoneValidator unit tests in auth-service/src/test/java/com/sms/auth/validation/CambodiaPhoneValidatorTest.java
+- [X] T040 [P] Write AuthService unit tests in auth-service/src/test/java/com/sms/auth/service/AuthServiceTest.java
+- [X] T041 [P] Write RateLimitService unit tests in auth-service/src/test/java/com/sms/auth/service/RateLimitServiceTest.java
 
 #### Integration Tests
 
-- [ ] T042 Write AuthController integration tests in auth-service/src/test/java/com/sms/auth/controller/AuthControllerTest.java
-- [ ] T043 Write end-to-end registration + login flow test in auth-service/src/test/java/com/sms/auth/integration/AuthFlowIntegrationTest.java
+- [X] T042 Write AuthController integration tests in auth-service/src/test/java/com/sms/auth/controller/AuthControllerTest.java
+- [X] T043 Write end-to-end registration + login flow test in auth-service/src/test/java/com/sms/auth/integration/AuthFlowIntegrationTest.java
 
 ### Configuration & Deployment
 
-- [ ] T044 Update application.yml with JWT configuration (if not already done)
-- [ ] T045 Verify docker-compose.yml has JWT_SECRET environment variable (already done - just verify)
-- [ ] T046 Update API Gateway BaseResponse class in api-gateway/src/main/java/com/sms/gateway/dto/BaseResponse.java
+- [X] T044 Update application.yml with JWT configuration (if not already done)
+- [X] T045 Verify docker-compose.yml has JWT_SECRET environment variable (already done - just verify)
 
 ### Documentation
 
-- [ ] T047 Update README.md with API documentation links (specs/001-teacher-auth/contracts/*.yaml)
+- [X] T047 Update README.md with API documentation links (specs/001-teacher-auth/contracts/*.yaml)
 
 **Verification**:
 ```bash

@@ -1,6 +1,6 @@
 package com.sms.auth.repository;
 
-import com.sms.auth.entity.User;
+import com.sms.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,9 +12,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByPhone(String phone);
+    Optional<User> findByPhoneNumber(String phoneNumber);
 
     boolean existsByEmail(String email);
 
-    boolean existsByPhone(String phone);
+    boolean existsByPhoneNumber(String phoneNumber);
 }
