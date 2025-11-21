@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "User profile management APIs")
 @SecurityRequirement(name = "bearerAuth")
@@ -28,7 +28,7 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
-    @GetMapping("/auth/me")
+    @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get current user profile",
                description = "Retrieve profile information for the authenticated user")
@@ -38,7 +38,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success(profile));
     }
 
-    @PutMapping("/users/me")
+    @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Update current user profile",
                description = "Update name, phone number, or language preference for the authenticated user")
@@ -50,7 +50,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success(updatedProfile));
     }
 
-    @PutMapping("/users/me/password")
+    @PutMapping("/me/password")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Change password",
                description = "Change password with current password verification. Invalidates all other sessions and refresh tokens.")
@@ -67,7 +67,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    @PostMapping("/users/me/photo")
+    @PostMapping("/me/photo")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Upload profile photo",
                description = "Upload or update profile photo (JPG/PNG, max 5MB). Replaces existing photo.")
