@@ -1,0 +1,485 @@
+openapi: 3.0.3
+info:
+  title: Student Management API
+  description: RESTful API for managing student records, parent contacts, and class enrollments
+  version: 1.0.0
+  contact:
+    name: SMS Development Team
+
+servers:
+  - url: http://localhost:8082
+    description: Local development
+  - url: http://localhost:8080/student-service
+    description: Via API Gateway
+
+tags:
+  - name: Students
+    description: Student CRUD operations
+  - name: Photos
+    description: Student photo management
+
+paths:
+  /api/students:
+    get:
+      tags:
+        - Students
+      summary: List students with optional filtering
+      operationId: listStudents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: classId
+          in: query
+          description: Filter by class ID
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE]
+            default: ACTIVE
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Students
+      summary: Create new student
+      operationId: createStudent
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+      responses:
+        '200':
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/students/{id}:
+    get:
+      tags:
+        - Students
+      summary: Get student details
+      operationId: getStudent
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Student found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Students
+      summary: Update student information
+      operationId: updateStudent
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Students
+      summary: Soft delete student (mark as inactive)
+      operationId: deleteStudent
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: reason
+          in: query
+          required: true
+          description: Reason for deletion
+          schema:
+            type: string
+            enum: [GRADUATED, TRANSFERRED, WITHDREW, OTHER]
+      responses:
+        '200':
+          description: Student deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/students/class/{classId}:
+    get:
+      tags:
+        - Students
+      summary: Get students by class (convenience endpoint)
+      operationId: getStudentsByClass
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Class roster retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/students/{id}/photo:
+    post:
+      tags:
+        - Photos
+      summary: Upload student photo
+      operationId: uploadPhoto
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Photo file (JPEG/PNG, max 5MB)
+      responses:
+        '200':
+          description: Photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoUploadResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    StudentId:
+      name: id
+      in: path
+      required: true
+      description: Student UUID
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    ApiResponse:
+      type: object
+      required:
+        - errorCode
+        - data
+      properties:
+        errorCode:
+          type: string
+          enum: [SUCCESS, STUDENT_NOT_FOUND, INVALID_STUDENT_DATA, DUPLICATE_STUDENT_CODE,
+                 PHOTO_SIZE_EXCEEDED, INVALID_PHOTO_FORMAT, VALIDATION_ERROR, UNAUTHORIZED]
+        data:
+          type: object
+          nullable: true
+
+    StudentRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - dateOfBirth
+        - gender
+        - classId
+        - enrollmentDate
+        - parentContacts
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        firstNameKhmer:
+          type: string
+          maxLength: 100
+        lastNameKhmer:
+          type: string
+          maxLength: 100
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [M, F]
+        classId:
+          type: string
+          format: uuid
+        address:
+          type: string
+          maxLength: 500
+        emergencyContact:
+          type: string
+          maxLength: 20
+        enrollmentDate:
+          type: string
+          format: date
+        parentContacts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ParentContactRequest'
+
+    ParentContactRequest:
+      type: object
+      required:
+        - fullName
+        - phoneNumber
+        - relationship
+      properties:
+        fullName:
+          type: string
+          maxLength: 255
+        phoneNumber:
+          type: string
+          pattern: '^\+855\d{8,9}$'
+        relationship:
+          type: string
+          enum: [MOTHER, FATHER, GUARDIAN, OTHER]
+        isPrimary:
+          type: boolean
+          default: false
+
+    StudentResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                studentCode:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                firstNameKhmer:
+                  type: string
+                lastNameKhmer:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+                age:
+                  type: integer
+                gender:
+                  type: string
+                  enum: [M, F]
+                photoUrl:
+                  type: string
+                  nullable: true
+                address:
+                  type: string
+                emergencyContact:
+                  type: string
+                enrollmentDate:
+                  type: string
+                  format: date
+                status:
+                  type: string
+                  enum: [ACTIVE, INACTIVE]
+                currentClassId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                parentContacts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ParentContactResponse'
+                createdAt:
+                  type: string
+                  format: date-time
+                updatedAt:
+                  type: string
+                  format: date-time
+
+    ParentContactResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        phoneNumber:
+          type: string
+        relationship:
+          type: string
+        isPrimary:
+          type: boolean
+
+    StudentListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                content:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StudentSummary'
+                page:
+                  type: integer
+                size:
+                  type: integer
+                totalElements:
+                  type: integer
+                totalPages:
+                  type: integer
+
+    StudentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentCode:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        photoUrl:
+          type: string
+          nullable: true
+        age:
+          type: integer
+        currentClassId:
+          type: string
+          format: uuid
+        primaryParentContact:
+          type: string
+
+    PhotoUploadResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                photoUrl:
+                  type: string
+                uploadedAt:
+                  type: string
+                  format: date-time
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            errorCode: UNAUTHORIZED
+            data: null
+
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            errorCode: VALIDATION_ERROR
+            data: null
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            errorCode: STUDENT_NOT_FOUND
+            data: null
