@@ -121,6 +121,30 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ErrorCode.PHOTO_SIZE_EXCEEDED));
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException ex) {
+        logger.warn("User not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(ResetTokenInvalidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResetTokenInvalidException(ResetTokenInvalidException ex) {
+        logger.warn("Reset token invalid: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(ResetTokenExpiredException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResetTokenExpiredException(ResetTokenExpiredException ex) {
+        logger.warn("Reset token expired: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneric(Exception ex) {
         // Log full exception for debugging
