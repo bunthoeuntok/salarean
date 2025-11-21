@@ -106,4 +106,28 @@ public interface StudentService {
      * @throws com.sms.student.exception.PhotoProcessingException if processing fails
      */
     PhotoUploadResponse uploadStudentPhoto(UUID id, byte[] photoData, String contentType);
+
+    /**
+     * Add a new parent contact to a student.
+     * Convenience method that delegates to ParentContactService.
+     *
+     * @param studentId Student UUID
+     * @param request Parent contact data
+     * @return Created parent contact response
+     * @throws com.sms.student.exception.StudentNotFoundException if student not found
+     * @throws com.sms.student.exception.InvalidStudentDataException if validation fails
+     */
+    ParentContactResponse addParentContact(UUID studentId, ParentContactRequest request);
+
+    /**
+     * Update an existing parent contact.
+     * Convenience method that delegates to ParentContactService.
+     *
+     * @param contactId Parent contact UUID
+     * @param request Updated parent contact data
+     * @return Updated parent contact response
+     * @throws com.sms.student.exception.ParentContactNotFoundException if contact not found
+     * @throws com.sms.student.exception.InvalidStudentDataException if validation fails
+     */
+    ParentContactResponse updateParentContact(UUID contactId, ParentContactRequest request);
 }

@@ -281,14 +281,14 @@
 
 ### Tasks
 
-- [ ] [T104] [P] [FR-7] Create ParentContactService interface at `/student-service/src/main/java/com/sms/student/service/ParentContactService.java`
-- [ ] [T105] [FR-7] Implement ParentContactServiceImpl at `/student-service/src/main/java/com/sms/student/service/impl/ParentContactServiceImpl.java`
-- [ ] [T106] [FR-7] Add validation: only one primary contact per student
-- [ ] [T107] [FR-7] Add phone number validation: Cambodia format (+855XXXXXXXX)
-- [ ] [T108] [FR-7] Add addParentContact() method to StudentService
-- [ ] [T109] [FR-7] Add updateParentContact() method to StudentService
-- [ ] [T110] [FR-7] Add unit tests for ParentContactService with validation cases
-- [ ] [T111] [FR-7] Add integration test for parent contact CRUD operations
+- [X] [T104] [P] [FR-7] Create ParentContactService interface at `/student-service/src/main/java/com/sms/student/service/ParentContactService.java`
+- [X] [T105] [FR-7] Implement ParentContactServiceImpl at `/student-service/src/main/java/com/sms/student/service/impl/ParentContactServiceImpl.java`
+- [X] [T106] [FR-7] Add validation: only one primary contact per student
+- [X] [T107] [FR-7] Add phone number validation: Cambodia format (+855XXXXXXXX)
+- [X] [T108] [FR-7] Add addParentContact() method to StudentService
+- [X] [T109] [FR-7] Add updateParentContact() method to StudentService
+- [X] [T110] [FR-7] Add unit tests for ParentContactService with validation cases
+- [X] [T111] [FR-7] Add integration test for parent contact CRUD operations
 
 **Completion Criteria**: Can manage parent contacts independently, validation works
 

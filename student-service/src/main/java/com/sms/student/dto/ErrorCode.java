@@ -18,6 +18,7 @@ public enum ErrorCode {
     // Parent contact errors
     INVALID_PHONE_FORMAT,
     PARENT_CONTACT_REQUIRED,
+    PARENT_CONTACT_NOT_FOUND,
 
     // Class errors
     CLASS_NOT_FOUND,

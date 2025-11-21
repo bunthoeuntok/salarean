@@ -81,6 +81,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getErrorCode()));
     }
 
+    @ExceptionHandler(ParentContactNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleParentContactNotFound(ParentContactNotFoundException ex) {
+        log.error("Parent contact not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {

@@ -10,6 +10,7 @@ import com.sms.student.enums.EnrollmentReason;
 import com.sms.student.enums.StudentStatus;
 import com.sms.student.exception.*;
 import com.sms.student.repository.*;
+import com.sms.student.service.ParentContactService;
 import com.sms.student.service.PhotoStorageService;
 import com.sms.student.service.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class StudentServiceImpl implements StudentService {
     private final ClassRepository classRepository;
     private final SchoolRepository schoolRepository;
     private final PhotoStorageService photoStorageService;
+    private final ParentContactService parentContactService;
 
     @Override
     @Transactional
@@ -495,5 +497,19 @@ public class StudentServiceImpl implements StudentService {
                 .primaryParentContact(primaryContactInfo)
                 .photoUrl(student.getPhotoUrl())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public ParentContactResponse addParentContact(UUID studentId, ParentContactRequest request) {
+        log.info("Adding parent contact for student via StudentService: {}", studentId);
+        return parentContactService.addParentContact(studentId, request);
+    }
+
+    @Override
+    @Transactional
+    public ParentContactResponse updateParentContact(UUID contactId, ParentContactRequest request) {
+        log.info("Updating parent contact via StudentService: {}", contactId);
+        return parentContactService.updateParentContact(contactId, request);
     }
 }
