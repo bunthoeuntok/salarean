@@ -1,6 +1,7 @@
 package com.sms.auth.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sms.auth.config.TestRedisConfiguration;
 import com.sms.auth.dto.BaseResponse;
 import com.sms.auth.dto.LoginRequest;
 import com.sms.auth.dto.RegisterRequest;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestRedisConfiguration.class)
 class AuthFlowIntegrationTest {
 
     @Autowired

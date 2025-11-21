@@ -49,6 +49,9 @@ class AuthServiceTest {
     private RateLimitService rateLimitService;
 
     @Mock
+    private TokenService tokenService;
+
+    @Mock
     private HttpServletRequest httpRequest;
 
     @InjectMocks
@@ -96,6 +99,7 @@ class AuthServiceTest {
         when(jwtTokenProvider.generateToken(any(UUID.class), anyString())).thenReturn("jwt-token");
         when(jwtTokenProvider.getJtiFromToken(anyString())).thenReturn("jti-123");
         when(sessionRepository.save(any(Session.class))).thenReturn(new Session());
+        when(tokenService.createRefreshToken(any(UUID.class), anyString(), anyString())).thenReturn("refresh-token-123");
 
         // Act
         AuthResponse response = authService.register(registerRequest, httpRequest);
@@ -160,6 +164,7 @@ class AuthServiceTest {
         when(jwtTokenProvider.generateToken(any(UUID.class), anyString())).thenReturn("jwt-token");
         when(jwtTokenProvider.getJtiFromToken(anyString())).thenReturn("jti-123");
         when(sessionRepository.save(any(Session.class))).thenReturn(new Session());
+        when(tokenService.createRefreshToken(any(UUID.class), anyString(), anyString())).thenReturn("refresh-token-123");
 
         // Act
         AuthResponse response = authService.login(loginRequest, httpRequest);
@@ -182,6 +187,7 @@ class AuthServiceTest {
         when(jwtTokenProvider.generateToken(any(UUID.class), anyString())).thenReturn("jwt-token");
         when(jwtTokenProvider.getJtiFromToken(anyString())).thenReturn("jti-123");
         when(sessionRepository.save(any(Session.class))).thenReturn(new Session());
+        when(tokenService.createRefreshToken(any(UUID.class), anyString(), anyString())).thenReturn("refresh-token-123");
 
         // Act
         AuthResponse response = authService.login(loginRequest, httpRequest);

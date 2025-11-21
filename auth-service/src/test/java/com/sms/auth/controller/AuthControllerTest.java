@@ -6,6 +6,7 @@ import com.sms.auth.dto.LoginRequest;
 import com.sms.auth.dto.RegisterRequest;
 import com.sms.auth.exception.*;
 import com.sms.auth.service.AuthService;
+import com.sms.auth.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,15 @@ class AuthControllerTest {
 
     @MockBean
     private AuthService authService;
+
+    @MockBean
+    private TokenService tokenService;
+
+    @MockBean
+    private com.sms.auth.security.JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private com.sms.auth.service.RateLimitService rateLimitService;
 
     private RegisterRequest registerRequest;
     private LoginRequest loginRequest;
