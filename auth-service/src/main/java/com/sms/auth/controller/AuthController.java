@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,21 +21,42 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Register a new teacher", description = "Register a new teacher with email, phone, and password")
-    public ResponseEntity<BaseResponse<AuthResponse>> register(
+    public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request,
             HttpServletRequest httpRequest) {
 
         AuthResponse response = authService.register(request, httpRequest);
-        return ResponseEntity.ok(BaseResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/login")
     @Operation(summary = "Teacher login", description = "Authenticate teacher with email/phone and password")
-    public ResponseEntity<BaseResponse<AuthResponse>> login(
+    public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest httpRequest) {
 
         AuthResponse response = authService.login(request, httpRequest);
-        return ResponseEntity.ok(BaseResponse.success(response));
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token",
+               description = "Exchange refresh token for new access and refresh tokens (token rotation)")
+    public ResponseEntity<ApiResponse<RefreshTokenResponse>> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest request,
+            HttpServletRequest httpRequest) {
+
+        RefreshTokenResponse response = authService.refreshToken(request, httpRequest);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Logout", description = "Invalidate access token and revoke all refresh tokens")
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
+        // Extract token from "Bearer {token}"
+        String token = authHeader.substring(7);
+        authService.logout(token);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

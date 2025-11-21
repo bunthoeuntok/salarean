@@ -34,6 +34,15 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    @Column(length = 255)
+    private String name;
+
+    @Column(name = "profile_photo_url", length = 500)
+    private String profilePhotoUrl;
+
+    @Column(name = "profile_photo_uploaded_at")
+    private LocalDateTime profilePhotoUploadedAt;
+
     @Builder.Default
     @Column(name = "preferred_language", length = 2)
     private String preferredLanguage = "en"; // 'en' or 'km'

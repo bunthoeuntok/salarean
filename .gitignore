@@ -70,3 +70,6 @@ test-results/
 *.tmp
 *.temp
 .cache/
+
+# Upload directories
+auth-service/uploads/

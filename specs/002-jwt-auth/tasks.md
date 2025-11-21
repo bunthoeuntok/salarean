@@ -5,7 +5,7 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**API Standards**: All tasks updated to reflect standardized `{errorCode: string, data: T}` response format. NO backend i18n - frontend handles all localization.
+**API Standards**: All tasks updated to reflect standardized `{errorCode: ErrorCode, data: T}` response format. NO backend i18n - frontend handles all localization.
 
 **Tests**: Not explicitly requested in spec - tests are OPTIONAL for this feature.
 
@@ -28,10 +28,10 @@ Project uses microservices architecture. This feature extends the existing auth-
 
 **Purpose**: Project initialization and dependencies
 
-- [ ] T001 Add Apache Tika dependency to auth-service/pom.xml for image validation (org.apache.tika:tika-core:2.9.1)
-- [ ] T002 Create uploads directory at auth-service/uploads/profile-photos/
-- [ ] T003 Update application.yml with photo storage configuration (upload-dir: ./uploads/profile-photos, max-file-size: 5242880, allowed-types: [image/jpeg, image/png])
-- [ ] T004 Create database migration script: auth-service/src/main/resources/db/migration/V2__add_refresh_tokens_and_profile_fields.sql
+- [X] T001 Add Apache Tika dependency to auth-service/pom.xml for image validation (org.apache.tika:tika-core:2.9.1)
+- [X] T002 Create uploads directory at auth-service/uploads/profile-photos/
+- [X] T003 Update application.yml with photo storage configuration (upload-dir: ./uploads/profile-photos, max-file-size: 5242880, allowed-types: [image/jpeg, image/png])
+- [X] T004 Create database migration script: auth-service/src/main/resources/db/migration/V4__add_refresh_tokens_and_profile_fields.sql
 
 ---
 
@@ -41,21 +41,21 @@ Project uses microservices architecture. This feature extends the existing auth-
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Run database migration to add profile fields (name, profile_photo_url, profile_photo_uploaded_at) to users table
-- [ ] T006 Run database migration to create refresh_tokens table with all required columns (id, user_id, token_hash, expires_at, has_been_used, used_at, ip_address, user_agent, created_at)
-- [ ] T007 [P] Create RefreshToken entity in auth-service/src/main/java/com/sms/auth/model/RefreshToken.java
-- [ ] T008 [P] Update User entity in auth-service/src/main/java/com/sms/auth/model/User.java (add name, profilePhotoUrl, profilePhotoUploadedAt fields)
-- [ ] T009 [P] Create RefreshTokenRepository in auth-service/src/main/java/com/sms/auth/repository/RefreshTokenRepository.java
-- [ ] T010 [P] Create ApiResponse<T> generic wrapper class in auth-service/src/main/java/com/sms/auth/dto/ApiResponse.java with fields: errorCode (String), data (T), and static methods success(T data) and error(String errorCode)
-- [ ] T011 [P] Create ErrorCodes constants class in auth-service/src/main/java/com/sms/auth/dto/ErrorCodes.java with all error codes from spec (SUCCESS, INVALID_TOKEN, TOKEN_REPLAY_DETECTED, UNAUTHORIZED, INVALID_PHONE_FORMAT, DUPLICATE_PHONE, INCORRECT_PASSWORD, WEAK_PASSWORD, PASSWORD_TOO_SHORT, PASSWORD_MISSING_UPPERCASE, PASSWORD_MISSING_LOWERCASE, PASSWORD_MISSING_DIGIT, PASSWORD_MISSING_SPECIAL, PASSWORD_TOO_COMMON, PHOTO_SIZE_EXCEEDED, INVALID_PHOTO_FORMAT, CORRUPTED_IMAGE, VALIDATION_ERROR, INTERNAL_SERVER_ERROR)
-- [ ] T012 [P] Create custom exceptions: InvalidTokenException in auth-service/src/main/java/com/sms/auth/exception/InvalidTokenException.java
-- [ ] T013 [P] Create custom exceptions: ProfileUpdateException in auth-service/src/main/java/com/sms/auth/exception/ProfileUpdateException.java
-- [ ] T014 [P] Create custom exceptions: PhotoUploadException in auth-service/src/main/java/com/sms/auth/exception/PhotoUploadException.java
-- [ ] T015 [P] Create PasswordStrengthValidator utility in auth-service/src/main/java/com/sms/auth/util/PasswordStrengthValidator.java (OWASP-aligned: min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special, not in common password list)
-- [ ] T016 Create JwtAuthenticationFilter in auth-service/src/main/java/com/sms/auth/security/JwtAuthenticationFilter.java
-- [ ] T017 Update SecurityConfig in auth-service/src/main/java/com/sms/auth/security/SecurityConfig.java to add JWT filter chain
-- [ ] T018 Extend JwtTokenProvider in auth-service/src/main/java/com/sms/auth/security/JwtTokenProvider.java to support refresh token generation
-- [ ] T019 Create GlobalExceptionHandler in auth-service/src/main/java/com/sms/auth/exception/GlobalExceptionHandler.java to map all exceptions to ApiResponse<Void> with appropriate error codes (no human-readable messages, only error codes)
+- [X] T005 Run database migration to add profile fields (name, profile_photo_url, profile_photo_uploaded_at) to users table
+- [X] T006 Run database migration to create refresh_tokens table with all required columns (id, user_id, token_hash, expires_at, has_been_used, used_at, ip_address, user_agent, created_at)
+- [X] T007 [P] Create RefreshToken entity in auth-service/src/main/java/com/sms/auth/model/RefreshToken.java
+- [X] T008 [P] Update User entity in auth-service/src/main/java/com/sms/auth/model/User.java (add name, profilePhotoUrl, profilePhotoUploadedAt fields)
+- [X] T009 [P] Create RefreshTokenRepository in auth-service/src/main/java/com/sms/auth/repository/RefreshTokenRepository.java
+- [X] T010 [P] Create ApiResponse<T> generic wrapper class in auth-service/src/main/java/com/sms/auth/dto/ApiResponse.java with fields: errorCode (String), data (T), and static methods success(T data) and error(String errorCode)
+- [X] T011 [P] Create ErrorCodes constants class in auth-service/src/main/java/com/sms/auth/dto/ErrorCodes.java with all error codes from spec (SUCCESS, INVALID_TOKEN, TOKEN_REPLAY_DETECTED, UNAUTHORIZED, INVALID_PHONE_FORMAT, DUPLICATE_PHONE, INCORRECT_PASSWORD, WEAK_PASSWORD, PASSWORD_TOO_SHORT, PASSWORD_MISSING_UPPERCASE, PASSWORD_MISSING_LOWERCASE, PASSWORD_MISSING_DIGIT, PASSWORD_MISSING_SPECIAL, PASSWORD_TOO_COMMON, PHOTO_SIZE_EXCEEDED, INVALID_PHOTO_FORMAT, CORRUPTED_IMAGE, VALIDATION_ERROR, INTERNAL_SERVER_ERROR)
+- [X] T012 [P] Create custom exceptions: InvalidTokenException in auth-service/src/main/java/com/sms/auth/exception/InvalidTokenException.java
+- [X] T013 [P] Create custom exceptions: ProfileUpdateException in auth-service/src/main/java/com/sms/auth/exception/ProfileUpdateException.java
+- [X] T014 [P] Create custom exceptions: PhotoUploadException in auth-service/src/main/java/com/sms/auth/exception/PhotoUploadException.java
+- [X] T015 [P] Create PasswordStrengthValidator utility in auth-service/src/main/java/com/sms/auth/util/PasswordStrengthValidator.java (OWASP-aligned: min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special, not in common password list)
+- [X] T016 Create JwtAuthenticationFilter in auth-service/src/main/java/com/sms/auth/security/JwtAuthenticationFilter.java
+- [X] T017 Update SecurityConfig in auth-service/src/main/java/com/sms/auth/security/SecurityConfig.java to add JWT filter chain
+- [X] T018 Extend JwtTokenProvider in auth-service/src/main/java/com/sms/auth/security/JwtTokenProvider.java to support refresh token generation
+- [X] T019 Update GlobalExceptionHandler in auth-service/src/main/java/com/sms/auth/exception/GlobalExceptionHandler.java to map new exceptions to ApiResponse<Void> with appropriate error codes (no human-readable messages, only error codes)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

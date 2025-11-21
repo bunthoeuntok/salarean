@@ -6,7 +6,7 @@ info:
     Extends the existing auth-service with refresh token support, profile CRUD, password management,
     language preferences, and profile photo uploads.
 
-    **API Standards**: All endpoints return responses in the format `{errorCode: string, data: T}`.
+    **API Standards**: All endpoints return responses in the format `{errorCode: ErrorCode, data: T}`.
     Backend returns only error codes; frontend handles all internationalization.
   version: 1.0.0
   contact:

@@ -70,4 +70,8 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    // Note: Refresh tokens are NOT JWTs - they're UUID-based tokens stored in the database
+    // Refresh token generation and management is handled by TokenService
 }
+

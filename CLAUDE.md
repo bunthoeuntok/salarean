@@ -40,7 +40,7 @@ All API endpoints MUST return responses in this standardized format:
 
 ```typescript
 {
-  errorCode: string,  // Error code for client-side i18n lookup, "SUCCESS" for successful operations
+  errorCode: ErrorCode,  // Error code for client-side i18n lookup, "SUCCESS" for successful operations
   data: T             // Response payload (type varies by endpoint), null on errors
 }
 ```

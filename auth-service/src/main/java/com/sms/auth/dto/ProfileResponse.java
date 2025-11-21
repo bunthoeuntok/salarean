@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -11,14 +12,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
-    private UUID userId;
+public class ProfileResponse {
+    private UUID id;
     private String email;
     private String phoneNumber;
+    private String name;
     private String preferredLanguage;
-    private String token;
-    private String refreshToken;  // Added for new JWT auth flow
-    private Long expiresIn;       // Token expiry in seconds
+    private String profilePhotoUrl;
+    private LocalDateTime profilePhotoUploadedAt;
+    private String accountStatus;
     private LocalDateTime createdAt;
-    private LocalDateTime lastLoginAt;
 }

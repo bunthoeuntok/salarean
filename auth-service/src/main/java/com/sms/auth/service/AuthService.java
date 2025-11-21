@@ -26,6 +26,7 @@ public class AuthService {
     private final PasswordValidator passwordValidator;
     private final JwtTokenProvider jwtTokenProvider;
     private final RateLimitService rateLimitService;
+    private final TokenService tokenService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
@@ -66,7 +67,14 @@ public class AuthService {
             .build();
         sessionRepository.save(session);
 
-        return buildAuthResponse(user, token, user.getCreatedAt());
+        // Create refresh token
+        String refreshToken = tokenService.createRefreshToken(
+            user.getId(),
+            getClientIp(httpRequest),
+            httpRequest.getHeader("User-Agent")
+        );
+
+        return buildAuthResponseWithRefreshToken(user, token, refreshToken, user.getCreatedAt());
     }
 
     @Transactional
@@ -110,7 +118,66 @@ public class AuthService {
             .build();
         sessionRepository.save(session);
 
-        return buildAuthResponse(user, token, LocalDateTime.now());
+        // Create refresh token
+        String refreshToken = tokenService.createRefreshToken(
+            user.getId(),
+            clientIp,
+            httpRequest.getHeader("User-Agent")
+        );
+
+        return buildAuthResponseWithRefreshToken(user, token, refreshToken, LocalDateTime.now());
+    }
+
+    @Transactional
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request, HttpServletRequest httpRequest) {
+        // Validate the refresh token
+        var refreshToken = tokenService.validateRefreshToken(request.getRefreshToken());
+
+        // Mark old token as used and delete it
+        tokenService.markAsUsed(refreshToken.getId(), refreshToken.getUserId());
+
+        // Get user
+        User user = userRepository.findById(refreshToken.getUserId())
+            .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_TOKEN, "User not found"));
+
+        // Generate new access token
+        String newAccessToken = jwtTokenProvider.generateToken(user.getId(), user.getPreferredLanguage());
+        String jti = jwtTokenProvider.getJtiFromToken(newAccessToken);
+
+        // Create new session
+        Session session = Session.builder()
+            .user(user)
+            .tokenJti(jti)
+            .lastActivityAt(LocalDateTime.now())
+            .expiresAt(LocalDateTime.now().plusHours(24))
+            .ipAddress(getClientIp(httpRequest))
+            .userAgent(httpRequest.getHeader("User-Agent"))
+            .build();
+        sessionRepository.save(session);
+
+        // Generate new refresh token
+        String newRefreshToken = tokenService.createRefreshToken(
+            user.getId(),
+            getClientIp(httpRequest),
+            httpRequest.getHeader("User-Agent")
+        );
+
+        return new RefreshTokenResponse(newAccessToken, newRefreshToken, 86400); // 24h in seconds
+    }
+
+    @Transactional
+    public void logout(String accessToken) {
+        // Get JTI from access token
+        String jti = jwtTokenProvider.getJtiFromToken(accessToken);
+
+        // Get user ID from token
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+
+        // Delete current session
+        sessionRepository.deleteByTokenJti(jti);
+
+        // Revoke all refresh tokens for the user
+        tokenService.revokeAllUserTokens(userId);
     }
 
     private AuthResponse buildAuthResponse(User user, String token, LocalDateTime loginTime) {
@@ -120,6 +187,21 @@ public class AuthService {
             .phoneNumber(user.getPhoneNumber())
             .preferredLanguage(user.getPreferredLanguage())
             .token(token)
+            .createdAt(user.getCreatedAt())
+            .lastLoginAt(loginTime)
+            .build();
+    }
+
+    private AuthResponse buildAuthResponseWithRefreshToken(User user, String accessToken,
+                                                          String refreshToken, LocalDateTime loginTime) {
+        return AuthResponse.builder()
+            .userId(user.getId())
+            .email(user.getEmail())
+            .phoneNumber(user.getPhoneNumber())
+            .preferredLanguage(user.getPreferredLanguage())
+            .token(accessToken)
+            .refreshToken(refreshToken)
+            .expiresIn(86400L) // 24 hours in seconds
             .createdAt(user.getCreatedAt())
             .lastLoginAt(loginTime)
             .build();

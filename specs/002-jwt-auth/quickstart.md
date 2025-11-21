@@ -117,7 +117,7 @@ echo "auth-service/uploads/" >> .gitignore
 
 ### 4. Verify API Standards Configuration
 
-**IMPORTANT**: This feature uses standardized API response format `{errorCode: string, data: T}`.
+**IMPORTANT**: This feature uses standardized API response format `{errorCode: ErrorCode, data: T}`.
 
 - **Backend**: Returns only machine-readable error codes (e.g., "INVALID_TOKEN", "DUPLICATE_PHONE")
 - **Frontend**: Handles all internationalization by mapping error codes to localized messages

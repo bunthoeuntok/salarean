@@ -26,6 +26,12 @@ spring:
     redis:
       host: localhost
       port: 6379
+      lettuce:
+        pool:
+          max-active: 10  # Maximum number of connections in pool
+          max-idle: 5     # Maximum idle connections
+          min-idle: 2     # Minimum idle connections
+          max-wait: 2000  # Max wait time (ms) when pool exhausted
 
 eureka:
   client:
@@ -38,6 +44,14 @@ jwt:
   secret: ${JWT_SECRET:your-256-bit-secret-key-here-minimum-32-chars}
   expiration: 86400000 # 24 hours in milliseconds
   refresh-expiration: 2592000000 # 30 days in milliseconds
+
+app:
+  photo:
+    upload-dir: ./uploads/profile-photos
+    max-file-size: 5242880  # 5MB in bytes
+    allowed-types:
+      - image/jpeg
+      - image/png
 
 management:
   endpoints:

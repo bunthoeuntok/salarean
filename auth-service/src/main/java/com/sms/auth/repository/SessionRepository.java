@@ -15,5 +15,9 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
 
     void deleteByTokenJti(String tokenJti);
 
+    void deleteByUserId(UUID userId);
+
+    int deleteByUserIdAndTokenJtiNot(UUID userId, String tokenJti);
+
     int deleteByExpiresAtBefore(LocalDateTime dateTime);
 }

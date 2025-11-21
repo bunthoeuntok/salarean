@@ -22,7 +22,7 @@
 ### Session 2025-11-20
 
 - Q: Should backend implement i18n (internationalization) for error messages? → A: No, frontend will handle all internationalization. Backend returns only error codes.
-- Q: What is the standardized API response format? → A: All API responses must follow format: `{errorCode: string, data: T}`
+- Q: What is the standardized API response format? → A: All API responses must follow format: `{errorCode: ErrorCode, data: T}`
 
 ## API Standards *(mandatory)*
 
@@ -220,7 +220,7 @@ Teachers can upload a profile photo to personalize their account and make their 
 - **FR-020**: System MUST prevent phone number duplication across teacher accounts
 - **FR-021**: System MUST handle token expiration gracefully by returning appropriate error codes
 - **FR-022**: System MUST include user identity information in JWT tokens for authorization decisions
-- **FR-023**: All API responses MUST follow standardized format: {errorCode: string, data: T}
+- **FR-023**: All API responses MUST follow standardized format: {errorCode: ErrorCode, data: T}
 - **FR-024**: Backend MUST NOT implement internationalization - all error codes are machine-readable strings for frontend i18n lookup
 
 ### Key Entities

@@ -6,8 +6,13 @@ Authentication and authorization microservice for the School Management System (
 
 - **Teacher Registration**: Register with email, Cambodia phone number (+855 format), and secure password
 - **Teacher Login**: Login with email OR phone number + password
-- **Session Management**: JWT-based authentication with 24-hour expiration
+- **Token Management**: JWT access tokens (24h) + refresh tokens (30d) with token rotation
+- **Session Management**: Secure session tracking with automatic invalidation on security events
+- **Profile Management**: View and update profile (name, phone, language preference)
+- **Password Management**: Change password with current password verification
+- **Photo Upload**: Profile photo upload (JPG/PNG, max 5MB) with validation
 - **Rate Limiting**: Protection against brute force attacks (5 failed attempts per 15 minutes)
+- **Security**: Token replay detection, session invalidation on password change
 - **Audit Trail**: Login attempt tracking with 7-year retention for compliance
 - **Automatic Cleanup**: Scheduled jobs to remove expired sessions and old login attempts
 
@@ -18,8 +23,10 @@ Authentication and authorization microservice for the School Management System (
 - **Database**: PostgreSQL 15+ (via Flyway migrations)
 - **Authentication**: JWT (JJWT 0.12.5, HS256 algorithm)
 - **Password Hashing**: BCrypt (cost factor 12)
+- **Caching**: Redis 7+ (for refresh token storage and performance)
+- **File Storage**: Local filesystem (profile photos)
+- **File Validation**: Apache Tika (MIME type detection)
 - **Service Discovery**: Eureka Client
-- **Caching**: Redis (optional)
 
 ## API Documentation
 
@@ -98,6 +105,187 @@ Login with email or phone number.
 **Error Codes:**
 - `INVALID_CREDENTIALS` (401): Invalid email/phone or password
 - `RATE_LIMIT_EXCEEDED` (429): Too many failed login attempts (wait 15 minutes)
+
+#### POST /api/auth/refresh
+
+Refresh access token using refresh token (token rotation - old refresh token is invalidated).
+
+**Request Body:**
+```json
+{
+  "refreshToken": "uuid-refresh-token"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "accessToken": "new-jwt-token",
+    "refreshToken": "new-refresh-token",
+    "expiresIn": 86400
+  }
+}
+```
+
+**Error Codes:**
+- `INVALID_TOKEN` (401): Invalid or expired refresh token
+- `TOKEN_REPLAY_DETECTED` (401): Token has been reused - all sessions invalidated
+
+#### POST /api/auth/logout
+
+Logout and invalidate current session + all refresh tokens.
+
+**Headers:** `Authorization: Bearer {access-token}`
+
+**Success Response (200):**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": null
+}
+```
+
+#### GET /api/auth/me
+
+Get current user profile (requires authentication).
+
+**Headers:** `Authorization: Bearer {access-token}`
+
+**Success Response (200):**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "id": "uuid",
+    "email": "teacher@school.edu.kh",
+    "phoneNumber": "+85512345678",
+    "name": "John Doe",
+    "preferredLanguage": "en",
+    "profilePhotoUrl": "/uploads/profile-photos/uuid/profile.jpg",
+    "profilePhotoUploadedAt": "2025-11-20T12:00:00",
+    "accountStatus": "active",
+    "createdAt": "2025-11-20T10:00:00"
+  }
+}
+```
+
+#### PUT /api/users/me
+
+Update current user profile (name, phone, language).
+
+**Headers:** `Authorization: Bearer {access-token}`
+
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "phoneNumber": "+85587654321",
+  "preferredLanguage": "km"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "id": "uuid",
+    "email": "teacher@school.edu.kh",
+    "phoneNumber": "+85587654321",
+    "name": "John Doe",
+    "preferredLanguage": "km",
+    ...
+  }
+}
+```
+
+**Error Codes:**
+- `DUPLICATE_PHONE` (400): Phone number already in use
+- `INVALID_PHONE_FORMAT` (400): Invalid Cambodia phone format
+- `VALIDATION_ERROR` (400): Invalid input data
+
+#### PUT /api/users/me/password
+
+Change password (invalidates all other sessions).
+
+**Headers:** `Authorization: Bearer {access-token}`
+
+**Request Body:**
+```json
+{
+  "currentPassword": "OldPass123!",
+  "newPassword": "NewSecurePass456!"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": null
+}
+```
+
+**Error Codes:**
+- `INCORRECT_PASSWORD` (400): Current password is incorrect
+- `WEAK_PASSWORD` (400): New password doesn't meet requirements
+- `PASSWORD_TOO_SHORT` (400): Password must be at least 8 characters
+- `PASSWORD_MISSING_UPPERCASE` (400): Password must contain uppercase letter
+- `PASSWORD_MISSING_LOWERCASE` (400): Password must contain lowercase letter
+- `PASSWORD_MISSING_DIGIT` (400): Password must contain a digit
+- `PASSWORD_MISSING_SPECIAL` (400): Password must contain special character
+- `PASSWORD_TOO_COMMON` (400): Password is too common
+
+#### POST /api/users/me/photo
+
+Upload or update profile photo (JPG/PNG, max 5MB).
+
+**Headers:**
+- `Authorization: Bearer {access-token}`
+- `Content-Type: multipart/form-data`
+
+**Form Data:**
+- `photo`: File (image/jpeg or image/png)
+
+**Success Response (200):**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "photoUrl": "/uploads/profile-photos/uuid/profile.jpg",
+    "uploadedAt": "2025-11-20T12:00:00"
+  }
+}
+```
+
+**Error Codes:**
+- `PHOTO_SIZE_EXCEEDED` (400): File exceeds 5MB limit
+- `INVALID_PHOTO_FORMAT` (400): File must be JPG or PNG
+- `CORRUPTED_IMAGE` (400): File content doesn't match extension
+
+## API Response Format
+
+All endpoints return a consistent response format:
+
+**Success:**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": { ... }
+}
+```
+
+**Error:**
+```json
+{
+  "errorCode": "ERROR_CODE",
+  "data": null
+}
+```
+
+The frontend is responsible for translating error codes to user-friendly messages in English and Khmer.
 
 ## Password Requirements
 
@@ -189,20 +377,31 @@ mvn test jacoco:report
 
 ## Database Schema
 
-The service manages 3 main tables:
+The service manages 4 main tables:
 
-- **users**: Teacher accounts
-- **sessions**: Active JWT sessions (24-hour TTL)
+- **users**: Teacher accounts (with profile fields: name, photo URL, language preference)
+- **sessions**: Active JWT access token sessions (24-hour TTL)
+- **refresh_tokens**: Long-lived refresh tokens (30-day TTL) with replay detection
 - **login_attempts**: Audit trail of all login attempts (7-year retention)
 
 Migrations are managed by Flyway and located in `src/main/resources/db/migration/`.
 
+**Key Indexes:**
+- `users(email)`, `users(phone_number)` - Fast lookup for login
+- `refresh_tokens(user_id)`, `refresh_tokens(expires_at)`, `refresh_tokens(has_been_used)` - Token validation and cleanup
+- `sessions(token_jti)`, `sessions(user_id)` - Session management
+
 ## Security Features
 
-- **BCrypt Password Hashing**: Cost factor 12
-- **JWT Token Security**: HS256 algorithm, 24-hour expiration
+- **BCrypt Password Hashing**: Cost factor 12 for passwords, also used for refresh token hashing
+- **JWT Access Tokens**: HS256 algorithm, 24-hour expiration, includes user ID and language claim
+- **Refresh Token Rotation**: One-time use refresh tokens (30-day expiration) with automatic rotation
+- **Token Replay Detection**: Detects and blocks replay attacks, invalidates all sessions on detection
+- **Dual Token Storage**: Refresh tokens stored in PostgreSQL (persistence) and Redis (performance)
 - **Rate Limiting**: Database-backed, 5 attempts per 15-minute sliding window
 - **Session Tracking**: IP address and user agent recorded for audit
+- **Password Change Security**: Invalidates all other sessions when password is changed
+- **Photo Upload Validation**: File size, MIME type, and content verification using Apache Tika
 - **Automatic Cleanup**: Hourly expired session removal, daily old data purge
 
 ## Scheduled Jobs
@@ -218,24 +417,13 @@ Health check endpoint: `http://localhost:8081/actuator/health`
 
 This service follows a layered architecture:
 
-- **Controller Layer**: REST endpoints (`AuthController`)
-- **Service Layer**: Business logic (`AuthService`, `RateLimitService`)
-- **Repository Layer**: Data access (`UserRepository`, `SessionRepository`, `LoginAttemptRepository`)
-- **Security Layer**: JWT generation/validation (`JwtTokenProvider`)
-- **Validation Layer**: Input validation (`PasswordValidator`, `CambodiaPhoneValidator`)
+- **Controller Layer**: REST endpoints (`AuthController`, `ProfileController`)
+- **Service Layer**: Business logic (`AuthService`, `ProfileService`, `TokenService`, `PhotoStorageService`, `RateLimitService`)
+- **Repository Layer**: Data access (`UserRepository`, `SessionRepository`, `RefreshTokenRepository`, `LoginAttemptRepository`)
+- **Security Layer**: JWT generation/validation (`JwtTokenProvider`, `JwtAuthenticationFilter`)
+- **Validation Layer**: Input validation (`PasswordStrengthValidator`, `CambodiaPhoneValidator`)
+- **Storage Layer**: File storage (`PhotoStorageService` with Apache Tika validation)
 
-## Error Handling
-
-All errors return a consistent response format:
-
-```json
-{
-  "errorCode": "ERROR_CODE_ENUM",
-  "data": null
-}
-```
-
-The frontend is responsible for translating error codes to user-friendly messages in English and Khmer.
 
 ## Development
 

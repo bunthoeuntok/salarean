@@ -269,7 +269,7 @@ private String phoneNumber;
 
 ### 8. API Response Format Standard
 
-**Decision**: Standardized response envelope `{errorCode: string, data: T}` for all API endpoints
+**Decision**: Standardized response envelope `{errorCode: ErrorCode, data: T}` for all API endpoints
 
 **Rationale**:
 - **Frontend i18n**: Backend returns only error codes; frontend handles all internationalization
