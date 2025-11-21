@@ -1,6 +1,6 @@
 # Feature Specification: Student CRUD Operations
 
-**Feature ID**: 001-student-crud
+**Feature ID**: 003-student-crud
 **Created**: 2025-11-22
 **Status**: Draft
 **Priority**: High
