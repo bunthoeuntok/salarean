@@ -122,12 +122,12 @@
 
 ### Tasks
 
-- [ ] [T043] [P] [FR-1,4,5] Create StudentRepository with custom queries at `/student-service/src/main/java/com/sms/student/repository/StudentRepository.java`
-- [ ] [T044] [P] [FR-7] Create ParentContactRepository at `/student-service/src/main/java/com/sms/student/repository/ParentContactRepository.java`
-- [ ] [T045] [P] [FR-1] Create StudentClassEnrollmentRepository at `/student-service/src/main/java/com/sms/student/repository/StudentClassEnrollmentRepository.java`
-- [ ] [T046] [P] [FR-1] Create SchoolRepository (read-only) at `/student-service/src/main/java/com/sms/student/repository/SchoolRepository.java`
-- [ ] [T047] [P] [FR-1] Create ClassRepository with optimistic locking at `/student-service/src/main/java/com/sms/student/repository/ClassRepository.java`
-- [ ] [T048] [Core] Add custom query methods: findByClassIdAndStatus, findActiveStudents, existsByStudentCode
+- [X] [T043] [P] [FR-1,4,5] Create StudentRepository with custom queries at `/student-service/src/main/java/com/sms/student/repository/StudentRepository.java`
+- [X] [T044] [P] [FR-7] Create ParentContactRepository at `/student-service/src/main/java/com/sms/student/repository/ParentContactRepository.java`
+- [X] [T045] [P] [FR-1] Create StudentClassEnrollmentRepository at `/student-service/src/main/java/com/sms/student/repository/StudentClassEnrollmentRepository.java`
+- [X] [T046] [P] [FR-1] Create SchoolRepository (read-only) at `/student-service/src/main/java/com/sms/student/repository/SchoolRepository.java`
+- [X] [T047] [P] [FR-1] Create ClassRepository with optimistic locking at `/student-service/src/main/java/com/sms/student/repository/ClassRepository.java`
+- [X] [T048] [Core] Add custom query methods: findByClassIdAndStatus, findActiveStudents, existsByStudentCode
 
 **Completion Criteria**: All repositories extend JpaRepository with correct types
 
@@ -142,20 +142,20 @@
 
 ### Tasks
 
-- [ ] [T049] [FR-1] Create StudentService interface at `/student-service/src/main/java/com/sms/student/service/StudentService.java`
-- [ ] [T050] [FR-1] Implement StudentServiceImpl with createStudent() method at `/student-service/src/main/java/com/sms/student/service/impl/StudentServiceImpl.java`
-- [ ] [T051] [FR-1] Add student code generation logic (format: STU-YYYY-NNNN) in StudentServiceImpl
-- [ ] [T052] [FR-1] Add duplicate student code validation in createStudent()
-- [ ] [T053] [FR-1] Add class validation (check classId exists and is not full) in createStudent()
-- [ ] [T054] [FR-1] Implement parent contact creation with primary contact validation
-- [ ] [T055] [FR-1] Create StudentClassEnrollment record on student creation
-- [ ] [T056] [FR-1] Add transaction management with @Transactional annotation
-- [ ] [T057] [FR-1] Create StudentController with POST /api/students endpoint at `/student-service/src/main/java/com/sms/student/controller/StudentController.java`
-- [ ] [T058] [FR-1] Add request validation with @Valid annotation in controller
-- [ ] [T059] [FR-1] Implement DTO to entity mapping in StudentService
-- [ ] [T060] [FR-1] Implement entity to DTO mapping in StudentService
-- [ ] [T061] [FR-1] Add unit tests for StudentService.createStudent() at `/student-service/src/test/java/com/sms/student/service/StudentServiceTest.java`
-- [ ] [T062] [FR-1] Add integration test for POST /api/students at `/student-service/src/test/java/com/sms/student/controller/StudentControllerTest.java`
+- [X] [T049] [FR-1] Create StudentService interface at `/student-service/src/main/java/com/sms/student/service/StudentService.java`
+- [X] [T050] [FR-1] Implement StudentServiceImpl with createStudent() method at `/student-service/src/main/java/com/sms/student/service/impl/StudentServiceImpl.java`
+- [X] [T051] [FR-1] Add student code generation logic (format: STU-YYYY-NNNN) in StudentServiceImpl
+- [X] [T052] [FR-1] Add duplicate student code validation in createStudent()
+- [X] [T053] [FR-1] Add class validation (check classId exists and is not full) in createStudent()
+- [X] [T054] [FR-1] Implement parent contact creation with primary contact validation
+- [X] [T055] [FR-1] Create StudentClassEnrollment record on student creation
+- [X] [T056] [FR-1] Add transaction management with @Transactional annotation
+- [X] [T057] [FR-1] Create StudentController with POST /api/students endpoint at `/student-service/src/main/java/com/sms/student/controller/StudentController.java`
+- [X] [T058] [FR-1] Add request validation with @Valid annotation in controller
+- [X] [T059] [FR-1] Implement DTO to entity mapping in StudentService
+- [X] [T060] [FR-1] Implement entity to DTO mapping in StudentService
+- [X] [T061] [FR-1] Add unit tests for StudentService.createStudent() at `/student-service/src/test/java/com/sms/student/service/StudentServiceTest.java`
+- [X] [T062] [FR-1] Add integration test for POST /api/students at `/student-service/src/test/java/com/sms/student/controller/StudentControllerTest.java`
 
 **Completion Criteria**: Can create student with parent contacts via API, tests pass
 
@@ -170,12 +170,12 @@
 
 ### Tasks
 
-- [ ] [T063] [P] [FR-4] Add getStudentById() method to StudentService interface
-- [ ] [T064] [FR-4] Implement getStudentById() in StudentServiceImpl with eager loading of parent contacts
-- [ ] [T065] [FR-4] Add age calculation logic in StudentResponse DTO
-- [ ] [T066] [FR-4] Add GET /api/students/{id} endpoint to StudentController
-- [ ] [T067] [FR-4] Add unit tests for StudentService.getStudentById()
-- [ ] [T068] [FR-4] Add integration test for GET /api/students/{id} with 404 case
+- [X] [T063] [P] [FR-4] Add getStudentById() method to StudentService interface
+- [X] [T064] [FR-4] Implement getStudentById() in StudentServiceImpl with eager loading of parent contacts
+- [X] [T065] [FR-4] Add age calculation logic in StudentResponse DTO
+- [X] [T066] [FR-4] Add GET /api/students/{id} endpoint to StudentController
+- [X] [T067] [FR-4] Add unit tests for StudentService.getStudentById()
+- [X] [T068] [FR-4] Add integration test for GET /api/students/{id} with 404 case
 
 **Completion Criteria**: Can retrieve student by ID with parent contacts, age calculated
 
@@ -190,15 +190,15 @@
 
 ### Tasks
 
-- [ ] [T069] [FR-5] Add listStudents() method with pagination to StudentService interface
-- [ ] [T070] [FR-5] Implement listStudents() with Pageable parameter in StudentServiceImpl
-- [ ] [T071] [FR-5] Add classId filtering logic using StudentRepository custom query
-- [ ] [T072] [FR-5] Add status filtering logic (default ACTIVE)
-- [ ] [T073] [FR-5] Implement StudentSummary DTO mapping with primary parent contact
-- [ ] [T074] [FR-5] Add GET /api/students endpoint with query parameters to StudentController
-- [ ] [T075] [FR-5] Add GET /api/students/class/{classId} convenience endpoint
-- [ ] [T076] [FR-5] Add unit tests for StudentService.listStudents() with various filters
-- [ ] [T077] [FR-5] Add integration test for pagination and filtering
+- [X] [T069] [FR-5] Add listStudents() method with pagination to StudentService interface
+- [X] [T070] [FR-5] Implement listStudents() with Pageable parameter in StudentServiceImpl
+- [X] [T071] [FR-5] Add classId filtering logic using StudentRepository custom query
+- [X] [T072] [FR-5] Add status filtering logic (default ACTIVE)
+- [X] [T073] [FR-5] Implement StudentSummary DTO mapping with primary parent contact
+- [X] [T074] [FR-5] Add GET /api/students endpoint with query parameters to StudentController
+- [X] [T075] [FR-5] Add GET /api/students/class/{classId} convenience endpoint
+- [X] [T076] [FR-5] Add unit tests for StudentService.listStudents() with various filters
+- [X] [T077] [FR-5] Add integration test for pagination and filtering
 
 **Completion Criteria**: Can list students with pagination, filtering by class and status
 
@@ -213,15 +213,15 @@
 
 ### Tasks
 
-- [ ] [T078] [FR-2] Add updateStudent() method to StudentService interface
-- [ ] [T079] [FR-2] Implement updateStudent() in StudentServiceImpl with fetch-then-update pattern
-- [ ] [T080] [FR-2] Add validation: cannot change student code
-- [ ] [T081] [FR-2] Add validation: cannot change enrollment date
-- [ ] [T082] [FR-2] Implement parent contact update logic (delete removed, add new, update existing)
-- [ ] [T083] [FR-2] Add optimistic locking retry logic for concurrent updates
-- [ ] [T084] [FR-2] Add PUT /api/students/{id} endpoint to StudentController
-- [ ] [T085] [FR-2] Add unit tests for StudentService.updateStudent() with validation cases
-- [ ] [T086] [FR-2] Add integration test for PUT /api/students/{id} with conflict scenarios
+- [x] [T078] [FR-2] Add updateStudent() method to StudentService interface
+- [x] [T079] [FR-2] Implement updateStudent() in StudentServiceImpl with fetch-then-update pattern
+- [x] [T080] [FR-2] Add validation: cannot change student code
+- [x] [T081] [FR-2] Add validation: cannot change enrollment date
+- [x] [T082] [FR-2] Implement parent contact update logic (delete removed, add new, update existing)
+- [x] [T083] [FR-2] Add optimistic locking retry logic for concurrent updates
+- [x] [T084] [FR-2] Add PUT /api/students/{id} endpoint to StudentController
+- [x] [T085] [FR-2] Add unit tests for StudentService.updateStudent() with validation cases
+- [x] [T086] [FR-2] Add integration test for PUT /api/students/{id} with conflict scenarios
 
 **Completion Criteria**: Can update student info, parent contacts handled correctly
 
@@ -236,12 +236,12 @@
 
 ### Tasks
 
-- [ ] [T087] [FR-3] Add deleteStudent() method with reason parameter to StudentService interface
-- [ ] [T088] [FR-3] Implement soft delete logic: set status=INACTIVE, deleted_at=now()
-- [ ] [T089] [FR-3] Add cascade soft delete for parent contacts (set is_active=false)
-- [ ] [T090] [FR-3] Add DELETE /api/students/{id}?reason=GRADUATED endpoint to StudentController
-- [ ] [T091] [FR-3] Add unit tests for StudentService.deleteStudent() with all deletion reasons
-- [ ] [T092] [FR-3] Add integration test for DELETE /api/students/{id} with validation
+- [X] [T087] [FR-3] Add deleteStudent() method with reason parameter to StudentService interface
+- [X] [T088] [FR-3] Implement soft delete logic: set status=INACTIVE, deleted_at=now()
+- [X] [T089] [FR-3] Add cascade soft delete for parent contacts (set is_active=false)
+- [X] [T090] [FR-3] Add DELETE /api/students/{id}?reason=GRADUATED endpoint to StudentController
+- [X] [T091] [FR-3] Add unit tests for StudentService.deleteStudent() with all deletion reasons
+- [X] [T092] [FR-3] Add integration test for DELETE /api/students/{id} with validation
 
 **Completion Criteria**: Can soft delete student, record remains in database with status=INACTIVE
 
@@ -256,17 +256,17 @@
 
 ### Tasks
 
-- [ ] [T093] [P] [FR-6] Create PhotoStorageService interface at `/student-service/src/main/java/com/sms/student/service/PhotoStorageService.java`
-- [ ] [T094] [FR-6] Implement LocalPhotoStorageService at `/student-service/src/main/java/com/sms/student/service/impl/LocalPhotoStorageService.java`
-- [ ] [T095] [FR-6] Add file validation: check MIME type (image/jpeg, image/png)
-- [ ] [T096] [FR-6] Add file size validation: max 5MB
-- [ ] [T097] [FR-6] Implement filename generation: {studentId}_{timestamp}.jpg
-- [ ] [T098] [FR-6] Add Thumbnailator integration for image resize (400x400 standard, 100x100 thumbnail)
-- [ ] [T099] [FR-6] Implement photo save logic with duplicate handling (delete old photo)
-- [ ] [T100] [FR-6] Add uploadPhoto() method to StudentService interface
-- [ ] [T101] [FR-6] Add POST /api/students/{id}/photo endpoint to StudentController
-- [ ] [T102] [FR-6] Add unit tests for PhotoStorageService with mock files
-- [ ] [T103] [FR-6] Add integration test for POST /api/students/{id}/photo with 5MB+ file
+- [X] [T093] [P] [FR-6] Create PhotoStorageService interface at `/student-service/src/main/java/com/sms/student/service/PhotoStorageService.java`
+- [X] [T094] [FR-6] Implement LocalPhotoStorageService at `/student-service/src/main/java/com/sms/student/service/impl/LocalPhotoStorageService.java`
+- [X] [T095] [FR-6] Add file validation: check MIME type (image/jpeg, image/png)
+- [X] [T096] [FR-6] Add file size validation: max 5MB
+- [X] [T097] [FR-6] Implement filename generation: {studentId}_{timestamp}.jpg
+- [X] [T098] [FR-6] Add Thumbnailator integration for image resize (400x400 standard, 100x100 thumbnail)
+- [X] [T099] [FR-6] Implement photo save logic with duplicate handling (delete old photo)
+- [X] [T100] [FR-6] Add uploadPhoto() method to StudentService interface
+- [X] [T101] [FR-6] Add POST /api/students/{id}/photo endpoint to StudentController
+- [X] [T102] [FR-6] Add unit tests for PhotoStorageService with mock files
+- [X] [T103] [FR-6] Add integration test for POST /api/students/{id}/photo with 5MB+ file
 
 **Completion Criteria**: Can upload photo, old photo deleted, image resized correctly
 

@@ -13,6 +13,7 @@ public enum ErrorCode {
     PHOTO_SIZE_EXCEEDED,
     INVALID_PHOTO_FORMAT,
     PHOTO_UPLOAD_FAILED,
+    PHOTO_PROCESSING_ERROR,
 
     // Parent contact errors
     INVALID_PHONE_FORMAT,

@@ -14,5 +14,6 @@ import java.time.LocalDateTime;
 public class PhotoUploadResponse {
 
     private String photoUrl;
+    private String thumbnailUrl;
     private LocalDateTime uploadedAt;
 }
