@@ -76,19 +76,19 @@
 
 ### Tasks
 
-- [ ] [T023] [P] [Core] Create StudentStatus enum (ACTIVE, INACTIVE) at `/student-service/src/main/java/com/sms/student/enums/StudentStatus.java`
-- [ ] [T024] [P] [Core] Create Gender enum (M, F) at `/student-service/src/main/java/com/sms/student/enums/Gender.java`
-- [ ] [T025] [P] [Core] Create Relationship enum (MOTHER, FATHER, GUARDIAN, OTHER) at `/student-service/src/main/java/com/sms/student/enums/Relationship.java`
-- [ ] [T026] [P] [Core] Create DeletionReason enum (GRADUATED, TRANSFERRED, WITHDREW, OTHER) at `/student-service/src/main/java/com/sms/student/enums/DeletionReason.java`
-- [ ] [T027] [P] [Core] Create ErrorCode enum with 13 codes at `/student-service/src/main/java/com/sms/student/dto/ErrorCode.java`
-- [ ] [T028] [P] [Core] Create ApiResponse<T> wrapper class at `/student-service/src/main/java/com/sms/student/dto/ApiResponse.java`
-- [ ] [T029] [P] [Core] Create StudentRequest DTO at `/student-service/src/main/java/com/sms/student/dto/StudentRequest.java`
-- [ ] [T030] [P] [Core] Create StudentResponse DTO at `/student-service/src/main/java/com/sms/student/dto/StudentResponse.java`
-- [ ] [T031] [P] [Core] Create StudentSummary DTO at `/student-service/src/main/java/com/sms/student/dto/StudentSummary.java`
-- [ ] [T032] [P] [Core] Create ParentContactRequest DTO at `/student-service/src/main/java/com/sms/student/dto/ParentContactRequest.java`
-- [ ] [T033] [P] [Core] Create ParentContactResponse DTO at `/student-service/src/main/java/com/sms/student/dto/ParentContactResponse.java`
-- [ ] [T034] [P] [Core] Create PhotoUploadResponse DTO at `/student-service/src/main/java/com/sms/student/dto/PhotoUploadResponse.java`
-- [ ] [T035] [P] [Core] Create StudentListResponse DTO with pagination at `/student-service/src/main/java/com/sms/student/dto/StudentListResponse.java`
+- [X] [T023] [P] [Core] Create StudentStatus enum (ACTIVE, INACTIVE) at `/student-service/src/main/java/com/sms/student/enums/StudentStatus.java`
+- [X] [T024] [P] [Core] Create Gender enum (M, F) at `/student-service/src/main/java/com/sms/student/enums/Gender.java`
+- [X] [T025] [P] [Core] Create Relationship enum (MOTHER, FATHER, GUARDIAN, OTHER) at `/student-service/src/main/java/com/sms/student/enums/Relationship.java`
+- [X] [T026] [P] [Core] Create DeletionReason enum (GRADUATED, TRANSFERRED, WITHDREW, OTHER) at `/student-service/src/main/java/com/sms/student/enums/DeletionReason.java`
+- [X] [T027] [P] [Core] Create ErrorCode enum with 13 codes at `/student-service/src/main/java/com/sms/student/dto/ErrorCode.java`
+- [X] [T028] [P] [Core] Create ApiResponse<T> wrapper class at `/student-service/src/main/java/com/sms/student/dto/ApiResponse.java`
+- [X] [T029] [P] [Core] Create StudentRequest DTO at `/student-service/src/main/java/com/sms/student/dto/StudentRequest.java`
+- [X] [T030] [P] [Core] Create StudentResponse DTO at `/student-service/src/main/java/com/sms/student/dto/StudentResponse.java`
+- [X] [T031] [P] [Core] Create StudentSummary DTO at `/student-service/src/main/java/com/sms/student/dto/StudentSummary.java`
+- [X] [T032] [P] [Core] Create ParentContactRequest DTO at `/student-service/src/main/java/com/sms/student/dto/ParentContactRequest.java`
+- [X] [T033] [P] [Core] Create ParentContactResponse DTO at `/student-service/src/main/java/com/sms/student/dto/ParentContactResponse.java`
+- [X] [T034] [P] [Core] Create PhotoUploadResponse DTO at `/student-service/src/main/java/com/sms/student/dto/PhotoUploadResponse.java`
+- [X] [T035] [P] [Core] Create StudentListResponse DTO with pagination at `/student-service/src/main/java/com/sms/student/dto/StudentListResponse.java`
 
 **Completion Criteria**: All DTOs compile with validation annotations
 
