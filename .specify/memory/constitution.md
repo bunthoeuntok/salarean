@@ -1,15 +1,13 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: N/A → 1.0.0 (Initial constitution)
-Modified principles: None (new document)
+Version change: 1.0.0 → 1.1.0 (Minor - Added backend conventions and project structure)
+Modified principles:
+  - None (existing principles unchanged)
 Added sections:
-  - Core Principles (5 principles)
-  - Technology Stack
-  - Security & Compliance
-  - Code Quality
-  - Deployment
-  - Governance
+  - VI. Backend API Conventions (new principle)
+  - Project Structure (new major section after Core Principles)
+  - Backend Implementation Standards (new subsection under Technology Stack)
 Removed sections: None
 Templates requiring updates:
   - .specify/templates/plan-template.md ✅ Compatible (Constitution Check section present)
@@ -88,6 +86,157 @@ All code MUST have appropriate test coverage to ensure reliability and enable sa
 
 **Rationale**: Without tests, changes become risky and velocity decreases over time. Test discipline enables confident refactoring and catches regressions early.
 
+### VI. Backend API Conventions
+
+All backend services MUST follow standardized response formats and error handling patterns for consistency across the system.
+
+- **Response wrapper**: All API endpoints MUST return `ApiResponse<T>` with `errorCode` and `data` fields
+- **Error codes**: Use machine-readable enum values (UPPER_SNAKE_CASE) - NO human-readable messages in responses
+- **Status codes**: Map error types to appropriate HTTP status codes (400, 401, 404, 429, 500)
+- **Internationalization separation**: Backend returns only error codes; frontend handles all translation to Khmer/English
+- **Global exception handling**: Use `@RestControllerAdvice` to centralize error mapping
+
+**Response Structure**:
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": { "id": "123", "name": "John" }
+}
+```
+
+**Error Code Requirements**:
+- Self-documenting names (e.g., `INVALID_PHONE_FORMAT` not `ERR_001`)
+- Consistent across all services
+- Documented in feature specifications
+- Defined in service-specific `ErrorCode` enum
+
+**Rationale**: Separating error codes from messages enables dynamic frontend translation without backend deployments, simplifies API contracts, and provides clear debugging signals across service boundaries.
+
+## Project Structure
+
+The SMS project follows a **microservices monorepo** architecture with clear separation of concerns.
+
+### Repository Layout
+
+```text
+salarean/
+├── frontend/                    # Next.js 14 web application
+├── auth-service/                # Authentication & authorization microservice
+├── student-service/             # Student records management microservice
+├── grade-service/               # Grade calculation & management microservice
+├── attendance-service/          # Attendance tracking microservice
+├── report-service/              # Report generation microservice
+├── notification-service/        # Email/SMS notification microservice
+├── api-gateway/                 # API Gateway (routing, rate limiting)
+├── eureka-server/               # Service discovery (Netflix Eureka)
+├── nginx/                       # Reverse proxy configuration
+├── specs/                       # Feature specifications (by number)
+│   ├── 001-feature-name/
+│   │   ├── spec.md              # Feature specification
+│   │   ├── plan.md              # Implementation plan
+│   │   ├── tasks.md             # Task breakdown
+│   │   └── ...
+│   └── 002-another-feature/
+├── .specify/                    # Constitution & templates
+│   ├── memory/
+│   │   └── constitution.md      # This document
+│   └── templates/               # Feature & task templates
+├── docker-compose.yml           # Multi-service orchestration
+├── CLAUDE.md                    # Auto-generated dev guidelines
+└── README.md                    # Project setup & quick start
+```
+
+### Frontend Structure (Next.js 14 App Router)
+
+```text
+frontend/
+├── src/
+│   ├── app/                     # Next.js app directory (pages & layouts)
+│   │   ├── (auth)/              # Auth route group
+│   │   ├── (dashboard)/         # Protected route group
+│   │   └── layout.tsx           # Root layout
+│   ├── components/              # React components
+│   │   ├── ui/                  # shadcn/ui components
+│   │   ├── forms/               # Form components
+│   │   └── layout/              # Layout components
+│   ├── hooks/                   # Custom React hooks
+│   ├── lib/                     # Utilities & helpers
+│   ├── services/                # API client functions
+│   ├── store/                   # Zustand stores
+│   └── types/                   # TypeScript type definitions
+├── public/                      # Static assets
+├── package.json
+└── next.config.js
+```
+
+### Microservice Structure (Spring Boot)
+
+Each `*-service/` directory follows this standard layout:
+
+```text
+{service-name}-service/
+├── src/
+│   ├── main/
+│   │   ├── java/com/sms/{service}/
+│   │   │   ├── config/          # Spring configuration beans
+│   │   │   ├── controller/      # REST API endpoints
+│   │   │   ├── dto/             # Request/response objects
+│   │   │   ├── exception/       # Custom exceptions + handler
+│   │   │   ├── model/           # JPA entities
+│   │   │   ├── repository/      # Spring Data repositories
+│   │   │   ├── security/        # Auth filters (if needed)
+│   │   │   ├── service/         # Business logic
+│   │   │   └── validation/      # Custom validators
+│   │   └── resources/
+│   │       ├── application.yml  # Service configuration
+│   │       └── db/migration/    # Flyway migrations
+│   └── test/
+│       ├── java/...             # Unit & integration tests
+│       └── resources/
+│           └── application-test.yml
+├── uploads/                     # Local file storage (if needed)
+├── target/                      # Maven build output (gitignored)
+├── pom.xml                      # Maven dependencies
+├── Dockerfile                   # Container image definition
+└── README.md                    # Service-specific docs
+```
+
+### Feature Specification Structure
+
+Each feature in `specs/###-feature-name/` MUST contain:
+
+```text
+specs/###-feature-name/
+├── spec.md                      # User stories & requirements
+├── plan.md                      # Implementation plan
+├── tasks.md                     # Task breakdown
+├── research.md                  # Technical research (Phase 0)
+├── data-model.md                # Entity design (Phase 1)
+├── quickstart.md                # Developer setup (Phase 1)
+└── contracts/                   # API contracts (Phase 1)
+    ├── endpoints.md
+    └── ...
+```
+
+### Structure Rules
+
+**Monorepo Conventions**:
+- Each microservice MUST be independently deployable
+- Services MUST NOT share code via filesystem (use Maven artifacts if needed)
+- Each service MUST have its own `pom.xml` and dependencies
+- Frontend MUST communicate only through API Gateway (no direct service calls)
+
+**Service Naming**:
+- Pattern: `{domain}-service` (e.g., `auth-service`, `student-service`)
+- Java package: `com.sms.{domain}` (e.g., `com.sms.auth`)
+- Database: `{domain}_db` (e.g., `auth_db`, `student_db`)
+
+**Feature Numbering**:
+- Use zero-padded 3-digit numbers: `001-`, `002-`, `003-`, etc.
+- Feature names in kebab-case: `001-teacher-auth`, `002-jwt-refresh`
+
+**Rationale**: The monorepo structure enables shared tooling and atomic cross-service changes while maintaining microservice independence. Standardized layouts reduce cognitive load and enable automation.
+
 ## Technology Stack
 
 The following technologies are mandated for the SMS project:
@@ -99,7 +248,7 @@ The following technologies are mandated for the SMS project:
 - **State**: Zustand for client state, React Query for server state
 
 ### Backend
-- **Framework**: Spring Boot 3.2+
+- **Framework**: Spring Boot 3.5+
 - **Language**: Java 21+
 - **Build**: Maven with wrapper (mvnw)
 - **Database**: PostgreSQL 15+ (one database per service)
@@ -112,6 +261,47 @@ The following technologies are mandated for the SMS project:
 - **Discovery**: Netflix Eureka for service registration
 
 **Rationale**: Standardizing the stack ensures team consistency, reduces context switching, and enables shared tooling and knowledge.
+
+### Backend Implementation Standards
+
+All Spring Boot services MUST adhere to the following architectural patterns:
+
+**Package Structure** (per service):
+```text
+com.sms.{service-name}/
+├── config/           # Spring configuration beans (SecurityConfig, OpenAPIConfig, etc.)
+├── controller/       # REST API endpoints (@RestController)
+├── dto/              # Data Transfer Objects (request/response models)
+├── exception/        # Custom exceptions and GlobalExceptionHandler
+├── model/            # JPA entities (@Entity)
+├── repository/       # Spring Data JPA repositories
+├── security/         # Authentication/authorization filters
+├── service/          # Business logic layer (@Service)
+└── validation/       # Custom validators (@Component)
+```
+
+**Dependency Injection**:
+- Use constructor injection with `@RequiredArgsConstructor` (Lombok)
+- NEVER use field injection (`@Autowired` on fields)
+
+**Entity Design**:
+- Use Lombok annotations: `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
+- Primary keys: UUID with `@GeneratedValue(strategy = GenerationType.UUID)`
+- Timestamps: `@CreationTimestamp` and `@UpdateTimestamp` for audit fields
+- Table names: snake_case plural (e.g., `users`, `login_attempts`)
+
+**Validation**:
+- Use Jakarta Bean Validation on DTOs (`@Valid` in controllers)
+- Custom validators in `validation/` package implementing `ConstraintValidator`
+- Field-level annotations: `@NotBlank`, `@Email`, `@Pattern`, etc.
+
+**Transaction Management**:
+- Service methods modifying data MUST have `@Transactional`
+- Read-only operations SHOULD use `@Transactional(readOnly = true)` for optimization
+
+**API Documentation**:
+- Use Swagger/OpenAPI annotations: `@Tag`, `@Operation` on controllers
+- Expose docs at `/swagger-ui.html` via springdoc-openapi
 
 ## Security & Compliance
 
@@ -131,8 +321,9 @@ The following technologies are mandated for the SMS project:
 
 ### Security Practices
 
-- All passwords hashed with bcrypt (cost factor 12+)
-- JWT tokens expire within 24 hours; refresh tokens within 7 days
+- All passwords hashed with BCrypt (cost factor 12+)
+- JWT access tokens expire within 24 hours; refresh tokens within 30 days
+- Refresh token rotation on each use (one-time use tokens)
 - API rate limiting: 100 requests/minute per user
 - SQL injection prevention via parameterized queries (JPA/Hibernate)
 - XSS prevention via React's default escaping and CSP headers
@@ -216,5 +407,6 @@ This constitution supersedes all other development practices for the SMS project
 For runtime development guidance, refer to:
 - `README.md` - Project setup and quick start
 - `.specify/` - Feature specifications and implementation plans
+- `CLAUDE.md` - Auto-generated development guidelines (updated per feature)
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-11-20
+**Version**: 1.1.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-11-21
