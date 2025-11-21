@@ -102,13 +102,13 @@
 
 ### Tasks
 
-- [ ] [T036] [P] [Core] Create StudentNotFoundException at `/student-service/src/main/java/com/sms/student/exception/StudentNotFoundException.java`
-- [ ] [T037] [P] [Core] Create InvalidStudentDataException at `/student-service/src/main/java/com/sms/student/exception/InvalidStudentDataException.java`
-- [ ] [T038] [P] [Core] Create DuplicateStudentCodeException at `/student-service/src/main/java/com/sms/student/exception/DuplicateStudentCodeException.java`
-- [ ] [T039] [P] [Core] Create PhotoSizeExceededException at `/student-service/src/main/java/com/sms/student/exception/PhotoSizeExceededException.java`
-- [ ] [T040] [P] [Core] Create InvalidPhotoFormatException at `/student-service/src/main/java/com/sms/student/exception/InvalidPhotoFormatException.java`
-- [ ] [T041] [P] [Core] Create ClassNotFoundException at `/student-service/src/main/java/com/sms/student/exception/ClassNotFoundException.java`
-- [ ] [T042] [Core] Create GlobalExceptionHandler with @ControllerAdvice at `/student-service/src/main/java/com/sms/student/exception/GlobalExceptionHandler.java`
+- [X] [T036] [P] [Core] Create StudentNotFoundException at `/student-service/src/main/java/com/sms/student/exception/StudentNotFoundException.java`
+- [X] [T037] [P] [Core] Create InvalidStudentDataException at `/student-service/src/main/java/com/sms/student/exception/InvalidStudentDataException.java`
+- [X] [T038] [P] [Core] Create DuplicateStudentCodeException at `/student-service/src/main/java/com/sms/student/exception/DuplicateStudentCodeException.java`
+- [X] [T039] [P] [Core] Create PhotoSizeExceededException at `/student-service/src/main/java/com/sms/student/exception/PhotoSizeExceededException.java`
+- [X] [T040] [P] [Core] Create InvalidPhotoFormatException at `/student-service/src/main/java/com/sms/student/exception/InvalidPhotoFormatException.java`
+- [X] [T041] [P] [Core] Create ClassNotFoundException at `/student-service/src/main/java/com/sms/student/exception/ClassNotFoundException.java`
+- [X] [T042] [Core] Create GlobalExceptionHandler with @ControllerAdvice at `/student-service/src/main/java/com/sms/student/exception/GlobalExceptionHandler.java`
 
 **Completion Criteria**: All exceptions map to ApiResponse with correct ErrorCode
 
