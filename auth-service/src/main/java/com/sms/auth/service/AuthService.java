@@ -180,18 +180,6 @@ public class AuthService {
         tokenService.revokeAllUserTokens(userId);
     }
 
-    private AuthResponse buildAuthResponse(User user, String token, LocalDateTime loginTime) {
-        return AuthResponse.builder()
-            .userId(user.getId())
-            .email(user.getEmail())
-            .phoneNumber(user.getPhoneNumber())
-            .preferredLanguage(user.getPreferredLanguage())
-            .token(token)
-            .createdAt(user.getCreatedAt())
-            .lastLoginAt(loginTime)
-            .build();
-    }
-
     private AuthResponse buildAuthResponseWithRefreshToken(User user, String accessToken,
                                                           String refreshToken, LocalDateTime loginTime) {
         return AuthResponse.builder()

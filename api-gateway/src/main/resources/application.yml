@@ -19,6 +19,15 @@ spring:
           filters:
             - RewritePath=/api/auth/(?<segment>.*), /api/auth/${segment}
 
+        # Profile Service (requires auth)
+        - id: profile-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/profile/**
+          filters:
+            - JwtAuthenticationFilter
+            - RewritePath=/api/profile/(?<segment>.*), /api/profile/${segment}
+
         # Auth Service OpenAPI Docs
         - id: auth-service-openapi
           uri: lb://AUTH-SERVICE

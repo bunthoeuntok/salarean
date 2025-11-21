@@ -9,6 +9,7 @@ import com.sms.auth.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @RequestMapping("/api/profile")
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "User profile management APIs")
-@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "Bearer Authentication")
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -56,11 +57,12 @@ public class ProfileController {
                description = "Change password with current password verification. Invalidates all other sessions and refresh tokens.")
     public ResponseEntity<ApiResponse<Void>> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
-            @RequestHeader("Authorization") String authHeader,
+            HttpServletRequest httpRequest,
             Authentication authentication) {
         UUID userId = UUID.fromString(authentication.getName());
 
         // Extract token from "Bearer {token}"
+        String authHeader = httpRequest.getHeader("Authorization");
         String accessToken = authHeader.substring(7);
 
         profileService.changePassword(userId, request, accessToken);
