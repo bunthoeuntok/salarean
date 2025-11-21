@@ -1,10 +1,10 @@
 package com.sms.student.entity;
 
+import com.sms.student.enums.ClassStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,11 +12,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "classes")
-@Data
-@Builder
+@Table(name = "classes", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"school_id", "grade", "section", "academic_year"})
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SchoolClass {
 
     @Id
@@ -30,32 +33,55 @@ public class SchoolClass {
     private UUID teacherId;
 
     @Column(nullable = false)
+    @Min(1)
+    @Max(12)
     private Integer grade;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     private String section;
 
-    @Column(name = "academic_year", nullable = false)
+    @Column(name = "academic_year", nullable = false, length = 20)
     private String academicYear;
 
     @Column(name = "max_capacity")
     private Integer maxCapacity;
 
-    @Column(name = "student_count")
+    @Column(name = "student_count", nullable = false)
+    @Builder.Default
     private Integer studentCount = 0;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
     private ClassStatus status = ClassStatus.ACTIVE;
 
+    @Version
+    private Long version;
+
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public enum ClassStatus {
-        ACTIVE, ARCHIVED
+    // Business logic methods
+    public boolean hasCapacity() {
+        return maxCapacity == null || studentCount < maxCapacity;
+    }
+
+    public void incrementEnrollment() {
+        studentCount++;
+    }
+
+    public void decrementEnrollment() {
+        if (studentCount > 0) {
+            studentCount--;
+        }
+    }
+
+    public boolean isActive() {
+        return status == ClassStatus.ACTIVE;
     }
 }

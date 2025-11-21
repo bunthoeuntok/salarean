@@ -73,3 +73,5 @@ test-results/
 
 # Upload directories
 auth-service/uploads/
+student-service/uploads/
+uploads/

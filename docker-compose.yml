@@ -120,22 +120,20 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-student:5432/student_db
-      - SPRING_DATASOURCE_USERNAME=sms_user
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_REDIS_HOST=redis
+      - DB_USERNAME=sms_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICE_URL=http://eureka-server:8761/eureka/
+      - UPLOAD_DIR=/app/uploads/students
     volumes:
       - uploads:/app/uploads
     networks:
       - backend-network
       - database-network
-      - cache-network
     depends_on:
       - postgres-student
       - eureka-server
-      - redis
     restart: unless-stopped
 
   # ============================================
@@ -264,6 +262,8 @@ services:
   postgres-student:
     image: postgres:15-alpine
     container_name: sms-postgres-student
+    ports:
+      - "5433:5432"
     environment:
       - POSTGRES_DB=student_db
       - POSTGRES_USER=sms_user
