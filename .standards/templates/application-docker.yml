@@ -1,0 +1,79 @@
+# Docker Profile Configuration Template
+# Profile: docker
+# Environment: Containerized deployment (Docker Compose, Kubernetes, Production)
+# Activation: Set environment variable SPRING_PROFILES_ACTIVE=docker
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 8081  # Same as default profile - change per service
+
+# =============================================================================
+# SPRING APPLICATION
+# =============================================================================
+spring:
+  application:
+    name: auth-service  # Same as default profile - match your service name
+
+  # ---------------------------------------------------------------------------
+  # DATABASE CONFIGURATION (PostgreSQL)
+  # ---------------------------------------------------------------------------
+  # All values come from environment variables (NO defaults for secrets)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}          # REQUIRED: jdbc:postgresql://postgres-{service}:5432/{db_name}
+    username: ${SPRING_DATASOURCE_USERNAME}  # REQUIRED: Database username
+    password: ${SPRING_DATASOURCE_PASSWORD}  # REQUIRED: Database password (from secret)
+
+  # ---------------------------------------------------------------------------
+  # JPA/HIBERNATE CONFIGURATION
+  # ---------------------------------------------------------------------------
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Same as default profile - use Flyway for schema management
+
+  # ---------------------------------------------------------------------------
+  # FLYWAY DATABASE MIGRATION
+  # ---------------------------------------------------------------------------
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+
+  # ---------------------------------------------------------------------------
+  # REDIS CONFIGURATION (Optional - if service uses caching)
+  # ---------------------------------------------------------------------------
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}  # Default: 'redis' (Docker service name)
+      port: ${SPRING_REDIS_PORT:6379}    # Default: 6379 (standard Redis port)
+
+# =============================================================================
+# EUREKA SERVICE DISCOVERY
+# =============================================================================
+eureka:
+  instance:
+    hostname: auth-service       # MUST match docker-compose.yml service name
+    prefer-ip-address: false     # MUST be false for Docker (prevents multi-network issues)
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}  # REQUIRED: http://eureka-server:8761/eureka/
+
+# =============================================================================
+# JWT CONFIGURATION (Custom Application Properties)
+# =============================================================================
+jwt:
+  secret: ${JWT_SECRET}  # REQUIRED: 256-bit JWT signing secret (NO default - must be provided)
+  expiration: 86400000              # Access token expiration (24 hours)
+  refresh-expiration: 2592000000    # Refresh token expiration (30 days)
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# 1. This file is for DOCKER DEPLOYMENT only
+# 2. NO default values for secrets (fail fast if missing)
+# 3. Infrastructure defaults use Docker service names (e.g., redis, postgres)
+# 4. All critical configuration comes from environment variables
+# 5. Environment variables defined in docker-compose.yml
+# 6. For Kubernetes, use ConfigMaps and Secrets

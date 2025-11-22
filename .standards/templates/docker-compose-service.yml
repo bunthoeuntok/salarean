@@ -1,0 +1,178 @@
+# Docker Compose Service Definition Template
+#
+# Usage: Copy this template and customize for your microservice
+#
+# Instructions:
+# 1. Replace {service-name} with your service name (e.g., auth, student, teacher)
+# 2. Replace {port} with your service port (e.g., 8081, 8082, 8083)
+# 3. Replace {db_name} with your database name (e.g., auth_db, student_db)
+# 4. Adjust networks as needed (backend, database, cache)
+# 5. Update depends_on based on service dependencies
+#
+# Then add this to your main docker-compose.yml file
+
+# ===========================================================================
+# MICROSERVICE DEFINITION
+# ===========================================================================
+{service-name}:
+  # Build configuration
+  build:
+    context: ./{service-name}  # Path to service directory
+    dockerfile: Dockerfile
+
+  # Container name
+  container_name: sms-{service-name}
+
+  # Port mapping (host:container)
+  ports:
+    - "{port}:{port}"  # Example: "8081:8081"
+
+  # Environment variables (MANDATORY)
+  environment:
+    # Spring Profile (MANDATORY - activates docker profile)
+    - SPRING_PROFILES_ACTIVE=docker
+
+    # Database Configuration (MANDATORY if using database)
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-{service}:5432/{db_name}
+    - SPRING_DATASOURCE_USERNAME=sms_user
+    - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}  # From .env file or shell
+
+    # Eureka Service Discovery (MANDATORY for all services)
+    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+
+    # JWT Configuration (MANDATORY if using JWT authentication)
+    - JWT_SECRET=${JWT_SECRET}  # From .env file or shell
+
+    # Redis Configuration (OPTIONAL - if using caching)
+    - SPRING_REDIS_HOST=redis
+    - SPRING_REDIS_PORT=6379
+
+    # Custom Application Settings (OPTIONAL)
+    # - FILE_UPLOAD_BASE_PATH=/app/uploads
+    # - CORS_ALLOWED_ORIGINS=http://localhost:3000
+
+  # Docker networks
+  networks:
+    - backend-network    # For inter-service communication
+    - database-network   # For database access
+    # - cache-network    # Uncomment if using Redis
+
+  # Service dependencies (start these services first)
+  depends_on:
+    - eureka-server      # Wait for Eureka server
+    - postgres-{service} # Wait for database
+    # - redis            # Uncomment if using Redis
+
+  # Restart policy
+  restart: unless-stopped
+
+  # Health check (OPTIONAL but recommended)
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:{port}/actuator/health"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 40s
+
+# ===========================================================================
+# DATABASE DEFINITION (PostgreSQL)
+# ===========================================================================
+# Add this if your service needs its own database
+
+postgres-{service}:
+  image: postgres:15-alpine
+  container_name: sms-postgres-{service}
+
+  environment:
+    - POSTGRES_DB={db_name}
+    - POSTGRES_USER=sms_user
+    - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+  volumes:
+    - postgres-{service}-data:/var/lib/postgresql/data
+
+  networks:
+    - database-network
+
+  restart: unless-stopped
+
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U sms_user -d {db_name}"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
+# ===========================================================================
+# VOLUME DEFINITIONS
+# ===========================================================================
+# Add this at the end of your docker-compose.yml (outside services section)
+
+volumes:
+  postgres-{service}-data:  # Named volume for database persistence
+
+# ===========================================================================
+# NETWORK DEFINITIONS
+# ===========================================================================
+# These should already be defined in your main docker-compose.yml
+# Include them here for reference only - do NOT duplicate
+
+# networks:
+#   backend-network:
+#     driver: bridge
+#   database-network:
+#     driver: bridge
+#   cache-network:
+#     driver: bridge
+
+# ===========================================================================
+# EXAMPLE: Complete Service Definition
+# ===========================================================================
+# Here's how it looks with real values for auth-service:
+
+# auth-service:
+#   build:
+#     context: ./auth-service
+#     dockerfile: Dockerfile
+#   container_name: sms-auth-service
+#   ports:
+#     - "8081:8081"
+#   environment:
+#     - SPRING_PROFILES_ACTIVE=docker
+#     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/auth_db
+#     - SPRING_DATASOURCE_USERNAME=sms_user
+#     - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+#     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+#     - SPRING_REDIS_HOST=redis
+#     - SPRING_REDIS_PORT=6379
+#     - JWT_SECRET=${JWT_SECRET}
+#   networks:
+#     - backend-network
+#     - database-network
+#     - cache-network
+#   depends_on:
+#     - eureka-server
+#     - postgres-auth
+#     - redis
+#   restart: unless-stopped
+#   healthcheck:
+#     test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+#     interval: 30s
+#     timeout: 10s
+#     retries: 3
+#     start_period: 40s
+
+# postgres-auth:
+#   image: postgres:15-alpine
+#   container_name: sms-postgres-auth
+#   environment:
+#     - POSTGRES_DB=auth_db
+#     - POSTGRES_USER=sms_user
+#     - POSTGRES_PASSWORD=${DB_PASSWORD}
+#   volumes:
+#     - postgres-auth-data:/var/lib/postgresql/data
+#   networks:
+#     - database-network
+#   restart: unless-stopped
+
+# volumes:
+#   postgres-auth-data:

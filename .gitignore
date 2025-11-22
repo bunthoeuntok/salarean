@@ -75,3 +75,13 @@ test-results/
 auth-service/uploads/
 student-service/uploads/
 uploads/
+
+# Standards directory - ignore build artifacts and temp files
+.standards/**/*.tmp
+.standards/**/*.temp
+.standards/**/*.bak
+.standards/**/*.swp
+.standards/**/*.swo
+.standards/**/node_modules/
+.standards/**/target/
+.standards/**/.DS_Store
