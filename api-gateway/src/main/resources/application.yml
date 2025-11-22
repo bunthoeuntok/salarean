@@ -36,6 +36,14 @@ spring:
           filters:
             - RewritePath=/auth-service/v3/api-docs/(?<segment>.*), /v3/api-docs/${segment}
 
+        # Student Service OpenAPI Docs
+        - id: student-service-openapi
+          uri: lb://STUDENT-SERVICE
+          predicates:
+            - Path=/student-service/v3/api-docs/**
+          filters:
+            - RewritePath=/student-service/v3/api-docs/(?<segment>.*), /v3/api-docs/${segment}
+
         # Student Service
         - id: student-service
           uri: lb://STUDENT-SERVICE
@@ -98,5 +106,7 @@ springdoc:
     urls:
       - name: auth-service
         url: /auth-service/v3/api-docs
+      - name: student-service
+        url: /student-service/v3/api-docs
   api-docs:
     enabled: true

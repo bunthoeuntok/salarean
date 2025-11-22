@@ -9,6 +9,9 @@ spring:
     clean-disabled: true
 
 eureka:
+  instance:
+    hostname: student-service
+    prefer-ip-address: false
   client:
     enabled: true
     service-url:
