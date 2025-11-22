@@ -108,23 +108,23 @@
 
 ### Reusable Component Documentation for User Story 3
 
-- [ ] T026 [P] [US3] Create .standards/templates/java/CorsConfig.java template with Spring Boot 3.5.7 annotations
-- [ ] T027 [P] [US3] Create .standards/templates/java/OpenAPIConfig.java template with API Gateway server configuration
-- [ ] T028 [P] [US3] Create .standards/templates/java/SecurityConfig.java template with JWT integration hooks
-- [ ] T029 [P] [US3] Create .standards/templates/java/JwtAuthenticationFilter.java template showing Filter pattern
-- [ ] T030 [P] [US3] Create .standards/templates/java/JwtTokenProvider.java template showing token operations
+- [x] T026 [P] [US3] Create .standards/templates/java/CorsConfig.java template with Spring Boot 3.5.7 annotations
+- [x] T027 [P] [US3] Create .standards/templates/java/OpenAPIConfig.java template with API Gateway server configuration
+- [x] T028 [P] [US3] Create .standards/templates/java/SecurityConfig.java template with JWT integration hooks
+- [x] T029 [P] [US3] Create .standards/templates/java/JwtAuthenticationFilter.java template showing Filter pattern
+- [x] T030 [P] [US3] Create .standards/templates/java/JwtTokenProvider.java template showing token operations
 
 ### Component Usage Guide for User Story 3
 
-- [ ] T031 [US3] Create .standards/docs/reusable-components.md documenting how to copy and adapt each template
-- [ ] T032 [US3] Create .standards/docs/cors-setup.md with step-by-step guide for adding CORS to a service
-- [ ] T033 [US3] Create .standards/docs/openapi-setup.md with step-by-step guide for configuring Swagger
+- [x] T031 [US3] Create .standards/docs/reusable-components.md documenting how to copy and adapt each template
+- [x] T032 [US3] Create .standards/docs/cors-setup.md with step-by-step guide for adding CORS to a service
+- [x] T033 [US3] Create .standards/docs/openapi-setup.md with step-by-step guide for configuring Swagger
 
 ### Verification for User Story 3
 
-- [ ] T034 [US3] Verify all templates match auth-service implementation
-- [ ] T035 [US3] Create copy-paste test: copy a template into a test service and verify it compiles without modifications
-- [ ] T036 [US3] Document required customizations (service name, port, database) in template files as comments
+- [x] T034 [US3] Verify all templates match auth-service implementation
+- [x] T035 [US3] Create copy-paste test: copy a template into a test service and verify it compiles without modifications
+- [x] T036 [US3] Document required customizations (service name, port, database) in template files as comments
 
 **Checkpoint**: Reusable components documented - cross-service development accelerated
 
