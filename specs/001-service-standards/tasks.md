@@ -92,11 +92,11 @@
 
 ### Verification for User Story 2
 
-- [ ] T023 [US2] Verify auth-service configuration files match templates
-- [ ] T024 [US2] Document student-service configuration deviations in .standards/docs/migration-notes.md
-- [ ] T025 [US2] Create deployment smoke test script: .standards/scripts/smoke-test-deployment.sh that verifies all services start and register with Eureka
+- [x] T023 [US2] Verify auth-service configuration files match templates
+- [x] T024 [US2] Document student-service configuration deviations in .standards/docs/migration-notes.md
+- [x] T025 [US2] Create deployment smoke test script: .standards/scripts/smoke-test-deployment.sh that verifies all services start and register with Eureka
 
-**Checkpoint**: Configuration standards documented - deployment reliability improved for compliant services
+**Checkpoint**: ✅ Configuration standards documented - deployment reliability improved for compliant services
 
 ---
 

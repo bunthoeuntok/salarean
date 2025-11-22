@@ -24,7 +24,7 @@ spring:
 eureka:
   instance:
     hostname: auth-service
-    prefer-ip-address: true
+    prefer-ip-address: false
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
