@@ -120,13 +120,11 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-student:5432/student_db
-      - DB_USERNAME=sms_user
-      - DB_PASSWORD=${DB_PASSWORD}
-      - EUREKA_CLIENT_SERVICE_URL=http://eureka-server:8761/eureka/
-      - EUREKA_INSTANCE_HOSTNAME=student-service
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - JWT_SECRET=${JWT_SECRET}
       - UPLOAD_DIR=/app/uploads/students
     volumes:
