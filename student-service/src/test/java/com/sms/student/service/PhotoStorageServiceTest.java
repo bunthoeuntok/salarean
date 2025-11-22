@@ -3,7 +3,7 @@ package com.sms.student.service;
 import com.sms.student.exception.InvalidPhotoFormatException;
 import com.sms.student.exception.PhotoProcessingException;
 import com.sms.student.exception.PhotoSizeExceededException;
-import com.sms.student.service.impl.LocalPhotoStorageService;
+import com.sms.student.service.LocalPhotoStorageService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

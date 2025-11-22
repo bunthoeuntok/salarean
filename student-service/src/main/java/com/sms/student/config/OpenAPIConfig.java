@@ -18,7 +18,7 @@ import java.util.List;
  * Configures API documentation with JWT authentication support.
  */
 @Configuration
-public class OpenApiConfig {
+public class OpenAPIConfig {
 
     @Bean
     public OpenAPI studentServiceOpenAPI() {

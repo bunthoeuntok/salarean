@@ -1,6 +1,6 @@
 package com.sms.student.repository;
 
-import com.sms.student.entity.StudentClassEnrollment;
+import com.sms.student.model.StudentClassEnrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

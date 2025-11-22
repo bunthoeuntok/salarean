@@ -1,4 +1,4 @@
-package com.sms.student.service.impl;
+package com.sms.student.service;
 
 import com.sms.student.exception.InvalidPhotoFormatException;
 import com.sms.student.exception.PhotoProcessingException;

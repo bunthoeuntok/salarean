@@ -2,15 +2,15 @@ package com.sms.student.service;
 
 import com.sms.student.dto.ParentContactRequest;
 import com.sms.student.dto.ParentContactResponse;
-import com.sms.student.entity.ParentContact;
-import com.sms.student.entity.Student;
+import com.sms.student.model.ParentContact;
+import com.sms.student.model.Student;
 import com.sms.student.enums.Relationship;
 import com.sms.student.exception.InvalidStudentDataException;
 import com.sms.student.exception.ParentContactNotFoundException;
 import com.sms.student.exception.StudentNotFoundException;
 import com.sms.student.repository.ParentContactRepository;
 import com.sms.student.repository.StudentRepository;
-import com.sms.student.service.impl.ParentContactServiceImpl;
+import com.sms.student.service.ParentContactServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

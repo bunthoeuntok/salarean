@@ -1,9 +1,9 @@
-package com.sms.student.service.impl;
+package com.sms.student.service;
 
 import com.sms.student.dto.ParentContactRequest;
 import com.sms.student.dto.ParentContactResponse;
-import com.sms.student.entity.ParentContact;
-import com.sms.student.entity.Student;
+import com.sms.student.model.ParentContact;
+import com.sms.student.model.Student;
 import com.sms.student.exception.InvalidStudentDataException;
 import com.sms.student.exception.ParentContactNotFoundException;
 import com.sms.student.exception.StudentNotFoundException;

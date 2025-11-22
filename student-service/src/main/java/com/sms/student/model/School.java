@@ -1,4 +1,4 @@
-package com.sms.student.entity;
+package com.sms.student.model;
 
 import com.sms.student.enums.SchoolType;
 import jakarta.persistence.*;

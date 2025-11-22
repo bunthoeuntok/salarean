@@ -1,6 +1,6 @@
 package com.sms.student.repository;
 
-import com.sms.student.entity.SchoolClass;
+import com.sms.student.model.SchoolClass;
 import com.sms.student.enums.ClassStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

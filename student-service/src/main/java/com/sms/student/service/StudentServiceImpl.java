@@ -1,10 +1,10 @@
-package com.sms.student.service.impl;
+package com.sms.student.service;
 
 import com.sms.student.dto.*;
-import com.sms.student.entity.ParentContact;
-import com.sms.student.entity.SchoolClass;
-import com.sms.student.entity.Student;
-import com.sms.student.entity.StudentClassEnrollment;
+import com.sms.student.model.ParentContact;
+import com.sms.student.model.SchoolClass;
+import com.sms.student.model.Student;
+import com.sms.student.model.StudentClassEnrollment;
 import com.sms.student.enums.DeletionReason;
 import com.sms.student.enums.EnrollmentReason;
 import com.sms.student.enums.StudentStatus;

@@ -1,6 +1,6 @@
 package com.sms.student.repository;
 
-import com.sms.student.entity.ParentContact;
+import com.sms.student.model.ParentContact;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

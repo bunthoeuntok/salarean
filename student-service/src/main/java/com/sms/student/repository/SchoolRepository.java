@@ -1,6 +1,6 @@
 package com.sms.student.repository;
 
-import com.sms.student.entity.School;
+import com.sms.student.model.School;
 import com.sms.student.enums.SchoolType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
 package com.sms.student.repository;
 
-import com.sms.student.entity.Student;
+import com.sms.student.model.Student;
 import com.sms.student.enums.StudentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

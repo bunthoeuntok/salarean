@@ -2,10 +2,10 @@ package com.sms.student.util;
 
 import com.sms.student.dto.ParentContactRequest;
 import com.sms.student.dto.StudentRequest;
-import com.sms.student.entity.ParentContact;
-import com.sms.student.entity.SchoolClass;
-import com.sms.student.entity.Student;
-import com.sms.student.entity.StudentClassEnrollment;
+import com.sms.student.model.ParentContact;
+import com.sms.student.model.SchoolClass;
+import com.sms.student.model.Student;
+import com.sms.student.model.StudentClassEnrollment;
 import com.sms.student.enums.EnrollmentReason;
 import com.sms.student.enums.Gender;
 import com.sms.student.enums.Relationship;
