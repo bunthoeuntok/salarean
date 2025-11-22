@@ -139,6 +139,341 @@ This directory contains the official architectural standards, templates, validat
 
 ---
 
+## Maintenance Workflows
+
+### Overview
+
+These workflows help developers efficiently maintain and refactor code across multiple microservices. All workflows follow the principle: **locate → validate → modify → test → deploy**.
+
+### Workflow 1: Locate Components Across Services
+
+**Use Case**: Find where a specific component is implemented across all services (e.g., JWT token provider, CORS configuration).
+
+**Tools**:
+- `find-component.sh` - Automated component locator
+- `common-locations.md` - Manual reference guide
+
+**Steps**:
+1. Run component finder:
+   ```bash
+   .standards/scripts/find-component.sh JwtTokenProvider
+   ```
+
+2. Review output showing all locations:
+   ```
+   ✓ FOUND in 2 service(s)
+
+   [FOUND] auth-service/security/JwtTokenProvider.java
+     Path: auth-service/src/main/java/com/sms/auth/security/JwtTokenProvider.java
+     Size: 4.2KB | Lines: 123
+
+   [FOUND] student-service/security/JwtTokenProvider.java
+     Path: student-service/src/main/java/com/sms/student/security/JwtTokenProvider.java
+     Size: 4.1KB | Lines: 120
+   ```
+
+3. View or edit files:
+   ```bash
+   # View first match
+   cat $(./find-component.sh JwtTokenProvider --path-only | head -1)
+
+   # Edit all matches
+   vim $(./find-component.sh JwtTokenProvider --path-only)
+   ```
+
+**Reference**: [`docs/common-locations.md`](docs/common-locations.md)
+
+---
+
+### Workflow 2: Apply Cross-Service Changes
+
+**Use Case**: Update a shared pattern across multiple services (e.g., change JWT expiration time, update CORS origins).
+
+**Tools**:
+- `cross-service-changes.md` - Change patterns and automation examples
+- `find-component.sh` - Locate affected files
+- `validate-all-services.sh` - Verify changes
+
+**Steps**:
+1. Identify change scope:
+   ```bash
+   # Find all affected components
+   .standards/scripts/find-component.sh JwtTokenProvider --path-only
+   ```
+
+2. Update template first:
+   ```bash
+   # Update the standard template
+   vim .standards/templates/java/JwtTokenProvider.java
+   # Change: EXPIRATION_MS = 86400000 → 172800000
+   ```
+
+3. Apply change to all services:
+   ```bash
+   # Automated replacement
+   find . -name "JwtTokenProvider.java" -path "*/security/*" \
+     -exec sed -i '' 's/EXPIRATION_MS = 86400000/EXPIRATION_MS = 172800000/g' {} +
+   ```
+
+4. Validate and test:
+   ```bash
+   # Verify all services still comply
+   .standards/scripts/validate-all-services.sh
+
+   # Run tests
+   for service in auth-service student-service; do
+       cd $service && ./mvnw test && cd ..
+   done
+   ```
+
+5. Commit changes:
+   ```bash
+   git add .
+   git commit -m "refactor: increase JWT expiration to 48 hours across all services"
+   ```
+
+**Reference**: [`docs/cross-service-changes.md`](docs/cross-service-changes.md)
+
+---
+
+### Workflow 3: Safe Refactoring
+
+**Use Case**: Refactor a shared pattern while minimizing risk of breaking changes.
+
+**Tools**:
+- `refactoring-checklist.md` - Step-by-step safety checklist
+- Git branching strategy
+- Test automation
+
+**Steps**:
+1. **Pre-Refactoring Assessment**:
+   - [ ] Identify all affected services
+   - [ ] Check production status
+   - [ ] Review test coverage
+   - [ ] Create rollback plan
+
+2. **Planning**:
+   - [ ] Create feature branch
+   - [ ] Update standard template
+   - [ ] Document target state
+   - [ ] Get team approval for breaking changes
+
+3. **Execution**:
+   - [ ] Update reference service (auth-service) first
+   - [ ] Run all tests - verify they pass
+   - [ ] Apply to remaining services one by one
+   - [ ] Test after each service update
+
+4. **Validation**:
+   - [ ] Run compliance validation:
+     ```bash
+     .standards/scripts/validate-all-services.sh
+     ```
+   - [ ] Integration testing
+   - [ ] Performance testing
+   - [ ] Security review (if applicable)
+
+5. **Deployment**:
+   - [ ] Deploy to development first
+   - [ ] Smoke test deployment
+   - [ ] Deploy to production with monitoring
+   - [ ] Monitor for issues (rollback if needed)
+
+**Reference**: [`docs/refactoring-checklist.md`](docs/refactoring-checklist.md)
+
+---
+
+### Workflow 4: Validate Service Compliance
+
+**Use Case**: Verify that a service or all services meet architectural standards.
+
+**Tools**:
+- `validate-service-structure.sh` - Single service validation
+- `validate-all-services.sh` - Batch validation
+
+**Steps**:
+
+**Single Service**:
+```bash
+.standards/scripts/validate-service-structure.sh auth-service
+```
+
+**All Services**:
+```bash
+# Standard output
+.standards/scripts/validate-all-services.sh
+
+# Detailed output
+.standards/scripts/validate-all-services.sh --detailed
+
+# JSON output (for CI/CD integration)
+.standards/scripts/validate-all-services.sh --json
+
+# Stop on first failure
+.standards/scripts/validate-all-services.sh --fail-fast
+```
+
+**Expected Output**:
+```
+================================================================
+  Service Compliance Validation - All Services
+================================================================
+
+Found 2 service(s) to validate
+
+──────────────────────────────────────────────────────────────
+Validating: auth-service
+──────────────────────────────────────────────────────────────
+[PASS] auth-service - All checks passed
+
+──────────────────────────────────────────────────────────────
+Validating: student-service
+──────────────────────────────────────────────────────────────
+[FAIL] student-service - Validation failed
+
+Failure details:
+✗ Package structure: entity/ package found (should be model/)
+✗ JWT architecture: JWT classes in config/ (should be in security/)
+
+================================================================
+  Validation Summary
+================================================================
+
+Total services:    2
+Passed:            1
+Failed:            1
+
+❌ Some services are not compliant
+```
+
+---
+
+### Workflow 5: Troubleshoot Configuration Issues
+
+**Use Case**: Debug configuration problems like Eureka registration failures, CORS errors, or JWT authentication issues.
+
+**Tools**:
+- `troubleshooting.md` - Common issues and solutions
+- `smoke-test-deployment.sh` - Automated deployment testing
+- Service logs and health endpoints
+
+**Steps**:
+1. **Identify the issue**:
+   ```bash
+   # Check service health
+   curl http://localhost:8082/actuator/health
+
+   # Check Eureka registration
+   curl http://localhost:8761/eureka/apps
+
+   # View service logs
+   docker-compose logs -f auth-service
+   ```
+
+2. **Consult troubleshooting guide**:
+   - Open [`docs/troubleshooting.md`](docs/troubleshooting.md)
+   - Search for error message or symptom
+   - Follow suggested fixes
+
+3. **Common Issues**:
+
+   **Eureka Registration Failure**:
+   - Check `prefer-ip-address: false` in docker profile
+   - Verify hostname matches service name
+   - Confirm EUREKA_CLIENT_SERVICEURL_DEFAULTZONE is set
+
+   **CORS Errors**:
+   - Verify CorsConfig exists
+   - Check allowed origins configuration
+   - Ensure SecurityConfig integrates CORS before CSRF
+
+   **JWT Authentication Failing**:
+   - Verify JWT_SECRET matches across services
+   - Check token expiration time
+   - Confirm JwtAuthenticationFilter in security context
+
+4. **Run smoke test**:
+   ```bash
+   .standards/scripts/smoke-test-deployment.sh
+   ```
+
+**Reference**: [`docs/troubleshooting.md`](docs/troubleshooting.md)
+
+---
+
+### Workflow 6: Measure Maintenance Improvements
+
+**Use Case**: Track and demonstrate maintenance time improvements from standardization.
+
+**Tools**:
+- `maintenance-metrics.md` - Metrics tracking guide
+- Git history analysis
+- Time tracking
+
+**Metrics to Track**:
+1. **Component Location Time**: How long to find a component across services
+   - Baseline (pre-standardization): ~10-15 minutes
+   - Target (post-standardization): <5 minutes
+
+2. **Cross-Service Bug Fix Time**: Time to apply same fix across all services
+   - Baseline: ~2-4 hours
+   - Target: ~1-2 hours (50% reduction)
+
+3. **Service Creation Time**: Time from template to deployed service
+   - Baseline: ~4-8 hours
+   - Target: <2 hours
+
+4. **Validation Success Rate**: New services passing compliance check
+   - Baseline: ~60%
+   - Target: 100%
+
+**How to Measure**:
+```bash
+# Track component location time
+time .standards/scripts/find-component.sh JwtTokenProvider
+
+# Track validation success
+.standards/scripts/validate-all-services.sh --json > validation-results.json
+jq '.passed / .total * 100' validation-results.json
+```
+
+**Reference**: [`docs/maintenance-metrics.md`](docs/maintenance-metrics.md)
+
+---
+
+### Quick Command Reference
+
+```bash
+# Locate component across all services
+.standards/scripts/find-component.sh <ComponentName>
+
+# Validate single service
+.standards/scripts/validate-service-structure.sh <service-name>
+
+# Validate all services
+.standards/scripts/validate-all-services.sh
+
+# Test deployment
+.standards/scripts/smoke-test-deployment.sh
+
+# View component (first match)
+cat $(./find-component.sh <ComponentName> --path-only | head -1)
+
+# Edit component (all matches)
+vim $(./find-component.sh <ComponentName> --path-only)
+
+# Bulk replace across services
+find . -name "*.java" -not -path "*/target/*" \
+  -exec sed -i '' 's/old-text/new-text/g' {} +
+
+# Test all services
+for service in auth-service student-service; do
+    cd $service && ./mvnw test && cd ..
+done
+```
+
+---
+
 ## Core Standards
 
 ### 1. Package Structure Standard

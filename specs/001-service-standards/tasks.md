@@ -138,21 +138,21 @@
 
 ### Maintenance Guides for User Story 4
 
-- [ ] T037 [P] [US4] Create .standards/docs/common-locations.md mapping feature types to standard package locations (e.g., "JWT validation" → security/JwtTokenProvider.java)
-- [ ] T038 [P] [US4] Create .standards/docs/refactoring-checklist.md for safely changing shared patterns across services
-- [ ] T039 [P] [US4] Create .standards/docs/cross-service-changes.md with patterns for applying fixes to multiple services
+- [x] T037 [P] [US4] Create .standards/docs/common-locations.md mapping feature types to standard package locations (e.g., "JWT validation" → security/JwtTokenProvider.java)
+- [x] T038 [P] [US4] Create .standards/docs/refactoring-checklist.md for safely changing shared patterns across services
+- [x] T039 [P] [US4] Create .standards/docs/cross-service-changes.md with patterns for applying fixes to multiple services
 
 ### Maintenance Tools for User Story 4
 
-- [ ] T040 [US4] Create .standards/scripts/find-component.sh helper script that locates a component type across all services (e.g., "./find-component.sh JwtTokenProvider")
-- [ ] T041 [US4] Create .standards/scripts/validate-all-services.sh that runs compliance validation on all services and reports results
-- [ ] T042 [US4] Update .standards/README.md with maintenance workflow section
+- [x] T040 [US4] Create .standards/scripts/find-component.sh helper script that locates a component type across all services (e.g., "./find-component.sh JwtTokenProvider")
+- [x] T041 [US4] Create .standards/scripts/validate-all-services.sh that runs compliance validation on all services and reports results
+- [x] T042 [US4] Update .standards/README.md with maintenance workflow section
 
 ### Verification for User Story 4
 
-- [ ] T043 [US4] Test find-component.sh script with various component types (CorsConfig, JwtTokenProvider, SecurityConfig)
-- [ ] T044 [US4] Test validate-all-services.sh and verify it reports auth-service as compliant, student-service as non-compliant
-- [ ] T045 [US4] Create .standards/docs/maintenance-metrics.md documenting how to measure maintenance time improvements
+- [x] T043 [US4] Test find-component.sh script with various component types (CorsConfig, JwtTokenProvider, SecurityConfig)
+- [x] T044 [US4] Test validate-all-services.sh and verify it reports auth-service as compliant, student-service as non-compliant
+- [x] T045 [US4] Create .standards/docs/maintenance-metrics.md documenting how to measure maintenance time improvements
 
 **Checkpoint**: Maintenance tools and guides complete - cross-service changes simplified
 
