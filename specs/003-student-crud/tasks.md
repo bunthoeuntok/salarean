@@ -324,18 +324,18 @@
 
 ### Tasks
 
-- [ ] [T121] [P] [Test] Create TestDataFactory utility at `/student-service/src/test/java/com/sms/student/util/TestDataFactory.java`
-- [ ] [T122] [P] [Test] Create StudentRepositoryTest with Testcontainers at `/student-service/src/test/java/com/sms/student/repository/StudentRepositoryTest.java`
-- [ ] [T123] [P] [Test] Create ParentContactRepositoryTest at `/student-service/src/test/java/com/sms/student/repository/ParentContactRepositoryTest.java`
-- [ ] [T124] [Test] Add edge case tests: student with no parent contacts (should fail)
-- [ ] [T125] [Test] Add edge case tests: student with 5+ parent contacts
-- [ ] [T126] [Test] Add edge case tests: duplicate student code handling
-- [ ] [T127] [Test] Add edge case tests: concurrent enrollment in same class
-- [ ] [T128] [Test] Add performance test: bulk student creation (100 students)
-- [ ] [T129] [Test] Add performance test: pagination with 10,000 students
-- [ ] [T130] [Test] Run test coverage report: `mvn test jacoco:report`
-- [ ] [T131] [Test] Verify test coverage >80% for service layer
-- [ ] [T132] [Test] Run integration tests with `mvn verify`
+- [X] [T121] [P] [Test] Create TestDataFactory utility at `/student-service/src/test/java/com/sms/student/util/TestDataFactory.java`
+- [X] [T122] [P] [Test] Create StudentRepositoryTest with Testcontainers at `/student-service/src/test/java/com/sms/student/repository/StudentRepositoryTest.java`
+- [X] [T123] [P] [Test] Create ParentContactRepositoryTest at `/student-service/src/test/java/com/sms/student/repository/ParentContactRepositoryTest.java`
+- [X] [T124] [Test] Add edge case tests: student with no parent contacts (should fail)
+- [X] [T125] [Test] Add edge case tests: student with 5+ parent contacts
+- [X] [T126] [Test] Add edge case tests: duplicate student code handling
+- [X] [T127] [Test] Add edge case tests: concurrent enrollment in same class
+- [X] [T128] [Test] Add performance test: bulk student creation (100 students)
+- [X] [T129] [Test] Add performance test: pagination with 10,000 students
+- [X] [T130] [Test] Run test coverage report: `mvn test jacoco:report`
+- [X] [T131] [Test] Verify test coverage >80% for service layer
+- [X] [T132] [Test] Run integration tests with `mvn verify`
 
 **Completion Criteria**: All tests pass, coverage >80%, performance goals met
 
@@ -349,16 +349,16 @@
 
 ### Tasks
 
-- [ ] [T133] [P] [Docs] Generate OpenAPI spec JSON: `curl http://localhost:8082/v3/api-docs > student-api-spec.json`
-- [ ] [T134] [P] [Docs] Update README.md with API documentation at `/student-service/README.md`
-- [ ] [T135] [P] [Docs] Create API usage examples in docs/ directory
-- [ ] [T136] [Deploy] Build Docker image: `docker-compose build student-service`
-- [ ] [T137] [Deploy] Start full stack: `docker-compose up -d`
-- [ ] [T138] [Deploy] Verify service health: `curl http://localhost:8082/actuator/health`
-- [ ] [T139] [Deploy] Verify Eureka registration: `curl http://localhost:8761`
-- [ ] [T140] [Deploy] Test end-to-end flow: create student, upload photo, retrieve details
-- [ ] [T141] [Deploy] Run smoke tests against deployed service
-- [ ] [T142] [Deploy] Generate deployment checklist for production
+- [X] [T133] [P] [Docs] Generate OpenAPI spec JSON: `curl http://localhost:8082/v3/api-docs > student-api-spec.json`
+- [X] [T134] [P] [Docs] Update README.md with API documentation at `/student-service/README.md`
+- [X] [T135] [P] [Docs] Create API usage examples in docs/ directory
+- [X] [T136] [Deploy] Build Docker image: `docker-compose build student-service`
+- [X] [T137] [Deploy] Start full stack: `docker-compose up -d`
+- [X] [T138] [Deploy] Verify service health: `curl http://localhost:8082/actuator/health`
+- [X] [T139] [Deploy] Verify Eureka registration: `curl http://localhost:8761`
+- [X] [T140] [Deploy] Test end-to-end flow: create student, upload photo, retrieve details
+- [X] [T141] [Deploy] Run smoke tests against deployed service
+- [X] [T142] [Deploy] Generate deployment checklist for production
 
 **Completion Criteria**: Service deployed, all health checks pass, E2E flow works
 
