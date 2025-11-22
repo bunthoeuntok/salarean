@@ -302,15 +302,15 @@
 
 ### Tasks
 
-- [ ] [T112] [P] [Security] Create JwtAuthenticationFilter at `/student-service/src/main/java/com/sms/student/config/JwtAuthenticationFilter.java`
-- [ ] [T113] [P] [Security] Create SecurityConfig with JWT validation at `/student-service/src/main/java/com/sms/student/config/SecurityConfig.java`
-- [ ] [T114] [Security] Add role-based access control: TEACHER role required for all endpoints
-- [ ] [T115] [P] [Config] Create OpenAPI configuration class at `/student-service/src/main/java/com/sms/student/config/OpenApiConfig.java`
-- [ ] [T116] [P] [Config] Add Swagger UI customization with JWT auth button
-- [ ] [T117] [P] [Config] Create EurekaConfig for service discovery at `/student-service/src/main/java/com/sms/student/config/EurekaConfig.java`
-- [ ] [T118] [Config] Add actuator endpoints configuration in application.yml
-- [ ] [T119] [P] [Config] Create FileUploadConfig for photo storage at `/student-service/src/main/java/com/sms/student/config/FileUploadConfig.java`
-- [ ] [T120] [Security] Add integration test for JWT authentication on protected endpoints
+- [X] [T112] [P] [Security] Create JwtAuthenticationFilter at `/student-service/src/main/java/com/sms/student/config/JwtAuthenticationFilter.java`
+- [X] [T113] [P] [Security] Create SecurityConfig with JWT validation at `/student-service/src/main/java/com/sms/student/config/SecurityConfig.java`
+- [X] [T114] [Security] Add role-based access control: TEACHER role required for all endpoints
+- [X] [T115] [P] [Config] Create OpenAPI configuration class at `/student-service/src/main/java/com/sms/student/config/OpenApiConfig.java`
+- [X] [T116] [P] [Config] Add Swagger UI customization with JWT auth button
+- [X] [T117] [P] [Config] Create EurekaConfig for service discovery at `/student-service/src/main/java/com/sms/student/config/EurekaConfig.java`
+- [X] [T118] [Config] Add actuator endpoints configuration in application.yml
+- [X] [T119] [P] [Config] Create FileUploadConfig for photo storage at `/student-service/src/main/java/com/sms/student/config/FileUploadConfig.java`
+- [X] [T120] [Security] Add integration test for JWT authentication on protected endpoints
 
 **Completion Criteria**: All endpoints require JWT, Swagger UI functional, Eureka registered
 

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -30,8 +31,10 @@ public class StudentController {
     /**
      * Create a new student profile.
      * POST /api/students
+     * Requires TEACHER role.
      */
     @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> createStudent(
             @Valid @RequestBody StudentRequest request) {
         log.info("Received request to create student: {} {}",
@@ -50,8 +53,10 @@ public class StudentController {
     /**
      * Update existing student information.
      * PUT /api/students/{id}
+     * Requires TEACHER role.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> updateStudent(
             @PathVariable UUID id,
             @Valid @RequestBody StudentRequest request) {
@@ -67,8 +72,10 @@ public class StudentController {
     /**
      * Soft delete a student.
      * DELETE /api/students/{id}
+     * Requires TEACHER role.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<Void>> deleteStudent(
             @PathVariable UUID id,
             @RequestParam(required = false) DeletionReason reason,
@@ -85,8 +92,10 @@ public class StudentController {
     /**
      * Get student details by ID.
      * GET /api/students/{id}
+     * Requires TEACHER role.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> getStudentById(@PathVariable UUID id) {
         log.info("Received request to get student by ID: {}", id);
 
@@ -98,8 +107,10 @@ public class StudentController {
     /**
      * Get student details by student code.
      * GET /api/students/code/{studentCode}
+     * Requires TEACHER role.
      */
     @GetMapping("/code/{studentCode}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> getStudentByCode(
             @PathVariable String studentCode) {
         log.info("Received request to get student by code: {}", studentCode);
@@ -112,8 +123,10 @@ public class StudentController {
     /**
      * List all active students in a specific class.
      * GET /api/students/class/{classId}
+     * Requires TEACHER role.
      */
     @GetMapping("/class/{classId}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentListResponse>> listStudentsByClass(
             @PathVariable UUID classId,
             @RequestParam(defaultValue = "0") int page,
@@ -131,8 +144,10 @@ public class StudentController {
     /**
      * List all active students with pagination.
      * GET /api/students
+     * Requires TEACHER role.
      */
     @GetMapping
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentListResponse>> listActiveStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -148,8 +163,10 @@ public class StudentController {
     /**
      * Search students by name (supports English and Khmer).
      * GET /api/students/search
+     * Requires TEACHER role.
      */
     @GetMapping("/search")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentListResponse>> searchStudents(
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
@@ -167,8 +184,10 @@ public class StudentController {
     /**
      * Upload student photo.
      * POST /api/students/{id}/photo
+     * Requires TEACHER role.
      */
     @PostMapping("/{id}/photo")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<PhotoUploadResponse>> uploadStudentPhoto(
             @PathVariable UUID id,
             @RequestParam("file") byte[] photoData,
