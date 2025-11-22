@@ -1,0 +1,294 @@
+# Docker Compose Service Entry Template
+#
+# This template shows the standard Docker Compose configuration for a Salarean SMS microservice.
+#
+# Usage:
+# 1. Copy the relevant sections below into your project's docker-compose.yml
+# 2. Replace all {SERVICE_NAME} placeholders with your actual service name (e.g., attendance)
+# 3. Replace all {PORT} placeholders with your service's unique port (e.g., 8083)
+# 4. Replace all {DB_PORT} placeholders with a unique external database port (e.g., 5435)
+# 5. Ensure {SERVICE_NAME} matches your service directory name and application name
+#
+# Template Version: 1.0.0
+# Last Updated: 2025-11-22
+# Based on: docker-compose.yml (auth-service configuration)
+#
+# Port Allocation Reference:
+#   API Gateway: 8080
+#   Auth Service: 8081 (DB: 5433)
+#   Student Service: 8082 (DB: 5434)
+#   Attendance Service: 8083 (DB: 5435)
+#   Grade Service: 8084 (DB: 5436)
+#   Report Service: 8085 (DB: 5437)
+#   Notification Service: 8086 (DB: 5438)
+#
+# ==============================================================================
+# SECTION 1: Microservice Container
+# Add this to the `services:` section of docker-compose.yml
+# ==============================================================================
+
+  # Microservice: {SERVICE_NAME}-service
+  {SERVICE_NAME}-service:
+    # Build configuration
+    build:
+      context: ./{SERVICE_NAME}-service
+      dockerfile: Dockerfile
+
+    # Container name (must match service name for Eureka hostname-based registration)
+    container_name: {SERVICE_NAME}-service
+
+    # Environment variables (CRITICAL: Follow Spring Boot standard naming)
+    environment:
+      # Profile activation (MUST be 'docker', NOT 'prod' or 'dev')
+      - SPRING_PROFILES_ACTIVE=docker
+
+      # Database configuration (use SPRING_DATASOURCE_* prefix)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-{SERVICE_NAME}:5432/{SERVICE_NAME}_db
+      - SPRING_DATASOURCE_USERNAME=sms_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+
+      # Eureka service discovery (exact spelling required)
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+
+      # JWT authentication (shared secret across all services)
+      - JWT_SECRET=${JWT_SECRET}
+
+      # OPTIONAL: Redis configuration (remove if not using Redis)
+      # - SPRING_REDIS_HOST=redis
+      # - SPRING_REDIS_PORT=6379
+      # - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD}
+
+      # OPTIONAL: File upload configuration (remove if not handling uploads)
+      # - UPLOAD_DIR=/app/uploads/{SERVICE_NAME}
+      # - MAX_FILE_SIZE=10485760
+
+    # Port mapping (External:Internal)
+    # External port must be unique across all services
+    ports:
+      - "{PORT}:{PORT}"  # e.g., "8083:8083"
+
+    # Networks (REQUIRED: Both networks for service mesh and database access)
+    networks:
+      - backend-network      # For Eureka, API Gateway, inter-service communication
+      - database-network     # For database access
+
+    # Service dependencies (ensure these services start first)
+    depends_on:
+      - postgres-{SERVICE_NAME}  # Service-specific database
+      - eureka-server            # Service discovery
+      # - redis                  # OPTIONAL: Add if using Redis
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:{PORT}/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s  # Give service time to start and connect to database
+
+    # OPTIONAL: Volume mounts (add if needed for file uploads, logs, etc.)
+    # volumes:
+    #   - {SERVICE_NAME}-uploads:/app/uploads/{SERVICE_NAME}
+    #   - {SERVICE_NAME}-logs:/app/logs
+
+# ==============================================================================
+# SECTION 2: PostgreSQL Database Container
+# Add this to the `services:` section of docker-compose.yml
+# ==============================================================================
+
+  # Database for {SERVICE_NAME}-service
+  postgres-{SERVICE_NAME}:
+    image: postgres:15-alpine
+    container_name: postgres-{SERVICE_NAME}
+
+    # Database configuration
+    environment:
+      - POSTGRES_DB={SERVICE_NAME}_db        # Database name
+      - POSTGRES_USER=sms_user               # Database user (standard across all services)
+      - POSTGRES_PASSWORD=${DB_PASSWORD}     # Password from .env file
+
+    # Persistent storage
+    volumes:
+      - postgres-{SERVICE_NAME}-data:/var/lib/postgresql/data
+
+    # Network (database-only network for security)
+    networks:
+      - database-network
+
+    # Port mapping (external port must be unique to avoid conflicts)
+    # Internal port is always 5432 (PostgreSQL default)
+    ports:
+      - "{DB_PORT}:5432"  # e.g., "5435:5432" for attendance-service
+
+    # Restart policy
+    restart: unless-stopped
+
+    # OPTIONAL: Health check
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U sms_user -d {SERVICE_NAME}_db"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+# ==============================================================================
+# SECTION 3: Volume Definitions
+# Add this to the `volumes:` section at the bottom of docker-compose.yml
+# ==============================================================================
+
+volumes:
+  # Persistent storage for {SERVICE_NAME} database
+  postgres-{SERVICE_NAME}-data:
+    driver: local
+
+  # OPTIONAL: Add if using file uploads
+  # {SERVICE_NAME}-uploads:
+  #   driver: local
+
+  # OPTIONAL: Add if persisting logs
+  # {SERVICE_NAME}-logs:
+  #   driver: local
+
+# ==============================================================================
+# SECTION 4: Network Definitions (if not already present)
+# These networks should already exist in docker-compose.yml
+# Only add if creating a new docker-compose.yml from scratch
+# ==============================================================================
+
+# networks:
+#   backend-network:
+#     driver: bridge
+#   database-network:
+#     driver: bridge
+
+# ==============================================================================
+# Integration Example: Complete Entry for attendance-service
+# ==============================================================================
+
+# Copy this complete example and modify for your service:
+
+# services:
+#   attendance-service:
+#     build:
+#       context: ./attendance-service
+#       dockerfile: Dockerfile
+#     container_name: attendance-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-attendance:5432/attendance_db
+#       - SPRING_DATASOURCE_USERNAME=sms_user
+#       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+#       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+#       - JWT_SECRET=${JWT_SECRET}
+#     ports:
+#       - "8083:8083"
+#     networks:
+#       - backend-network
+#       - database-network
+#     depends_on:
+#       - postgres-attendance
+#       - eureka-server
+#     restart: unless-stopped
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+#       start_period: 40s
+#
+#   postgres-attendance:
+#     image: postgres:15-alpine
+#     container_name: postgres-attendance
+#     environment:
+#       - POSTGRES_DB=attendance_db
+#       - POSTGRES_USER=sms_user
+#       - POSTGRES_PASSWORD=${DB_PASSWORD}
+#     volumes:
+#       - postgres-attendance-data:/var/lib/postgresql/data
+#     networks:
+#       - database-network
+#     ports:
+#       - "5435:5432"
+#     restart: unless-stopped
+#
+# volumes:
+#   postgres-attendance-data:
+#     driver: local
+
+# ==============================================================================
+# Environment Variables (.env file)
+# ==============================================================================
+
+# Create a .env file in your project root with these variables:
+#
+# # Database Password (shared across all services)
+# DB_PASSWORD=your_secure_password_here
+#
+# # JWT Secret (shared across all services, minimum 32 characters)
+# JWT_SECRET=your_jwt_secret_key_minimum_32_characters_long
+#
+# # OPTIONAL: Redis Password
+# REDIS_PASSWORD=your_redis_password
+#
+# IMPORTANT:
+# - Never commit .env to Git
+# - Use strong, randomly generated passwords
+# - Rotate JWT secret periodically
+# - Use different secrets for dev/staging/production
+
+# ==============================================================================
+# Deployment Commands
+# ==============================================================================
+
+# Build service:
+#   docker-compose build {SERVICE_NAME}-service
+#
+# Start service:
+#   docker-compose up -d {SERVICE_NAME}-service
+#
+# View logs:
+#   docker-compose logs -f {SERVICE_NAME}-service
+#
+# Restart service:
+#   docker-compose restart {SERVICE_NAME}-service
+#
+# Stop service:
+#   docker-compose stop {SERVICE_NAME}-service
+#
+# Remove service (preserves data):
+#   docker-compose down {SERVICE_NAME}-service
+#
+# Remove service and data (DESTRUCTIVE):
+#   docker-compose down -v {SERVICE_NAME}-service
+#
+# Rebuild and restart:
+#   docker-compose up -d --build {SERVICE_NAME}-service
+
+# ==============================================================================
+# Troubleshooting
+# ==============================================================================
+
+# Service won't start:
+#   - Check logs: docker-compose logs {SERVICE_NAME}-service
+#   - Check database connection: docker-compose logs postgres-{SERVICE_NAME}
+#   - Verify environment variables in .env
+#   - Ensure unique ports (no conflicts)
+#
+# Service not registering with Eureka:
+#   - Verify eureka.instance.hostname matches container name in application-docker.yml
+#   - Verify eureka.instance.prefer-ip-address: false
+#   - Check backend-network connectivity
+#   - Ensure eureka-server is running and healthy
+#
+# Database connection failed:
+#   - Verify database container is running
+#   - Check database credentials in .env
+#   - Verify database-network connectivity
+#   - Check database logs for errors
+#
+# Health check failing:
+#   - Increase start_period if service takes longer to start
+#   - Verify actuator health endpoint is accessible
+#   - Check service logs for startup errors

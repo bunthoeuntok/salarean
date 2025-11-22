@@ -368,4 +368,84 @@ public OpenAPI {serviceName}API() {
 
 **For all code generation in this project**: Claude MUST strictly adhere to these microservice architecture standards without exception, unless user explicitly requests deviation with clear justification.
 
+---
+
+## Microservice Standards Reference
+
+**IMPORTANT**: Complete standardization framework is now available in `.standards/` directory.
+
+### Quick Links
+
+**For creating new services**:
+- **Automation Script**: `.standards/scripts/create-service.sh <service-name> <port> <db-port>`
+- **Quick Start Guide**: `.standards/docs/quickstart-service-creation.md`
+- **Verification Checklist**: `.standards/docs/service-creation-checklist.md`
+
+**For maintaining existing services**:
+- **Component Location**: `.standards/docs/common-locations.md`
+- **Cross-Service Changes**: `.standards/docs/cross-service-changes.md`
+- **Refactoring Guide**: `.standards/docs/refactoring-checklist.md`
+
+**For questions and troubleshooting**:
+- **FAQ**: `.standards/docs/FAQ.md` (50+ questions answered)
+- **Troubleshooting**: `.standards/docs/troubleshooting.md`
+- **Standards Overview**: `.standards/README.md`
+
+### Validation and Compliance
+
+**Before committing code**:
+```bash
+# Validate service structure
+.standards/scripts/validate-service-structure.sh <service-name>
+
+# Validate all services
+.standards/scripts/validate-all-services.sh
+```
+
+**All services MUST pass validation** before deployment. See `.standards/docs/service-creation-checklist.md` for complete verification checklist.
+
+### Templates Available
+
+- **Java Classes**: CorsConfig, OpenAPIConfig, SecurityConfig, JwtAuthenticationFilter, JwtTokenProvider
+- **Configuration**: application.yml, application-docker.yml, pom.xml
+- **Docker**: Dockerfile, docker-compose-entry.yml
+- **All templates**: `.standards/templates/`
+
+### Documentation Structure
+
+```
+.standards/
+├── README.md                          # Overview and quick links
+├── CHANGELOG.md                       # Standards evolution
+├── docs/                              # All documentation
+│   ├── quickstart-service-creation.md # Step-by-step guide
+│   ├── service-creation-checklist.md  # Verification checklist
+│   ├── common-locations.md            # Where to find components
+│   ├── cross-service-changes.md       # Bulk update patterns
+│   ├── refactoring-checklist.md       # Safe refactoring
+│   ├── FAQ.md                         # Frequently asked questions
+│   └── ... (25+ more guides)
+├── scripts/                           # Automation tools
+│   ├── create-service.sh              # Service creation automation
+│   ├── validate-service-structure.sh  # Compliance validation
+│   ├── validate-all-services.sh       # Batch validation
+│   └── find-component.sh              # Component finder
+└── templates/                         # Reusable templates
+    ├── java/                          # Java class templates
+    ├── Dockerfile                     # Docker template
+    ├── pom-template.xml               # Maven template
+    └── docker-compose-entry.yml       # Docker Compose template
+```
+
+### Success Metrics
+
+- ✅ **Service Creation**: <2 hours from start to deployment-ready
+- ✅ **Maintenance Time**: 50% reduction (2-4 hours → 1-2 hours)
+- ✅ **Developer Onboarding**: Navigate any service in <30 minutes
+- ✅ **Compliance**: 100% validation pass required before deployment
+
+**Version**: 1.0.0 (Released 2025-11-22)
+
+---
+
 <!-- MANUAL ADDITIONS END -->
