@@ -127,6 +127,7 @@ services:
       - EUREKA_CLIENT_SERVICE_URL=http://eureka-server:8761/eureka/
       - EUREKA_INSTANCE_HOSTNAME=student-service
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+      - JWT_SECRET=${JWT_SECRET}
       - UPLOAD_DIR=/app/uploads/students
     volumes:
       - uploads:/app/uploads
