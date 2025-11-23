@@ -2,6 +2,7 @@ package com.sms.auth.service;
 
 import com.sms.common.dto.ErrorCode;
 import com.sms.common.util.DateUtils;
+import com.sms.auth.config.SecurityProperties;
 import com.sms.auth.exception.InvalidTokenException;
 import com.sms.auth.model.RefreshToken;
 import com.sms.auth.repository.RefreshTokenRepository;
@@ -21,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
-    private static final long REFRESH_TOKEN_VALIDITY_DAYS = 30;
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final SessionRepository sessionRepository;
@@ -51,7 +51,7 @@ public class TokenService {
         String tokenHash = passwordEncoder.encode(plainToken);
 
         // Create expiration date (30 days from now)
-        LocalDateTime expiresAt = DateUtils.expiresInDays(30);
+        LocalDateTime expiresAt = DateUtils.expiresInDays(SecurityProperties.REFRESH_TOKEN_EXPIRATION_DAYS);
 
         // Save to database
         RefreshToken refreshToken = RefreshToken.builder()
@@ -68,7 +68,7 @@ public class TokenService {
 
         // Cache in Redis (key: "refresh_token:{userId}:{tokenId}")
         String redisKey = buildRedisKey(userId, tokenId);
-        redisTemplate.opsForValue().set(redisKey, refreshToken, REFRESH_TOKEN_VALIDITY_DAYS, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(redisKey, refreshToken, SecurityProperties.REFRESH_TOKEN_EXPIRATION_DAYS, TimeUnit.DAYS);
 
         logger.info("Created refresh token for user: {}", userId);
 
@@ -102,7 +102,7 @@ public class TokenService {
 
             // Warm the cache
             String redisKey = buildRedisKey(refreshToken.getUserId(), tokenId);
-            redisTemplate.opsForValue().set(redisKey, refreshToken, REFRESH_TOKEN_VALIDITY_DAYS, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(redisKey, refreshToken, SecurityProperties.REFRESH_TOKEN_EXPIRATION_DAYS, TimeUnit.DAYS);
         }
 
         // Check if token has expired
@@ -146,7 +146,7 @@ public class TokenService {
 
         // Update Redis cache
         String redisKey = buildRedisKey(userId, tokenId);
-        redisTemplate.opsForValue().set(redisKey, token, REFRESH_TOKEN_VALIDITY_DAYS, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(redisKey, token, SecurityProperties.REFRESH_TOKEN_EXPIRATION_DAYS, TimeUnit.DAYS);
 
         // Delete the old token after marking as used (cleanup)
         refreshTokenRepository.deleteById(tokenId);

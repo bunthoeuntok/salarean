@@ -1,5 +1,6 @@
 package com.sms.auth.service;
 
+import com.sms.auth.config.SecurityProperties;
 import com.sms.auth.model.LoginAttempt;
 import com.sms.auth.repository.LoginAttemptRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +16,14 @@ public class RateLimitService {
 
     private final LoginAttemptRepository loginAttemptRepository;
 
-    private static final int MAX_ATTEMPTS = 5;
-    private static final int WINDOW_MINUTES = 15;
-
     /**
-     * Check if identifier is rate-limited (more than 5 failed attempts in last 15 minutes)
+     * Check if identifier is rate-limited
+     * (more than MAX_LOGIN_ATTEMPTS failed attempts in last ACCOUNT_LOCK_DURATION_MINUTES)
      */
     public boolean isRateLimited(String identifier) {
-        LocalDateTime since = LocalDateTime.now().minusMinutes(WINDOW_MINUTES);
+        LocalDateTime since = LocalDateTime.now().minusMinutes(SecurityProperties.ACCOUNT_LOCK_DURATION_MINUTES);
         long failedAttempts = loginAttemptRepository.countFailedAttemptsSince(identifier, since);
-        return failedAttempts >= MAX_ATTEMPTS;
+        return failedAttempts >= SecurityProperties.MAX_LOGIN_ATTEMPTS;
     }
 
     /**

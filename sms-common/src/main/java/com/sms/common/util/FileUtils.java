@@ -1,5 +1,6 @@
 package com.sms.common.util;
 
+import com.sms.common.constants.CommonConstants;
 import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,30 +32,6 @@ public final class FileUtils {
     // ============================================
     // CONSTANTS
     // ============================================
-
-    // File size limits
-    /** Maximum photo size: 5MB */
-    public static final long MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024;
-
-    /** Maximum document size: 10MB */
-    public static final long MAX_DOCUMENT_SIZE_BYTES = 10 * 1024 * 1024;
-
-    // Allowed MIME types (detected by Apache Tika)
-    /** Allowed image MIME types */
-    public static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    );
-
-    /** Allowed document MIME types */
-    public static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of(
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
-    );
 
     // File extensions
     /** Allowed image file extensions */
@@ -93,7 +70,7 @@ public final class FileUtils {
      * @return true if valid
      */
     public static boolean isValidPhotoSize(long fileSize) {
-        return isValidFileSize(fileSize, MAX_PHOTO_SIZE_BYTES);
+        return isValidFileSize(fileSize, CommonConstants.MAX_PHOTO_SIZE_BYTES);
     }
 
     /**
@@ -113,7 +90,7 @@ public final class FileUtils {
      * @return true if valid
      */
     public static boolean isValidDocumentSize(long fileSize) {
-        return isValidFileSize(fileSize, MAX_DOCUMENT_SIZE_BYTES);
+        return isValidFileSize(fileSize, CommonConstants.MAX_DOCUMENT_SIZE_BYTES);
     }
 
     /**
@@ -202,7 +179,7 @@ public final class FileUtils {
      * @return true if valid photo format
      */
     public static boolean isValidPhotoMimeType(MultipartFile file) {
-        return isValidMimeType(file, ALLOWED_IMAGE_TYPES);
+        return isValidMimeType(file, Set.of(CommonConstants.ALLOWED_IMAGE_TYPES));
     }
 
     /**
@@ -212,7 +189,7 @@ public final class FileUtils {
      * @return true if valid photo format
      */
     public static boolean isValidPhotoMimeType(byte[] fileData) {
-        return isValidMimeType(fileData, ALLOWED_IMAGE_TYPES);
+        return isValidMimeType(fileData, Set.of(CommonConstants.ALLOWED_IMAGE_TYPES));
     }
 
     /**
@@ -222,7 +199,7 @@ public final class FileUtils {
      * @return true if valid document format
      */
     public static boolean isValidDocumentMimeType(MultipartFile file) {
-        return isValidMimeType(file, ALLOWED_DOCUMENT_TYPES);
+        return isValidMimeType(file, Set.of(CommonConstants.ALLOWED_DOCUMENT_TYPES));
     }
 
     /**

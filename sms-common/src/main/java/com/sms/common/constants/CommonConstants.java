@@ -4,11 +4,15 @@ package com.sms.common.constants;
  * Common constants shared across all Salarean SMS microservices.
  *
  * Single source of truth for:
- * - File size limits
- * - Security settings (JWT, session timeouts)
+ * - File size limits and MIME types
  * - Pagination defaults
- * - Date/time formats
- * - Validation rules
+ * - Date/time formats (Cambodia timezone and date formats)
+ * - Academic year settings (Cambodia)
+ * - Age validation rules (school enrollment)
+ * - HTTP headers and language codes
+ *
+ * NOTE: Service-specific constants (JWT, passwords, rate limiting, etc.)
+ * should be defined in their respective services, NOT here.
  */
 public final class CommonConstants {
 
@@ -62,56 +66,6 @@ public final class CommonConstants {
 
     /** Cambodia timezone: Asia/Phnom_Penh (UTC+7) */
     public static final String TIMEZONE_CAMBODIA = "Asia/Phnom_Penh";
-
-
-    // ============================================
-    // SECURITY - JWT
-    // ============================================
-
-    /** JWT access token expiration: 24 hours */
-    public static final int JWT_EXPIRATION_HOURS = 24;
-
-    /** JWT access token expiration in milliseconds */
-    public static final long JWT_EXPIRATION_MS = JWT_EXPIRATION_HOURS * 60 * 60 * 1000L;
-
-    /** JWT refresh token expiration: 30 days */
-    public static final int REFRESH_TOKEN_EXPIRATION_DAYS = 30;
-
-
-    // ============================================
-    // SECURITY - SESSION
-    // ============================================
-
-    /** Session timeout: 24 hours (same as JWT) */
-    public static final int SESSION_TIMEOUT_HOURS = 24;
-
-    /** Maximum concurrent sessions per user */
-    public static final int MAX_CONCURRENT_SESSIONS = 5;
-
-
-    // ============================================
-    // SECURITY - PASSWORD
-    // ============================================
-
-    /** Minimum password length */
-    public static final int MIN_PASSWORD_LENGTH = 8;
-
-    /** Maximum password length */
-    public static final int MAX_PASSWORD_LENGTH = 128;
-
-
-    // ============================================
-    // SECURITY - RATE LIMITING
-    // ============================================
-
-    /** Maximum login attempts before account lock */
-    public static final int MAX_LOGIN_ATTEMPTS = 5;
-
-    /** Account lock duration in minutes */
-    public static final int ACCOUNT_LOCK_DURATION_MINUTES = 15;
-
-    /** Rate limit: Maximum API requests per minute per user */
-    public static final int MAX_REQUESTS_PER_MINUTE = 60;
 
 
     // ============================================
@@ -177,7 +131,7 @@ public final class CommonConstants {
 
 
     // ============================================
-    // ALLOWED FILE MIME TYPES
+    // FILE MIME TYPES
     // ============================================
 
     /** Allowed image MIME types */
@@ -193,18 +147,4 @@ public final class CommonConstants {
         "application/msword",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // .docx
     };
-
-
-    // ============================================
-    // CACHE TTL (Time To Live)
-    // ============================================
-
-    /** Cache TTL for user profiles: 1 hour */
-    public static final int CACHE_TTL_USER_PROFILE_SECONDS = 60 * 60;
-
-    /** Cache TTL for student data: 30 minutes */
-    public static final int CACHE_TTL_STUDENT_SECONDS = 30 * 60;
-
-    /** Cache TTL for static data (schools, classes): 24 hours */
-    public static final int CACHE_TTL_STATIC_DATA_SECONDS = 24 * 60 * 60;
 }

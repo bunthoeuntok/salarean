@@ -1,5 +1,7 @@
 package com.sms.common.util;
 
+import com.sms.common.constants.CommonConstants;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -23,31 +25,18 @@ public final class DateUtils {
     // ============================================
 
     /** Cambodia timezone (UTC+7) */
-    public static final ZoneId CAMBODIA_ZONE = ZoneId.of("Asia/Phnom_Penh");
+    public static final ZoneId CAMBODIA_ZONE = ZoneId.of(CommonConstants.TIMEZONE_CAMBODIA);
 
     /** Khmer locale */
     public static final Locale KHMER_LOCALE = new Locale("km", "KH");
 
     /** Khmer date format (dd-MM-yyyy) */
     public static final DateTimeFormatter KHMER_DATE_FORMAT =
-        DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter.ofPattern(CommonConstants.DATE_FORMAT_KHMER);
 
     /** Display date format (dd MMM yyyy) */
     public static final DateTimeFormatter DISPLAY_DATE_FORMAT =
-        DateTimeFormatter.ofPattern("dd MMM yyyy");
-
-    // Academic year boundaries (Cambodia)
-    /** Academic year start month (November) */
-    public static final int ACADEMIC_YEAR_START_MONTH = 11;
-
-    /** Academic year start day (1st) */
-    public static final int ACADEMIC_YEAR_START_DAY = 1;
-
-    /** Academic year end month (August) */
-    public static final int ACADEMIC_YEAR_END_MONTH = 8;
-
-    /** Academic year end day (31st) */
-    public static final int ACADEMIC_YEAR_END_DAY = 31;
+        DateTimeFormatter.ofPattern(CommonConstants.DATE_FORMAT_DISPLAY);
 
 
     // ============================================
@@ -210,7 +199,7 @@ public final class DateUtils {
         int month = date.getMonthValue();
 
         // If month is Nov or Dec, academic year is current-next year
-        if (month >= ACADEMIC_YEAR_START_MONTH) {
+        if (month >= CommonConstants.ACADEMIC_YEAR_START_MONTH) {
             return year + "-" + (year + 1);
         } else {
             // If month is Jan-Aug, academic year is previous-current year
@@ -228,7 +217,7 @@ public final class DateUtils {
     public static LocalDate getAcademicYearStart(String academicYear) {
         validateAcademicYearFormat(academicYear);
         int startYear = Integer.parseInt(academicYear.split("-")[0]);
-        return LocalDate.of(startYear, ACADEMIC_YEAR_START_MONTH, ACADEMIC_YEAR_START_DAY);
+        return LocalDate.of(startYear, CommonConstants.ACADEMIC_YEAR_START_MONTH, CommonConstants.ACADEMIC_YEAR_START_DAY);
     }
 
     /**
@@ -241,7 +230,7 @@ public final class DateUtils {
     public static LocalDate getAcademicYearEnd(String academicYear) {
         validateAcademicYearFormat(academicYear);
         int endYear = Integer.parseInt(academicYear.split("-")[1]);
-        return LocalDate.of(endYear, ACADEMIC_YEAR_END_MONTH, ACADEMIC_YEAR_END_DAY);
+        return LocalDate.of(endYear, CommonConstants.ACADEMIC_YEAR_END_MONTH, CommonConstants.ACADEMIC_YEAR_END_DAY);
     }
 
     /**

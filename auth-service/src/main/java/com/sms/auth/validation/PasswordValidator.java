@@ -1,5 +1,6 @@
 package com.sms.auth.validation;
 
+import com.sms.auth.config.SecurityProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
@@ -7,9 +8,10 @@ import java.util.regex.Pattern;
 @Component
 public class PasswordValidator {
 
-    // Min 8 chars, 1 upper, 1 lower, 1 number, 1 special
+    // Min length from SecurityProperties, 1 upper, 1 lower, 1 number, 1 special
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!*()_\\-]).{8,}$"
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!*()_\\-]).{" +
+        SecurityProperties.MIN_PASSWORD_LENGTH + ",}$"
     );
 
     public boolean isValid(String password) {
@@ -17,7 +19,7 @@ public class PasswordValidator {
     }
 
     public String getRequirementsMessage() {
-        return "Password must be at least 8 characters with uppercase, " +
-               "lowercase, number, and special character";
+        return "Password must be at least " + SecurityProperties.MIN_PASSWORD_LENGTH +
+               " characters with uppercase, lowercase, number, and special character";
     }
 }

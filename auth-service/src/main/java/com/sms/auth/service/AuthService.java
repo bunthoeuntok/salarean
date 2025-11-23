@@ -87,7 +87,8 @@ public class AuthService {
         // Check rate limiting
         if (rateLimitService.isRateLimited(identifier)) {
             throw new RateLimitExceededException(
-                "Too many failed login attempts. Please try again in 15 minutes."
+                "Too many failed login attempts. Please try again in " +
+                com.sms.auth.config.SecurityProperties.ACCOUNT_LOCK_DURATION_MINUTES + " minutes."
             );
         }
 
