@@ -51,6 +51,7 @@ This directory contains the official architectural standards, templates, validat
 │   ├── naming-conventions.md            # Naming standards
 │   ├── configuration-patterns.md        # Configuration classes guide
 │   ├── jwt-architecture.md              # JWT Filter + Provider pattern
+│   ├── common-library-standards.md      # sms-common library standards (NEW)
 │   ├── navigation-guide.md              # Service navigation guide
 │   ├── environment-variables.md         # Environment variable standards
 │   ├── profile-strategy.md              # Spring profile strategy

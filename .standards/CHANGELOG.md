@@ -4,6 +4,82 @@ All notable changes and decisions for the Salarean SMS microservice architecture
 
 ---
 
+## [1.1.0] - 2025-11-23
+
+### 🎯 Common Library Standards
+
+Added comprehensive standards for `sms-common` shared library organization.
+
+### ✨ Added - Documentation
+
+**Common Library Standards**:
+- `docs/common-library-standards.md` - Complete guide for sms-common library
+  - What belongs in common vs service-specific
+  - Constants organization rules (no duplication, 3-service rule)
+  - Docker build patterns for services using sms-common
+  - Migration checklist and best practices
+
+### 🔧 Changed - Project Guidelines
+
+**CLAUDE.md Updates**:
+- Added "Common Library Standards (sms-common) - MANDATORY" section
+- Documented ✅ INCLUDE vs ❌ EXCLUDE rules
+- Added 3 core rules: No Duplication, Service-Specific Config, 3-Service Rule
+- Added integration requirements for services using sms-common
+
+### 📦 Refactored - sms-common Library
+
+**Removed Service-Specific Constants from CommonConstants**:
+- ❌ Moved JWT expiration settings → `auth-service/config/SecurityProperties.java`
+- ❌ Moved session timeout settings → `auth-service/config/SecurityProperties.java`
+- ❌ Moved password validation rules → `auth-service/config/SecurityProperties.java`
+- ❌ Moved rate limiting thresholds → `auth-service/config/SecurityProperties.java`
+- ❌ Moved cache TTL values → Service-specific configs
+
+**Created Service-Specific Configuration**:
+- `auth-service/src/main/java/com/sms/auth/config/SecurityProperties.java`
+  - JWT_EXPIRATION_HOURS, REFRESH_TOKEN_EXPIRATION_DAYS
+  - SESSION_TIMEOUT_HOURS, MAX_CONCURRENT_SESSIONS
+  - MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH
+  - MAX_LOGIN_ATTEMPTS, ACCOUNT_LOCK_DURATION_MINUTES
+
+**Eliminated Duplicate Constants**:
+- ✅ `DateUtils` now references `CommonConstants` instead of duplicating values
+- ✅ `FileUtils` now references `CommonConstants` instead of duplicating values
+
+**Updated auth-service to Use SecurityProperties**:
+- `PasswordValidator.java` - Uses `SecurityProperties.MIN_PASSWORD_LENGTH`
+- `RateLimitService.java` - Uses `SecurityProperties.MAX_LOGIN_ATTEMPTS` and `ACCOUNT_LOCK_DURATION_MINUTES`
+- `AuthService.java` - Dynamic error message with `SecurityProperties.ACCOUNT_LOCK_DURATION_MINUTES`
+
+### ✅ Verified
+
+**Testing Results**:
+- ✅ sms-common: Built successfully (`./mvnw clean install`)
+- ✅ auth-service: 25 unit tests passing (no regressions)
+- ✅ Docker build: Multi-stage build working correctly
+
+### 📝 Rationale
+
+**Why separate common vs service-specific constants?**
+
+1. **Service Independence**: Different services may have different security policies
+   - Example: auth-service uses 24h JWT, reporting-service might use 7-day JWT for background jobs
+
+2. **No Duplication**: Single source of truth eliminates sync issues
+   - Before: Constants duplicated in DateUtils, FileUtils, and CommonConstants
+   - After: Utils reference CommonConstants
+
+3. **Clear Boundaries**: Developers know exactly where to find/add constants
+   - Business rules (academic year, timezone) → CommonConstants
+   - Security policies (JWT, passwords) → Service-specific config
+
+4. **Maintainability**: Change once, apply everywhere
+   - Update `CommonConstants.TIMEZONE_CAMBODIA` affects all services automatically
+   - Update `SecurityProperties.JWT_EXPIRATION_HOURS` only affects auth-service
+
+---
+
 ## [1.0.0] - 2025-11-22
 
 ### 🎯 Initial Release

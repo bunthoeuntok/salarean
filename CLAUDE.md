@@ -89,6 +89,75 @@ Error codes MUST be:
 
 ---
 
+## Common Library Standards (sms-common) - MANDATORY
+
+**Reference Document**: See `.standards/docs/common-library-standards.md` for complete details.
+
+The `sms-common` library provides shared DTOs, utilities, constants, and validation annotations used across ALL microservices.
+
+### What Belongs in sms-common?
+
+**✅ INCLUDE** (used by multiple services):
+- API response wrappers (`ApiResponse<T>`)
+- Common error codes (`ErrorCode` enum)
+- Business domain constants (academic year, age limits, Cambodia timezone)
+- File upload standards (size limits, MIME types)
+- Pagination defaults
+- Common utilities (`DateUtils`, `FileUtils`)
+- Shared validation annotations (`@KhmerPhone`)
+
+**❌ EXCLUDE** (service-specific):
+- Security policies (JWT expiration, password rules, rate limiting)
+- Service-specific business logic
+- Cache strategies (TTL values)
+- Service-specific error codes (unless used by 3+ services)
+
+### Constants Organization Rules
+
+**Rule 1: No Duplication**
+- Utility classes MUST reference `CommonConstants`, not duplicate values
+- Example: `DateUtils` uses `CommonConstants.TIMEZONE_CAMBODIA`
+
+**Rule 2: Service-Specific Config Classes**
+- Each service defines its own security properties
+- Example: `auth-service/config/SecurityProperties.java` contains JWT settings, password rules, rate limiting
+
+**Rule 3: The "3-Service Rule"**
+- Add to common ErrorCode only if used by 3+ services
+- Otherwise, keep error codes service-specific
+
+### Integration Requirements
+
+**All services using sms-common MUST**:
+1. Add dependency to `pom.xml`:
+   ```xml
+   <dependency>
+       <groupId>com.sms</groupId>
+       <artifactId>sms-common</artifactId>
+       <version>1.0.0</version>
+   </dependency>
+   ```
+
+2. Use multi-stage Docker build (build sms-common first, then service)
+
+3. Set Docker Compose context to parent directory:
+   ```yaml
+   build:
+     context: .  # Parent directory
+     dockerfile: ./service-name/Dockerfile
+   ```
+
+**When updating sms-common**:
+```bash
+cd sms-common
+./mvnw clean install -DskipTests
+# Then rebuild affected services
+```
+
+**For complete details**: See `.standards/docs/common-library-standards.md`
+
+---
+
 ## Microservice Architecture Standards (MANDATORY)
 
 **Reference Document**: See `/SERVICE_COMPARISON_ANALYSIS.md` for complete details.
