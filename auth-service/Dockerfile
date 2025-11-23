@@ -1,14 +1,5 @@
-# Stage 1: Build sms-common library
-FROM eclipse-temurin:21-jdk-alpine AS common-builder
-WORKDIR /app/sms-common
-
-# Install Maven
-RUN apk add --no-cache maven
-
-# Copy sms-common source and build it
-COPY sms-common/pom.xml .
-COPY sms-common/src src
-RUN mvn clean install -DskipTests -B
+# Stage 1: Use pre-built sms-common library
+FROM sms-common-builder:latest AS common-builder
 
 # Stage 2: Build auth-service
 FROM eclipse-temurin:21-jdk-alpine AS builder

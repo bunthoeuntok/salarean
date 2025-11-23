@@ -2,6 +2,20 @@ version: '3.8'
 
 services:
   # ============================================
+  # SMS COMMON LIBRARY BUILDER
+  # ============================================
+  sms-common-builder:
+    build:
+      context: ./sms-common
+      dockerfile: Dockerfile
+    image: sms-common-builder:latest
+    container_name: sms-common-builder
+    # This service only exists to build the base image
+    # It won't run as a container - just builds the image
+    profiles:
+      - build-only
+
+  # ============================================
   # FRONTEND
   # ============================================
   frontend:
