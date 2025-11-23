@@ -138,23 +138,35 @@ The `sms-common` library provides shared DTOs, utilities, constants, and validat
    </dependency>
    ```
 
-2. Use multi-stage Docker build (build sms-common first, then service)
+2. **Use optimized Docker build pattern** (MANDATORY):
+   - Dockerfile MUST use `FROM sms-common-builder:latest AS common-builder`
+   - Do NOT rebuild sms-common in each service Dockerfile
+   - See `.standards/docs/docker-build-optimization.md` for template
 
-3. Set Docker Compose context to parent directory:
+3. Set Docker Compose context to root directory:
    ```yaml
    build:
-     context: .  # Parent directory
+     context: .  # Root directory (NOT ./service-name)
      dockerfile: ./service-name/Dockerfile
+   ```
+
+4. Build sms-common-builder base image first:
+   ```bash
+   docker-compose build sms-common-builder  # Only when sms-common changes
+   docker-compose build auth-service student-service  # Services use cached base
    ```
 
 **When updating sms-common**:
 ```bash
 cd sms-common
 ./mvnw clean install -DskipTests
-# Then rebuild affected services
+docker-compose build sms-common-builder  # Rebuild base image
+docker-compose build  # Rebuild services
 ```
 
-**For complete details**: See `.standards/docs/common-library-standards.md`
+**For complete details**:
+- Common library standards: `.standards/docs/common-library-standards.md`
+- Docker optimization: `.standards/docs/docker-build-optimization.md`
 
 ---
 

@@ -325,20 +325,37 @@ public class ApiResponse<T> {
 
 ## Category 4: Docker Configuration
 
-### 4.1 Dockerfile
+### 4.1 Dockerfile (Optimized Pattern)
 
 **File**: `Dockerfile` (in service root)
 
-- [ ] File exists
-- [ ] Uses Java 21 base image: `FROM eclipse-temurin:21-jre-alpine` or similar
-- [ ] Copies JAR file correctly
+**Required Pattern** (MANDATORY):
+- [ ] Stage 1 uses pre-built base image: `FROM sms-common-builder:latest AS common-builder`
+- [ ] Stage 2 copies sms-common from base: `COPY --from=common-builder /root/.m2/repository/com/sms/sms-common`
+- [ ] Uses Java 21 JDK for build stage: `FROM eclipse-temurin:21-jdk-alpine AS builder`
+- [ ] Uses Java 21 JRE for runtime stage: `FROM eclipse-temurin:21-jre-alpine`
 - [ ] Exposes correct port: `EXPOSE {your-port}`
-- [ ] Entrypoint runs Spring Boot app: `ENTRYPOINT ["java", "-jar", "app.jar"]`
+- [ ] Layer extraction configured: `RUN java -Djarmode=layertools -jar target/*.jar extract`
+- [ ] Non-root user created: `RUN addgroup -S spring && adduser -S spring -G spring`
+- [ ] Health check configured: `HEALTHCHECK --interval=30s ...`
 
 **Verify**:
 ```bash
-cat Dockerfile | grep -E "FROM|EXPOSE|ENTRYPOINT"
+cat Dockerfile | grep -E "FROM sms-common-builder:latest"
+# Should return: FROM sms-common-builder:latest AS common-builder
+
+cat Dockerfile | grep -E "COPY --from=common-builder /root/.m2/repository/com/sms/sms-common"
+# Should return the COPY command
+
+cat Dockerfile | grep -E "HEALTHCHECK"
+# Should return health check configuration
 ```
+
+**FORBIDDEN Patterns**:
+- [ ] ❌ NO 11-line sms-common build stage in Dockerfile (must use base image)
+- [ ] ❌ NO `FROM eclipse-temurin:21-jdk-alpine AS common-builder` followed by sms-common build
+
+**Reference**: See `.standards/docs/docker-build-optimization.md` for complete template
 
 ---
 
@@ -346,9 +363,17 @@ cat Dockerfile | grep -E "FROM|EXPOSE|ENTRYPOINT"
 
 **File**: `/Volumes/DATA/my-projects/salarean/docker-compose.yml` (project root)
 
+**sms-common-builder service** (must exist):
+- [ ] `sms-common-builder` service defined at top of services section
+- [ ] Image name: `image: sms-common-builder:latest`
+- [ ] Build context: `context: ./sms-common`
+- [ ] Profile: `profiles: - build-only`
+
+**Your service configuration**:
 - [ ] Service entry added to docker-compose.yml
 - [ ] Service name matches: `{service-name}:`
-- [ ] Build context points to service directory: `context: ./{service-name}`
+- [ ] Build context points to ROOT directory: `context: .` (NOT `./{service-name}`)
+- [ ] Dockerfile path specified: `dockerfile: ./{service-name}/Dockerfile`
 - [ ] Container name matches service
 
 **Required environment variables**:
@@ -525,7 +550,27 @@ curl http://localhost:{port}/actuator/health
 
 ## Category 9: Docker Testing
 
-### 9.1 Build Docker Image
+### 9.1 Build sms-common-builder (First Time Only)
+
+**Build base image** (only needed once, or when sms-common changes):
+```bash
+cd /Volumes/DATA/my-projects/salarean
+docker-compose build sms-common-builder
+```
+
+- [ ] Base image builds successfully
+- [ ] No errors during build
+- [ ] Image created: `docker images | grep sms-common-builder`
+- [ ] Image shows `sms-common-builder:latest`
+
+**When to rebuild**:
+- ✅ When sms-common source code changes
+- ✅ When sms-common pom.xml changes
+- ❌ NOT when service code changes
+
+---
+
+### 9.2 Build Docker Image
 
 **Build service image**:
 ```bash
@@ -533,13 +578,23 @@ cd /Volumes/DATA/my-projects/salarean
 docker-compose build {service-name}
 ```
 
+- [ ] Build uses cached sms-common-builder image (not rebuilding sms-common)
+- [ ] Build logs show: `FROM sms-common-builder:latest`
+- [ ] Build logs show: `COPY --from=common-builder /root/.m2/repository/com/sms/sms-common`
 - [ ] Image builds successfully
 - [ ] No errors during build
 - [ ] Image created: `docker images | grep {service-name}`
 
+**Verify optimization**:
+```bash
+# Check build logs for optimization
+docker-compose build {service-name} 2>&1 | grep "FROM sms-common-builder"
+# Should show: [builder internal] load metadata for docker.io/library/sms-common-builder:latest
+```
+
 ---
 
-### 9.2 Start Service in Docker
+### 9.3 Start Service in Docker
 
 **Start all services**:
 ```bash
@@ -566,7 +621,7 @@ docker-compose logs {service-name}
 
 ---
 
-### 9.3 Eureka Registration
+### 9.4 Eureka Registration
 
 **Open Eureka dashboard**: `http://localhost:8761`
 
@@ -577,7 +632,7 @@ docker-compose logs {service-name}
 
 ---
 
-### 9.4 API Gateway Routing
+### 9.5 API Gateway Routing
 
 **Test through gateway**:
 ```bash

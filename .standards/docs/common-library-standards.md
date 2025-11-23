@@ -285,26 +285,29 @@ ls ~/.m2/repository/com/sms/sms-common/1.0.0/
 
 ## Docker Build Considerations
 
-### Multi-Stage Build Pattern
+### Optimized Build Pattern (MANDATORY)
 
-Services that depend on `sms-common` MUST use multi-stage Docker builds:
+Services that depend on `sms-common` MUST use the optimized Docker build pattern to avoid rebuilding sms-common multiple times.
+
+**Architecture**:
+1. **sms-common-builder** - Base image with sms-common pre-installed
+2. **Service Dockerfiles** - Reference the base image instead of building sms-common
+
+**Service Dockerfile Pattern**:
 
 ```dockerfile
-# Stage 1: Build sms-common
-FROM eclipse-temurin:21-jdk-alpine AS common-builder
-WORKDIR /app/sms-common
-RUN apk add --no-cache maven
-COPY sms-common/pom.xml .
-COPY sms-common/src src
-RUN mvn clean install -DskipTests -B
+# Stage 1: Use pre-built sms-common library
+FROM sms-common-builder:latest AS common-builder
 
-# Stage 2: Build service (with access to sms-common)
+# Stage 2: Build service (with access to sms-common from base image)
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache maven
-# Copy sms-common from Stage 1's Maven repository
+
+# Copy sms-common from base image's Maven repository
 COPY --from=common-builder /root/.m2/repository/com/sms/sms-common \
      /root/.m2/repository/com/sms/sms-common
+
 COPY auth-service/pom.xml .
 RUN mvn dependency:go-offline -B
 COPY auth-service/src src
@@ -315,7 +318,23 @@ FROM eclipse-temurin:21-jre-alpine
 # ... copy JAR and run
 ```
 
-**Rationale**: Docker containers don't have access to local `~/.m2/repository`, so we build `sms-common` inside the container first.
+**Benefits**:
+- ✅ sms-common built once (not per service)
+- ✅ ~53% faster builds (7 min vs 15 min for 3 services)
+- ✅ Cleaner Dockerfiles (1 line vs 11 lines)
+- ✅ Single source of truth for sms-common build
+
+**Build Commands**:
+
+```bash
+# 1. Build base image first (only when sms-common changes)
+docker-compose build sms-common-builder
+
+# 2. Build services (they'll use the cached base image)
+docker-compose build auth-service student-service
+```
+
+**For Complete Details**: See `.standards/docs/docker-build-optimization.md`
 
 ### Docker Compose Context
 
@@ -324,6 +343,14 @@ Services using `sms-common` need parent directory context:
 ```yaml
 # docker-compose.yml
 services:
+  sms-common-builder:
+    build:
+      context: ./sms-common
+      dockerfile: Dockerfile
+    image: sms-common-builder:latest
+    profiles:
+      - build-only
+
   auth-service:
     build:
       context: .              # Parent directory (not ./auth-service)

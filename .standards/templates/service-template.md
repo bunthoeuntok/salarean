@@ -1014,6 +1014,82 @@ public class JwtTokenProvider {
 
 ---
 
+## Dockerfile Template
+
+### Optimized Multi-Stage Build
+
+**Location**: `{service-name}/Dockerfile`
+
+**Purpose**: Build service using pre-built sms-common base image
+
+**Template**:
+
+```dockerfile
+# Stage 1: Use pre-built sms-common library
+FROM sms-common-builder:latest AS common-builder
+
+# Stage 2: Build {service-name}
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /app
+
+# Install Maven
+RUN apk add --no-cache maven
+
+# Copy sms-common from previous stage to local Maven repo
+COPY --from=common-builder /root/.m2/repository/com/sms/sms-common /root/.m2/repository/com/sms/sms-common
+
+# Copy service pom and download dependencies
+COPY {service-name}/pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy service source and build
+COPY {service-name}/src src
+RUN mvn clean package -DskipTests -B
+
+# Extract layers for optimized Docker image
+RUN java -Djarmode=layertools -jar target/*.jar extract
+
+# Stage 3: Runtime
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Copy extracted layers from builder
+COPY --from=builder /app/dependencies/ ./
+COPY --from=builder /app/spring-boot-loader/ ./
+COPY --from=builder /app/snapshot-dependencies/ ./
+COPY --from=builder /app/application/ ./
+
+# Create non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+EXPOSE {service-port}
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{service-port}/actuator/health || exit 1
+
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+```
+
+**Replace placeholders**:
+- `{service-name}` → Your service name (e.g., `student-service`)
+- `{service-port}` → Your service port (e.g., `8082`)
+
+**Key Features**:
+- ✅ Uses `sms-common-builder:latest` base image (no duplicate builds)
+- ✅ Multi-stage build for smaller final image
+- ✅ Layer extraction for optimal caching
+- ✅ Non-root user for security
+- ✅ Health check configured
+
+**Build Requirements**:
+1. sms-common-builder image must be built first
+2. docker-compose.yml build context must be `.` (root directory)
+
+**For Complete Details**: See `.standards/docs/docker-build-optimization.md`
+
+---
+
 ## Docker Compose Configuration
 
 ### Service Definition Template
@@ -1023,10 +1099,27 @@ public class JwtTokenProvider {
 **Template**:
 ```yaml
 services:
+  # ============================================
+  # SMS COMMON LIBRARY BUILDER (Required)
+  # ============================================
+  sms-common-builder:
+    build:
+      context: ./sms-common
+      dockerfile: Dockerfile
+    image: sms-common-builder:latest
+    container_name: sms-common-builder
+    # This service only exists to build the base image
+    # It won't run as a container - just builds the image
+    profiles:
+      - build-only
+
+  # ============================================
+  # YOUR SERVICE
+  # ============================================
   {service-name}:
     build:
-      context: ./{service-name}
-      dockerfile: Dockerfile
+      context: .                  # IMPORTANT: Root context to access sms-common/
+      dockerfile: ./{service-name}/Dockerfile
     container_name: {service-name}
     environment:
       # Profile activation
