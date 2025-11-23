@@ -3,6 +3,8 @@ package com.sms.auth.service;
 import com.sms.auth.config.SecurityProperties;
 import com.sms.auth.model.LoginAttempt;
 import com.sms.auth.repository.LoginAttemptRepository;
+import com.sms.common.util.DateUtils;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,7 +23,7 @@ public class RateLimitService {
      * (more than MAX_LOGIN_ATTEMPTS failed attempts in last ACCOUNT_LOCK_DURATION_MINUTES)
      */
     public boolean isRateLimited(String identifier) {
-        LocalDateTime since = LocalDateTime.now().minusMinutes(SecurityProperties.ACCOUNT_LOCK_DURATION_MINUTES);
+        LocalDateTime since = DateUtils.nowDateTime().minusMinutes(SecurityProperties.ACCOUNT_LOCK_DURATION_MINUTES);
         long failedAttempts = loginAttemptRepository.countFailedAttemptsSince(identifier, since);
         return failedAttempts >= SecurityProperties.MAX_LOGIN_ATTEMPTS;
     }

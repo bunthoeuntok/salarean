@@ -19,6 +19,9 @@ public final class SecurityProperties {
     /** JWT access token expiration: 24 hours */
     public static final int JWT_EXPIRATION_HOURS = 24;
 
+    /** JWT access token expiration in seconds */
+    public static final int JWT_EXPIRATION_SECONDS = JWT_EXPIRATION_HOURS * 60 * 60;
+
     /** JWT access token expiration in milliseconds */
     public static final long JWT_EXPIRATION_MS = JWT_EXPIRATION_HOURS * 60 * 60 * 1000L;
 

@@ -6,6 +6,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.sms.auth.config.SecurityProperties;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -17,11 +19,10 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    private static final long EXPIRATION_MS = 86400000; // 24 hours
 
     public String generateToken(UUID userId, String language) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_MS);
+        Date expiryDate = new Date(now.getTime() + SecurityProperties.JWT_EXPIRATION_MS);
         String jti = UUID.randomUUID().toString();
 
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));

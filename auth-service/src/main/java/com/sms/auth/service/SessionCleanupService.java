@@ -2,6 +2,8 @@ package com.sms.auth.service;
 
 import com.sms.auth.repository.LoginAttemptRepository;
 import com.sms.auth.repository.SessionRepository;
+import com.sms.common.util.DateUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,7 +31,7 @@ public class SessionCleanupService {
     @Scheduled(cron = "0 0 * * * *") // Every hour at minute 0
     @Transactional
     public void cleanupExpiredSessions() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = DateUtils.nowDateTime();
         int deletedCount = sessionRepository.deleteByExpiresAtBefore(now);
 
         if (deletedCount > 0) {
@@ -44,11 +46,11 @@ public class SessionCleanupService {
     @Scheduled(cron = "0 0 2 * * *") // Every day at 2:00 AM
     @Transactional
     public void cleanupOldLoginAttempts() {
-        LocalDateTime sevenYearsAgo = LocalDateTime.now().minusYears(7);
-        int deletedCount = loginAttemptRepository.deleteByAttemptedAtBefore(sevenYearsAgo);
+        LocalDateTime oneYearAgo = DateUtils.nowDateTime().minusYears(1);
+        int deletedCount = loginAttemptRepository.deleteByAttemptedAtBefore(oneYearAgo);
 
         if (deletedCount > 0) {
-            log.info("Cleaned up {} old login attempts (older than 7 years)", deletedCount);
+            log.info("Cleaned up {} old login attempts (older than 1 year)", deletedCount);
         }
     }
 }

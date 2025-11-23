@@ -106,7 +106,7 @@ public class TokenService {
         }
 
         // Check if token has expired
-        if (refreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (refreshToken.getExpiresAt().isBefore(DateUtils.nowDateTime())) {
             logger.warn("Refresh token expired: {}", tokenId);
             throw new InvalidTokenException(ErrorCode.INVALID_TOKEN, "Token expired");
         }
@@ -141,7 +141,7 @@ public class TokenService {
                 .orElseThrow(() -> new InvalidTokenException(ErrorCode.INVALID_TOKEN, "Token not found"));
 
         token.setHasBeenUsed(true);
-        token.setUsedAt(LocalDateTime.now());
+        token.setUsedAt(DateUtils.nowDateTime());
         refreshTokenRepository.save(token);
 
         // Update Redis cache

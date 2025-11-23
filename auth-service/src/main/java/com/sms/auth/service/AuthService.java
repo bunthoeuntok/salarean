@@ -1,5 +1,6 @@
 package com.sms.auth.service;
 
+import com.sms.auth.config.SecurityProperties;
 import com.sms.auth.dto.*;
 import com.sms.auth.exception.*;
 import com.sms.auth.model.Session;
@@ -62,8 +63,8 @@ public class AuthService {
         Session session = Session.builder()
             .user(user)
             .tokenJti(jti)
-            .lastActivityAt(LocalDateTime.now())
-            .expiresAt(DateUtils.expiresInHours(24))
+            .lastActivityAt(DateUtils.nowDateTime())
+            .expiresAt(DateUtils.expiresInHours(SecurityProperties.JWT_EXPIRATION_HOURS))
             .ipAddress(getClientIp(httpRequest))
             .userAgent(httpRequest.getHeader("User-Agent"))
             .build();
@@ -114,8 +115,8 @@ public class AuthService {
         Session session = Session.builder()
             .user(user)
             .tokenJti(jti)
-            .lastActivityAt(LocalDateTime.now())
-            .expiresAt(DateUtils.expiresInHours(24))
+            .lastActivityAt(DateUtils.nowDateTime())
+            .expiresAt(DateUtils.expiresInHours(SecurityProperties.JWT_EXPIRATION_HOURS))
             .ipAddress(clientIp)
             .userAgent(httpRequest.getHeader("User-Agent"))
             .build();
@@ -128,7 +129,7 @@ public class AuthService {
             httpRequest.getHeader("User-Agent")
         );
 
-        return buildAuthResponseWithRefreshToken(user, token, refreshToken, LocalDateTime.now());
+        return buildAuthResponseWithRefreshToken(user, token, refreshToken, DateUtils.nowDateTime());
     }
 
     @Transactional
@@ -151,7 +152,7 @@ public class AuthService {
         Session session = Session.builder()
             .user(user)
             .tokenJti(jti)
-            .lastActivityAt(LocalDateTime.now())
+            .lastActivityAt(DateUtils.nowDateTime())
             .expiresAt(DateUtils.expiresInHours(24))
             .ipAddress(getClientIp(httpRequest))
             .userAgent(httpRequest.getHeader("User-Agent"))
@@ -165,7 +166,7 @@ public class AuthService {
             httpRequest.getHeader("User-Agent")
         );
 
-        return new RefreshTokenResponse(newAccessToken, newRefreshToken, 86400); // 24h in seconds
+        return new RefreshTokenResponse(newAccessToken, newRefreshToken, SecurityProperties.JWT_EXPIRATION_SECONDS);
     }
 
     @Transactional
