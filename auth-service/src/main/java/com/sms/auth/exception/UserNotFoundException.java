@@ -1,6 +1,6 @@
 package com.sms.auth.exception;
 
-import com.sms.auth.dto.ErrorCode;
+import com.sms.common.dto.ErrorCode;
 
 public class UserNotFoundException extends RuntimeException {
 

@@ -1,6 +1,6 @@
 package com.sms.auth.controller;
 
-import com.sms.auth.dto.ApiResponse;
+import com.sms.common.dto.ApiResponse;
 import com.sms.auth.dto.ChangePasswordRequest;
 import com.sms.auth.dto.PhotoUploadResponse;
 import com.sms.auth.dto.ProfileResponse;

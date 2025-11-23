@@ -1,7 +1,7 @@
 package com.sms.auth.service;
 
 import com.sms.auth.dto.ChangePasswordRequest;
-import com.sms.auth.dto.ErrorCode;
+import com.sms.common.dto.ErrorCode;
 import com.sms.auth.dto.PhotoUploadResponse;
 import com.sms.auth.dto.ProfileResponse;
 import com.sms.auth.dto.UpdateProfileRequest;

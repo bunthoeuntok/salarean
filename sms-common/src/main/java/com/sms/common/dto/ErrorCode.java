@@ -69,11 +69,65 @@ public enum ErrorCode {
     /** JWT token has expired */
     TOKEN_EXPIRED,
 
+    /** Token replay attack detected */
+    TOKEN_REPLAY_DETECTED,
+
     /** Session has expired */
     SESSION_EXPIRED,
 
     /** Invalid credentials (wrong password) */
     INVALID_CREDENTIALS,
+
+    /** Duplicate email address */
+    DUPLICATE_EMAIL,
+
+    /** Duplicate phone number */
+    DUPLICATE_PHONE,
+
+    /** Invalid password */
+    INVALID_PASSWORD,
+
+    /** Password is too weak */
+    WEAK_PASSWORD,
+
+    /** Password is too short */
+    PASSWORD_TOO_SHORT,
+
+    /** Password missing uppercase letter */
+    PASSWORD_MISSING_UPPERCASE,
+
+    /** Password missing lowercase letter */
+    PASSWORD_MISSING_LOWERCASE,
+
+    /** Password missing digit */
+    PASSWORD_MISSING_DIGIT,
+
+    /** Password missing special character */
+    PASSWORD_MISSING_SPECIAL,
+
+    /** Password is too common */
+    PASSWORD_TOO_COMMON,
+
+    /** Invalid language code */
+    INVALID_LANGUAGE,
+
+    /** Account is locked */
+    ACCOUNT_LOCKED,
+
+    /** User not found */
+    USER_NOT_FOUND,
+
+    /** Email address not found */
+    EMAIL_NOT_FOUND,
+
+    /** Password reset token is invalid */
+    RESET_TOKEN_INVALID,
+
+    /** Password reset token has expired */
+    RESET_TOKEN_EXPIRED,
+
+    /** Profile update failed */
+    PROFILE_UPDATE_FAILED,
 
 
     // ============================================

@@ -1,6 +1,6 @@
 package com.sms.auth.validation;
 
-import com.sms.auth.dto.ErrorCode;
+import com.sms.common.dto.ErrorCode;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

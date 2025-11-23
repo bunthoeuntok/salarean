@@ -58,6 +58,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- SMS Common Library - Shared DTOs and utilities -->
+        <dependency>
+            <groupId>com.sms</groupId>
+            <artifactId>sms-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

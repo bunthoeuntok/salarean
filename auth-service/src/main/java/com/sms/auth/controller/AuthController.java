@@ -3,6 +3,7 @@ package com.sms.auth.controller;
 import com.sms.auth.dto.*;
 import com.sms.auth.service.AuthService;
 import com.sms.auth.service.PasswordResetService;
+import com.sms.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

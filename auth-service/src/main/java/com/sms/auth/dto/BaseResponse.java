@@ -1,6 +1,7 @@
 package com.sms.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.sms.common.dto.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

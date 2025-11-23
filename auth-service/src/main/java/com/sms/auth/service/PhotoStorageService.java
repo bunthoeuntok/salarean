@@ -1,6 +1,6 @@
 package com.sms.auth.service;
 
-import com.sms.auth.dto.ErrorCode;
+import com.sms.common.dto.ErrorCode;
 import com.sms.auth.exception.PhotoUploadException;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;

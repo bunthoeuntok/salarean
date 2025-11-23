@@ -1,9 +1,5 @@
 package com.sms.common.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * Standard API response wrapper for all Salarean SMS services.
  *
@@ -17,9 +13,6 @@ import lombok.NoArgsConstructor;
  *
  * @param <T> Type of response data
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ApiResponse<T> {
 
     /**
@@ -35,6 +28,37 @@ public class ApiResponse<T> {
     private T data;
 
     /**
+     * No-args constructor
+     */
+    public ApiResponse() {
+    }
+
+    /**
+     * All-args constructor
+     */
+    public ApiResponse(ErrorCode errorCode, T data) {
+        this.errorCode = errorCode;
+        this.data = data;
+    }
+
+    // Getters and Setters
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    /**
      * Create successful response with data
      *
      * @param data Response data
@@ -42,7 +66,7 @@ public class ApiResponse<T> {
      * @return ApiResponse with SUCCESS error code
      */
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<T>(ErrorCode.SUCCESS, data);
+        return new ApiResponse<>(ErrorCode.SUCCESS, data);
     }
 
     /**
@@ -53,7 +77,7 @@ public class ApiResponse<T> {
      * @return ApiResponse with error code and null data
      */
     public static <T> ApiResponse<T> error(ErrorCode errorCode) {
-        return new ApiResponse<T>(errorCode, null);
+        return new ApiResponse<>(errorCode, null);
     }
 
     /**

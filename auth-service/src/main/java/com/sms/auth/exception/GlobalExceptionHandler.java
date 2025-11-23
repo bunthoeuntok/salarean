@@ -1,7 +1,7 @@
 package com.sms.auth.exception;
 
-import com.sms.auth.dto.ApiResponse;
-import com.sms.auth.dto.ErrorCode;
+import com.sms.common.dto.ApiResponse;
+import com.sms.common.dto.ErrorCode;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

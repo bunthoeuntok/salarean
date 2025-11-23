@@ -8,6 +8,7 @@ import com.sms.auth.repository.SessionRepository;
 import com.sms.auth.repository.UserRepository;
 import com.sms.auth.security.JwtTokenProvider;
 import com.sms.auth.validation.PasswordValidator;
+import com.sms.common.dto.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
