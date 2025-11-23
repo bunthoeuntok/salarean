@@ -1,7 +1,8 @@
 package com.sms.student.exception;
 
-import com.sms.student.dto.ApiResponse;
-import com.sms.student.dto.ErrorCode;
+import com.sms.common.dto.ApiResponse;
+import com.sms.common.dto.ErrorCode;
+import com.sms.student.dto.StudentErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -101,7 +102,7 @@ public class GlobalExceptionHandler {
         log.error("Validation failed: {}", errors);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR, errors));
+                .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -117,7 +118,7 @@ public class GlobalExceptionHandler {
         log.error("Illegal state: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(ErrorCode.INVALID_STUDENT_DATA));
+                .body(ApiResponse.error(StudentErrorCode.INVALID_STUDENT_DATA));
     }
 
     @ExceptionHandler(Exception.class)

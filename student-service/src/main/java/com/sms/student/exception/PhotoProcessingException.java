@@ -1,6 +1,6 @@
 package com.sms.student.exception;
 
-import com.sms.student.dto.ErrorCode;
+import com.sms.student.dto.StudentErrorCode;
 import lombok.Getter;
 
 /**
@@ -8,15 +8,15 @@ import lombok.Getter;
  */
 @Getter
 public class PhotoProcessingException extends RuntimeException {
-    private final ErrorCode errorCode;
+    private final Enum<?> errorCode;
 
     public PhotoProcessingException(String message) {
         super(message);
-        this.errorCode = ErrorCode.PHOTO_PROCESSING_ERROR;
+        this.errorCode = StudentErrorCode.PHOTO_PROCESSING_ERROR;
     }
 
     public PhotoProcessingException(String message, Throwable cause) {
         super(message, cause);
-        this.errorCode = ErrorCode.PHOTO_PROCESSING_ERROR;
+        this.errorCode = StudentErrorCode.PHOTO_PROCESSING_ERROR;
     }
 }

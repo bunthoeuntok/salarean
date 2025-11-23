@@ -10,9 +10,6 @@ import com.sms.student.enums.EnrollmentReason;
 import com.sms.student.enums.StudentStatus;
 import com.sms.student.exception.*;
 import com.sms.student.repository.*;
-import com.sms.student.service.ParentContactService;
-import com.sms.student.service.PhotoStorageService;
-import com.sms.student.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,7 +39,6 @@ public class StudentServiceImpl implements StudentService {
     private final ParentContactRepository parentContactRepository;
     private final StudentClassEnrollmentRepository enrollmentRepository;
     private final ClassRepository classRepository;
-    private final SchoolRepository schoolRepository;
     private final PhotoStorageService photoStorageService;
     private final ParentContactService parentContactService;
 

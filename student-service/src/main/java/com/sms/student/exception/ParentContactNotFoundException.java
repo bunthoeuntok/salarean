@@ -1,6 +1,6 @@
 package com.sms.student.exception;
 
-import com.sms.student.dto.ErrorCode;
+import com.sms.student.dto.StudentErrorCode;
 import lombok.Getter;
 
 /**
@@ -8,10 +8,10 @@ import lombok.Getter;
  */
 @Getter
 public class ParentContactNotFoundException extends RuntimeException {
-    private final ErrorCode errorCode;
+    private final Enum<?> errorCode;
 
     public ParentContactNotFoundException(String message) {
         super(message);
-        this.errorCode = ErrorCode.PARENT_CONTACT_NOT_FOUND;
+        this.errorCode = StudentErrorCode.PARENT_CONTACT_NOT_FOUND;
     }
 }

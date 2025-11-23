@@ -1,5 +1,6 @@
 package com.sms.student.controller;
 
+import com.sms.common.dto.ApiResponse;
 import com.sms.student.dto.*;
 import com.sms.student.enums.DeletionReason;
 import com.sms.student.service.StudentService;

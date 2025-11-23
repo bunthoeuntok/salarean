@@ -1,24 +1,21 @@
 package com.sms.student.service;
 
+import com.sms.common.constants.CommonConstants;
 import com.sms.student.exception.InvalidPhotoFormatException;
 import com.sms.student.exception.PhotoProcessingException;
 import com.sms.student.exception.PhotoSizeExceededException;
-import com.sms.student.service.PhotoStorageService;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,8 +26,6 @@ import java.util.UUID;
 @Slf4j
 public class LocalPhotoStorageService implements PhotoStorageService {
 
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-    private static final List<String> ALLOWED_MIME_TYPES = Arrays.asList("image/jpeg", "image/png");
     private static final int STANDARD_SIZE = 400;
     private static final int THUMBNAIL_SIZE = 100;
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -154,12 +149,25 @@ public class LocalPhotoStorageService implements PhotoStorageService {
     }
 
     /**
-     * T095: Validate MIME type (image/jpeg or image/png only)
+     * T095: Validate MIME type (image/jpeg, image/png, or image/webp only)
      */
     private void validateMimeType(String contentType) {
-        if (contentType == null || !ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
+        if (contentType == null) {
+            log.error("Content type is null");
+            throw new InvalidPhotoFormatException("Content type is required");
+        }
+
+        boolean isValid = false;
+        for (String allowedType : CommonConstants.ALLOWED_IMAGE_TYPES) {
+            if (allowedType.equalsIgnoreCase(contentType)) {
+                isValid = true;
+                break;
+            }
+        }
+
+        if (!isValid) {
             log.error("Invalid MIME type: {}", contentType);
-            throw new InvalidPhotoFormatException("Only JPEG and PNG images are allowed");
+            throw new InvalidPhotoFormatException("Only JPEG, PNG, and WebP images are allowed");
         }
     }
 
@@ -167,9 +175,10 @@ public class LocalPhotoStorageService implements PhotoStorageService {
      * T096: Validate file size (max 5MB)
      */
     private void validateFileSize(long size) {
-        if (size > MAX_FILE_SIZE) {
-            log.error("File size {} bytes exceeds maximum {} bytes", size, MAX_FILE_SIZE);
-            throw new PhotoSizeExceededException("Photo size must not exceed 5MB");
+        if (size > CommonConstants.MAX_PHOTO_SIZE_BYTES) {
+            log.error("File size {} bytes exceeds maximum {} bytes", size, CommonConstants.MAX_PHOTO_SIZE_BYTES);
+            throw new PhotoSizeExceededException("Photo size must not exceed " +
+                    (CommonConstants.MAX_PHOTO_SIZE_BYTES / (1024 * 1024)) + "MB");
         }
     }
 

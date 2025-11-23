@@ -9,7 +9,6 @@ import com.sms.student.exception.ParentContactNotFoundException;
 import com.sms.student.exception.StudentNotFoundException;
 import com.sms.student.repository.ParentContactRepository;
 import com.sms.student.repository.StudentRepository;
-import com.sms.student.service.ParentContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
