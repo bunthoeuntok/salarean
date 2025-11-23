@@ -1,5 +1,6 @@
 package com.sms.auth.exception;
 
+import com.sms.auth.dto.AuthErrorCode;
 import com.sms.common.dto.ApiResponse;
 import com.sms.common.dto.ErrorCode;
 import jakarta.validation.ConstraintViolationException;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 /**
  * Global exception handler for auth-service.
  * Returns error codes only - frontend handles translation to Khmer/English.
+ *
+ * Uses AuthErrorCode for auth-specific errors and ErrorCode for common errors.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -25,25 +28,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<ApiResponse<Object>> handleDuplicateEmail(DuplicateEmailException ex) {
         return ResponseEntity.badRequest()
-            .body(ApiResponse.error(ErrorCode.DUPLICATE_EMAIL));
+            .body(ApiResponse.error(AuthErrorCode.DUPLICATE_EMAIL));
     }
 
     @ExceptionHandler(DuplicatePhoneException.class)
     public ResponseEntity<ApiResponse<Object>> handleDuplicatePhone(DuplicatePhoneException ex) {
         return ResponseEntity.badRequest()
-            .body(ApiResponse.error(ErrorCode.DUPLICATE_PHONE));
+            .body(ApiResponse.error(AuthErrorCode.DUPLICATE_PHONE));
     }
 
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidPassword(InvalidPasswordException ex) {
         return ResponseEntity.badRequest()
-            .body(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
+            .body(ApiResponse.error(AuthErrorCode.INVALID_PASSWORD));
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ApiResponse.error(ErrorCode.INVALID_CREDENTIALS));
+            .body(ApiResponse.error(AuthErrorCode.INVALID_CREDENTIALS));
     }
 
     @ExceptionHandler(RateLimitExceededException.class)
@@ -57,13 +60,13 @@ public class GlobalExceptionHandler {
         logger.warn("Validation exception: {}", ex.getMessage());
 
         // Determine error code based on field
-        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
+        Enum<?> errorCode = ErrorCode.VALIDATION_ERROR;
         if (!ex.getBindingResult().getFieldErrors().isEmpty()) {
             String field = ex.getBindingResult().getFieldErrors().get(0).getField();
             if ("phoneNumber".equals(field)) {
                 errorCode = ErrorCode.INVALID_PHONE_FORMAT;
             } else if ("password".equals(field)) {
-                errorCode = ErrorCode.WEAK_PASSWORD;
+                errorCode = AuthErrorCode.WEAK_PASSWORD;
             } else if ("email".equals(field)) {
                 errorCode = ErrorCode.VALIDATION_ERROR;
             }
@@ -86,15 +89,17 @@ public class GlobalExceptionHandler {
         logger.warn("Profile update exception: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorCode.PROFILE_UPDATE_FAILED));
+                .body(ApiResponse.error(AuthErrorCode.PROFILE_UPDATE_FAILED));
     }
 
     @ExceptionHandler(PhotoUploadException.class)
     public ResponseEntity<ApiResponse<Void>> handlePhotoUploadException(PhotoUploadException ex) {
         logger.warn("Photo upload exception: {}", ex.getMessage());
+        // Use the error code from the exception if available, otherwise default
+        Enum<?> errorCode = ex.getErrorCode() != null ? ex.getErrorCode() : AuthErrorCode.INVALID_PHOTO_FORMAT;
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorCode.INVALID_PHOTO_FORMAT));
+                .body(ApiResponse.error(errorCode));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -118,7 +123,7 @@ public class GlobalExceptionHandler {
         logger.warn("File size exceeded: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorCode.PHOTO_SIZE_EXCEEDED));
+                .body(ApiResponse.error(AuthErrorCode.PHOTO_SIZE_EXCEEDED));
     }
 
     @ExceptionHandler(UserNotFoundException.class)

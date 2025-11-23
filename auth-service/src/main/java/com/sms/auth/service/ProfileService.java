@@ -1,5 +1,6 @@
 package com.sms.auth.service;
 
+import com.sms.auth.dto.AuthErrorCode;
 import com.sms.auth.dto.ChangePasswordRequest;
 import com.sms.common.dto.ErrorCode;
 import com.sms.auth.dto.PhotoUploadResponse;
@@ -87,7 +88,7 @@ public class ProfileService {
             if (!phoneNumber.equals(user.getPhoneNumber())) {
                 userRepository.findByPhoneNumberAndIdNot(phoneNumber, userId)
                         .ifPresent(existingUser -> {
-                            throw new ProfileUpdateException(ErrorCode.DUPLICATE_PHONE,
+                            throw new ProfileUpdateException(AuthErrorCode.DUPLICATE_PHONE,
                                     "This phone number is already registered");
                         });
                 changes.append("phoneNumber, ");
@@ -132,7 +133,7 @@ public class ProfileService {
         // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
             logger.warn("Password change failed - incorrect current password for user: {}", userId);
-            throw new ProfileUpdateException(ErrorCode.INVALID_PASSWORD,
+            throw new ProfileUpdateException(AuthErrorCode.INVALID_PASSWORD,
                     "Current password is incorrect");
         }
 
@@ -143,7 +144,7 @@ public class ProfileService {
         if (!validationResult.isValid()) {
             logger.warn("Password change failed - weak password for user: {}. Error: {}",
                     userId, validationResult.getErrorCode());
-            throw new ProfileUpdateException(ErrorCode.WEAK_PASSWORD,
+            throw new ProfileUpdateException(AuthErrorCode.WEAK_PASSWORD,
                     "New password does not meet security requirements");
         }
 

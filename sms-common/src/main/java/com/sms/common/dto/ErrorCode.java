@@ -9,16 +9,23 @@ package com.sms.common.dto;
  * - API contract stability
  *
  * Naming Convention: UPPER_SNAKE_CASE, self-documenting
- * Example: PASSWORD_TOO_SHORT (not ERR_001)
+ * Example: INVALID_INPUT (not ERR_001)
  *
  * Service-Specific Error Codes:
- * - Each service can define additional error codes in their own enums
- * - Example: AuthErrorCode, StudentErrorCode, etc.
- * - Common codes defined here ensure consistency
+ * Each service SHOULD define its own service-specific error codes in separate enums.
+ *
+ * Examples:
+ * - AuthErrorCode (auth-service) - DUPLICATE_EMAIL, WEAK_PASSWORD, ACCOUNT_LOCKED, etc.
+ * - StudentErrorCode (student-service) - DUPLICATE_STUDENT_CODE, INVALID_ENROLLMENT_DATE, etc.
+ * - AttendanceErrorCode (attendance-service) - ALREADY_CHECKED_IN, INVALID_ATTENDANCE_DATE, etc.
+ *
+ * The "3-Service Rule":
+ * Only add error codes here if they are used by 3 or more services.
+ * Otherwise, keep them service-specific.
  *
  * Frontend Responsibility:
- * - Map error codes to localized messages
- * - Handle all UI text translations (English/Khmer)
+ * - Map error codes to localized messages (English/Khmer)
+ * - Handle all UI text translations
  */
 public enum ErrorCode {
 
@@ -31,7 +38,7 @@ public enum ErrorCode {
 
 
     // ============================================
-    // VALIDATION ERRORS
+    // VALIDATION ERRORS (Generic)
     // ============================================
 
     /** Generic validation error */
@@ -54,167 +61,72 @@ public enum ErrorCode {
 
 
     // ============================================
-    // AUTHENTICATION & AUTHORIZATION
+    // AUTHENTICATION & AUTHORIZATION (Common)
     // ============================================
 
-    /** User is not authenticated */
+    /** User is not authenticated (no valid token) */
     UNAUTHORIZED,
 
-    /** User does not have permission */
+    /** User does not have permission to access resource */
     FORBIDDEN,
 
-    /** Invalid JWT token */
+    /** JWT token is invalid or malformed */
     INVALID_TOKEN,
 
     /** JWT token has expired */
     TOKEN_EXPIRED,
 
-    /** Token replay attack detected */
+    /** Token replay attack detected (token reused) */
     TOKEN_REPLAY_DETECTED,
 
-    /** Session has expired */
+    /** User session has expired */
     SESSION_EXPIRED,
-
-    /** Invalid credentials (wrong password) */
-    INVALID_CREDENTIALS,
-
-    /** Duplicate email address */
-    DUPLICATE_EMAIL,
-
-    /** Duplicate phone number */
-    DUPLICATE_PHONE,
-
-    /** Invalid password */
-    INVALID_PASSWORD,
-
-    /** Password is too weak */
-    WEAK_PASSWORD,
-
-    /** Password is too short */
-    PASSWORD_TOO_SHORT,
-
-    /** Password missing uppercase letter */
-    PASSWORD_MISSING_UPPERCASE,
-
-    /** Password missing lowercase letter */
-    PASSWORD_MISSING_LOWERCASE,
-
-    /** Password missing digit */
-    PASSWORD_MISSING_DIGIT,
-
-    /** Password missing special character */
-    PASSWORD_MISSING_SPECIAL,
-
-    /** Password is too common */
-    PASSWORD_TOO_COMMON,
-
-    /** Invalid language code */
-    INVALID_LANGUAGE,
-
-    /** Account is locked */
-    ACCOUNT_LOCKED,
-
-    /** User not found */
-    USER_NOT_FOUND,
-
-    /** Email address not found */
-    EMAIL_NOT_FOUND,
-
-    /** Password reset token is invalid */
-    RESET_TOKEN_INVALID,
-
-    /** Password reset token has expired */
-    RESET_TOKEN_EXPIRED,
-
-    /** Profile update failed */
-    PROFILE_UPDATE_FAILED,
 
 
     // ============================================
-    // RESOURCE ERRORS
+    // RESOURCE ERRORS (Generic)
     // ============================================
 
     /** Requested resource not found */
     RESOURCE_NOT_FOUND,
 
-    /** Resource already exists (duplicate) */
+    /** Resource already exists (duplicate key/identifier) */
     RESOURCE_ALREADY_EXISTS,
 
-    /** Resource has been deleted */
+    /** Resource has been soft-deleted */
     RESOURCE_DELETED,
 
 
     // ============================================
-    // FILE UPLOAD ERRORS
+    // FILE UPLOAD ERRORS (Generic)
     // ============================================
 
-    /** File size exceeds maximum allowed */
+    /** File size exceeds maximum allowed limit */
     FILE_SIZE_EXCEEDED,
 
-    /** Photo size exceeds maximum (5MB) */
-    PHOTO_SIZE_EXCEEDED,
-
-    /** Invalid file format */
+    /** Invalid file format or extension */
     INVALID_FILE_FORMAT,
 
-    /** Invalid photo format (not JPEG/PNG) */
-    INVALID_PHOTO_FORMAT,
-
-    /** File upload failed */
+    /** File upload operation failed */
     FILE_UPLOAD_FAILED,
 
-    /** Photo upload failed */
-    PHOTO_UPLOAD_FAILED,
-
-    /** Corrupted file/image */
+    /** File data is corrupted or unreadable */
     CORRUPTED_FILE,
 
-    /** Corrupted image data */
-    CORRUPTED_IMAGE,
-
 
     // ============================================
-    // SYSTEM ERRORS
+    // SYSTEM ERRORS (Common)
     // ============================================
 
-    /** Internal server error */
+    /** Internal server error (unexpected exception) */
     INTERNAL_ERROR,
 
     /** Service is temporarily unavailable */
     SERVICE_UNAVAILABLE,
 
-    /** Rate limit exceeded */
+    /** Rate limit exceeded (too many requests) */
     RATE_LIMIT_EXCEEDED,
 
-    /** Database error */
-    DATABASE_ERROR,
-
-
-    // ============================================
-    // NOTES FOR SERVICE-SPECIFIC ERROR CODES
-    // ============================================
-
-    /*
-     * Each service should define its own service-specific error codes
-     * in separate enums. Examples:
-     *
-     * AuthErrorCode (auth-service):
-     * - DUPLICATE_EMAIL
-     * - DUPLICATE_PHONE
-     * - WEAK_PASSWORD
-     * - PASSWORD_TOO_SHORT
-     * - ACCOUNT_LOCKED
-     * - RESET_TOKEN_INVALID
-     *
-     * StudentErrorCode (student-service):
-     * - STUDENT_NOT_FOUND
-     * - DUPLICATE_STUDENT_CODE
-     * - INVALID_ENROLLMENT_DATE
-     * - CLASS_CAPACITY_EXCEEDED
-     *
-     * This approach:
-     * - Keeps common codes in sms-common
-     * - Allows service autonomy for specific codes
-     * - Prevents coupling between services
-     */
+    /** Database operation failed */
+    DATABASE_ERROR
 }

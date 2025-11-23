@@ -1,6 +1,6 @@
 package com.sms.auth.service;
 
-import com.sms.common.dto.ErrorCode;
+import com.sms.auth.dto.AuthErrorCode;
 import com.sms.auth.exception.InvalidPasswordException;
 import com.sms.auth.exception.ResetTokenInvalidException;
 import com.sms.auth.exception.UserNotFoundException;
@@ -42,7 +42,7 @@ public class PasswordResetService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     logger.warn("Password reset requested for non-existent email: {}", email);
-                    throw new UserNotFoundException(ErrorCode.EMAIL_NOT_FOUND, "Email not found");
+                    throw new UserNotFoundException(AuthErrorCode.EMAIL_NOT_FOUND, "Email not found");
                 });
 
         // Generate random reset token
@@ -81,7 +81,7 @@ public class PasswordResetService {
 
         if (userIdStr == null) {
             logger.warn("Invalid or expired reset token used: {}", token);
-            throw new ResetTokenInvalidException(ErrorCode.RESET_TOKEN_INVALID, "Invalid or expired reset token");
+            throw new ResetTokenInvalidException(AuthErrorCode.RESET_TOKEN_INVALID, "Invalid or expired reset token");
         }
 
         UUID userId;
@@ -89,14 +89,14 @@ public class PasswordResetService {
             userId = UUID.fromString(userIdStr);
         } catch (IllegalArgumentException e) {
             logger.error("Invalid UUID in reset token: {}", userIdStr);
-            throw new ResetTokenInvalidException(ErrorCode.RESET_TOKEN_INVALID, "Invalid reset token format");
+            throw new ResetTokenInvalidException(AuthErrorCode.RESET_TOKEN_INVALID, "Invalid reset token format");
         }
 
         // Get user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     logger.error("User not found for reset token: {}", userId);
-                    throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND, "User not found");
+                    throw new UserNotFoundException(AuthErrorCode.USER_NOT_FOUND, "User not found");
                 });
 
         // Update password

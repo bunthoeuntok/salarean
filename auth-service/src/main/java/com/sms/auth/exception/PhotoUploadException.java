@@ -1,22 +1,20 @@
 package com.sms.auth.exception;
 
-import com.sms.common.dto.ErrorCode;
-
 public class PhotoUploadException extends RuntimeException {
 
-    private final ErrorCode errorCode;
+    private final Enum<?> errorCode;
 
-    public PhotoUploadException(ErrorCode errorCode, String message) {
+    public PhotoUploadException(Enum<?> errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public PhotoUploadException(ErrorCode errorCode) {
+    public PhotoUploadException(Enum<?> errorCode) {
         super(errorCode.toString());
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
+    public Enum<?> getErrorCode() {
         return errorCode;
     }
 }

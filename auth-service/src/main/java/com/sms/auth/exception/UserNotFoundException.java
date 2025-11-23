@@ -1,22 +1,20 @@
 package com.sms.auth.exception;
 
-import com.sms.common.dto.ErrorCode;
-
 public class UserNotFoundException extends RuntimeException {
 
-    private final ErrorCode errorCode;
+    private final Enum<?> errorCode;
 
-    public UserNotFoundException(ErrorCode errorCode, String message) {
+    public UserNotFoundException(Enum<?> errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public UserNotFoundException(ErrorCode errorCode) {
+    public UserNotFoundException(Enum<?> errorCode) {
         super(errorCode.toString());
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
+    public Enum<?> getErrorCode() {
         return errorCode;
     }
 }

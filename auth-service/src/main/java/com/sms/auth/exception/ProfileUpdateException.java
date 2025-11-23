@@ -1,22 +1,20 @@
 package com.sms.auth.exception;
 
-import com.sms.common.dto.ErrorCode;
-
 public class ProfileUpdateException extends RuntimeException {
 
-    private final ErrorCode errorCode;
+    private final Enum<?> errorCode;
 
-    public ProfileUpdateException(ErrorCode errorCode, String message) {
+    public ProfileUpdateException(Enum<?> errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public ProfileUpdateException(ErrorCode errorCode) {
+    public ProfileUpdateException(Enum<?> errorCode) {
         super(errorCode.toString());
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
+    public Enum<?> getErrorCode() {
         return errorCode;
     }
 }

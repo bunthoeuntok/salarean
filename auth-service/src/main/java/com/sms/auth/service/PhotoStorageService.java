@@ -1,5 +1,6 @@
 package com.sms.auth.service;
 
+import com.sms.auth.dto.AuthErrorCode;
 import com.sms.common.constants.CommonConstants;
 import com.sms.common.dto.ErrorCode;
 import com.sms.common.util.FileUtils;
@@ -31,7 +32,7 @@ public class PhotoStorageService {
         // Validate file size using FileUtils
         if (!FileUtils.isValidPhotoSize(file)) {
             logger.warn("Photo upload failed - file size exceeded: {} bytes", file.getSize());
-            throw new PhotoUploadException(ErrorCode.PHOTO_SIZE_EXCEEDED,
+            throw new PhotoUploadException(AuthErrorCode.PHOTO_SIZE_EXCEEDED,
                     "File size exceeds maximum allowed size of " +
                     (CommonConstants.MAX_PHOTO_SIZE_BYTES / (1024 * 1024)) + "MB");
         }
@@ -39,7 +40,7 @@ public class PhotoStorageService {
         // Validate file is not empty using FileUtils
         if (FileUtils.isEmpty(file)) {
             logger.warn("Photo upload failed - empty file");
-            throw new PhotoUploadException(ErrorCode.INVALID_PHOTO_FORMAT,
+            throw new PhotoUploadException(AuthErrorCode.INVALID_PHOTO_FORMAT,
                     "File is empty");
         }
 
@@ -47,14 +48,14 @@ public class PhotoStorageService {
         String detectedMimeType = FileUtils.detectMimeType(file);
         if (detectedMimeType == null) {
             logger.error("Failed to detect MIME type");
-            throw new PhotoUploadException(ErrorCode.CORRUPTED_IMAGE,
+            throw new PhotoUploadException(AuthErrorCode.CORRUPTED_IMAGE,
                     "Failed to read file content");
         }
 
         // Validate MIME type using FileUtils
         if (!FileUtils.isValidPhotoMimeType(file)) {
             logger.warn("Photo upload failed - invalid MIME type: {}", detectedMimeType);
-            throw new PhotoUploadException(ErrorCode.INVALID_PHOTO_FORMAT,
+            throw new PhotoUploadException(AuthErrorCode.INVALID_PHOTO_FORMAT,
                     "Only JPEG, PNG, and WebP images are allowed");
         }
 
@@ -64,7 +65,7 @@ public class PhotoStorageService {
             String extension = FileUtils.getFileExtension(originalFilename);
             logger.warn("Photo upload failed - content type mismatch. Extension: {}, Detected: {}",
                     extension, detectedMimeType);
-            throw new PhotoUploadException(ErrorCode.CORRUPTED_IMAGE,
+            throw new PhotoUploadException(AuthErrorCode.CORRUPTED_IMAGE,
                     "File content does not match extension");
         }
     }

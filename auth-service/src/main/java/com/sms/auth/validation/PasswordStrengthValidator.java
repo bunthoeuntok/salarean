@@ -1,6 +1,6 @@
 package com.sms.auth.validation;
 
-import com.sms.common.dto.ErrorCode;
+import com.sms.auth.dto.AuthErrorCode;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -30,27 +30,27 @@ public class PasswordStrengthValidator {
 
     public ValidationResult validate(String password) {
         if (password == null || password.length() < 8) {
-            return invalid(ErrorCode.PASSWORD_TOO_SHORT);
+            return invalid(AuthErrorCode.PASSWORD_TOO_SHORT);
         }
 
         if (!UPPERCASE.matcher(password).find()) {
-            return invalid(ErrorCode.PASSWORD_MISSING_UPPERCASE);
+            return invalid(AuthErrorCode.PASSWORD_MISSING_UPPERCASE);
         }
 
         if (!LOWERCASE.matcher(password).find()) {
-            return invalid(ErrorCode.PASSWORD_MISSING_LOWERCASE);
+            return invalid(AuthErrorCode.PASSWORD_MISSING_LOWERCASE);
         }
 
         if (!DIGIT.matcher(password).find()) {
-            return invalid(ErrorCode.PASSWORD_MISSING_DIGIT);
+            return invalid(AuthErrorCode.PASSWORD_MISSING_DIGIT);
         }
 
         if (!SPECIAL.matcher(password).find()) {
-            return invalid(ErrorCode.PASSWORD_MISSING_SPECIAL);
+            return invalid(AuthErrorCode.PASSWORD_MISSING_SPECIAL);
         }
 
         if (isCommonPassword(password)) {
-            return invalid(ErrorCode.PASSWORD_TOO_COMMON);
+            return invalid(AuthErrorCode.PASSWORD_TOO_COMMON);
         }
 
         return valid();
@@ -64,15 +64,15 @@ public class PasswordStrengthValidator {
         return new ValidationResult(true, null);
     }
 
-    private ValidationResult invalid(ErrorCode errorCode) {
+    private ValidationResult invalid(AuthErrorCode errorCode) {
         return new ValidationResult(false, errorCode);
     }
 
     public static class ValidationResult {
         private final boolean valid;
-        private final ErrorCode errorCode;
+        private final AuthErrorCode errorCode;
 
-        public ValidationResult(boolean valid, ErrorCode errorCode) {
+        public ValidationResult(boolean valid, AuthErrorCode errorCode) {
             this.valid = valid;
             this.errorCode = errorCode;
         }
@@ -81,7 +81,7 @@ public class PasswordStrengthValidator {
             return valid;
         }
 
-        public ErrorCode getErrorCode() {
+        public AuthErrorCode getErrorCode() {
             return errorCode;
         }
     }
