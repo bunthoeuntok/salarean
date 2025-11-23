@@ -9,6 +9,7 @@ import com.sms.auth.repository.UserRepository;
 import com.sms.auth.security.JwtTokenProvider;
 import com.sms.auth.validation.PasswordValidator;
 import com.sms.common.dto.ErrorCode;
+import com.sms.common.util.DateUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,7 +63,7 @@ public class AuthService {
             .user(user)
             .tokenJti(jti)
             .lastActivityAt(LocalDateTime.now())
-            .expiresAt(LocalDateTime.now().plusHours(24))
+            .expiresAt(DateUtils.expiresInHours(24))
             .ipAddress(getClientIp(httpRequest))
             .userAgent(httpRequest.getHeader("User-Agent"))
             .build();
@@ -113,7 +114,7 @@ public class AuthService {
             .user(user)
             .tokenJti(jti)
             .lastActivityAt(LocalDateTime.now())
-            .expiresAt(LocalDateTime.now().plusHours(24))
+            .expiresAt(DateUtils.expiresInHours(24))
             .ipAddress(clientIp)
             .userAgent(httpRequest.getHeader("User-Agent"))
             .build();
@@ -150,7 +151,7 @@ public class AuthService {
             .user(user)
             .tokenJti(jti)
             .lastActivityAt(LocalDateTime.now())
-            .expiresAt(LocalDateTime.now().plusHours(24))
+            .expiresAt(DateUtils.expiresInHours(24))
             .ipAddress(getClientIp(httpRequest))
             .userAgent(httpRequest.getHeader("User-Agent"))
             .build();

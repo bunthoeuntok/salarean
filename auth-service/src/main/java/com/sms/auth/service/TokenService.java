@@ -1,6 +1,7 @@
 package com.sms.auth.service;
 
 import com.sms.common.dto.ErrorCode;
+import com.sms.common.util.DateUtils;
 import com.sms.auth.exception.InvalidTokenException;
 import com.sms.auth.model.RefreshToken;
 import com.sms.auth.repository.RefreshTokenRepository;
@@ -50,7 +51,7 @@ public class TokenService {
         String tokenHash = passwordEncoder.encode(plainToken);
 
         // Create expiration date (30 days from now)
-        LocalDateTime expiresAt = LocalDateTime.now().plusDays(REFRESH_TOKEN_VALIDITY_DAYS);
+        LocalDateTime expiresAt = DateUtils.expiresInDays(30);
 
         // Save to database
         RefreshToken refreshToken = RefreshToken.builder()

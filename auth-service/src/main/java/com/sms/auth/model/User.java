@@ -1,8 +1,8 @@
 package com.sms.auth.model;
 
+import com.sms.common.validation.KhmerPhone;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -27,7 +27,7 @@ public class User {
     @Column(unique = true, nullable = false, length = 255)
     private String email;
 
-    @Pattern(regexp = "^\\+855[1-9]\\d{7,8}$", message = "Invalid Cambodia phone format")
+    @KhmerPhone
     @Column(name = "phone_number", unique = true, nullable = false, length = 20)
     private String phoneNumber;
 

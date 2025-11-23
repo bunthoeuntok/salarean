@@ -1,8 +1,9 @@
 package com.sms.auth.service;
 
+import com.sms.common.constants.CommonConstants;
 import com.sms.common.dto.ErrorCode;
+import com.sms.common.util.FileUtils;
 import com.sms.auth.exception.PhotoUploadException;
-import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,17 +14,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class PhotoStorageService {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoStorageService.class);
-    private static final long MAX_FILE_SIZE = 5242880; // 5MB in bytes
-    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png");
-    private static final Tika tika = new Tika();
 
     @Value("${app.photo.upload-dir}")
     private String uploadDir;
@@ -32,51 +28,44 @@ public class PhotoStorageService {
      * Validate photo file (size, format, content type)
      */
     public void validatePhoto(MultipartFile file) {
-        // Validate file size
-        if (file.getSize() > MAX_FILE_SIZE) {
+        // Validate file size using FileUtils
+        if (!FileUtils.isValidPhotoSize(file)) {
             logger.warn("Photo upload failed - file size exceeded: {} bytes", file.getSize());
             throw new PhotoUploadException(ErrorCode.PHOTO_SIZE_EXCEEDED,
-                    "File size exceeds maximum allowed size of 5MB");
+                    "File size exceeds maximum allowed size of " +
+                    (CommonConstants.MAX_PHOTO_SIZE_BYTES / (1024 * 1024)) + "MB");
         }
 
-        // Validate file is not empty
-        if (file.isEmpty()) {
+        // Validate file is not empty using FileUtils
+        if (FileUtils.isEmpty(file)) {
             logger.warn("Photo upload failed - empty file");
             throw new PhotoUploadException(ErrorCode.INVALID_PHOTO_FORMAT,
                     "File is empty");
         }
 
-        // Detect actual MIME type using Apache Tika
-        String detectedMimeType;
-        try {
-            detectedMimeType = tika.detect(file.getBytes());
-        } catch (IOException e) {
-            logger.error("Failed to detect MIME type", e);
+        // Detect actual MIME type using FileUtils
+        String detectedMimeType = FileUtils.detectMimeType(file);
+        if (detectedMimeType == null) {
+            logger.error("Failed to detect MIME type");
             throw new PhotoUploadException(ErrorCode.CORRUPTED_IMAGE,
                     "Failed to read file content");
         }
 
-        // Validate MIME type
-        if (!ALLOWED_MIME_TYPES.contains(detectedMimeType)) {
+        // Validate MIME type using FileUtils
+        if (!FileUtils.isValidPhotoMimeType(file)) {
             logger.warn("Photo upload failed - invalid MIME type: {}", detectedMimeType);
             throw new PhotoUploadException(ErrorCode.INVALID_PHOTO_FORMAT,
-                    "Only JPG and PNG images are allowed");
+                    "Only JPEG, PNG, and WebP images are allowed");
         }
 
-        // Verify content type matches extension (detect spoofing)
+        // Verify content type matches extension using FileUtils
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null) {
-            String extension = getFileExtension(originalFilename).toLowerCase();
-            boolean isValidMatch = (extension.equals("jpg") || extension.equals("jpeg"))
-                                    && detectedMimeType.equals("image/jpeg")
-                                    || extension.equals("png") && detectedMimeType.equals("image/png");
-
-            if (!isValidMatch) {
-                logger.warn("Photo upload failed - content type mismatch. Extension: {}, Detected: {}",
-                        extension, detectedMimeType);
-                throw new PhotoUploadException(ErrorCode.CORRUPTED_IMAGE,
-                        "File content does not match extension");
-            }
+        if (originalFilename != null && !FileUtils.isExtensionMatchingContent(originalFilename, detectedMimeType)) {
+            String extension = FileUtils.getFileExtension(originalFilename);
+            logger.warn("Photo upload failed - content type mismatch. Extension: {}, Detected: {}",
+                    extension, detectedMimeType);
+            throw new PhotoUploadException(ErrorCode.CORRUPTED_IMAGE,
+                    "File content does not match extension");
         }
     }
 
@@ -92,14 +81,17 @@ public class PhotoStorageService {
             // Delete old photo if exists
             deletePhoto(userId);
 
-            // Determine file extension
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null ? getFileExtension(originalFilename) : "jpg";
+            // Determine file extension from MIME type
+            String detectedMimeType = FileUtils.detectMimeType(file);
+            String extension = FileUtils.getExtensionFromMimeType(detectedMimeType);
 
-            // Save new photo
+            // Save new photo using FileUtils
             String filename = "profile." + extension;
             Path targetPath = userDir.resolve(filename);
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            if (!FileUtils.saveFile(file, targetPath)) {
+                throw new IOException("Failed to save file");
+            }
 
             // Return relative URL path
             String photoUrl = String.format("/uploads/profile-photos/%s/%s", userId, filename);
@@ -123,32 +115,15 @@ public class PhotoStorageService {
         try {
             Path userDir = Paths.get(uploadDir, userId.toString());
             if (Files.exists(userDir)) {
-                // Delete all files in user directory (profile.jpg, profile.png, etc.)
-                Files.list(userDir)
-                        .filter(path -> path.getFileName().toString().startsWith("profile."))
-                        .forEach(path -> {
-                            try {
-                                Files.delete(path);
-                                logger.info("Deleted old photo: {}", path);
-                            } catch (IOException e) {
-                                logger.warn("Failed to delete old photo: {}", path, e);
-                            }
-                        });
+                // Delete all profile photos using FileUtils
+                int deletedCount = FileUtils.deleteFilesMatching(userDir, "profile.*");
+                if (deletedCount > 0) {
+                    logger.info("Deleted {} old photo(s) for user: {}", deletedCount, userId);
+                }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Failed to delete old photos for user: {}", userId, e);
             // Don't throw exception - this is a cleanup operation
         }
-    }
-
-    /**
-     * Extract file extension from filename
-     */
-    private String getFileExtension(String filename) {
-        int lastDot = filename.lastIndexOf('.');
-        if (lastDot > 0 && lastDot < filename.length() - 1) {
-            return filename.substring(lastDot + 1);
-        }
-        return "";
     }
 }
