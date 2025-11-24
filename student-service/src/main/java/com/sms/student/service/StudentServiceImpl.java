@@ -378,7 +378,10 @@ public class StudentServiceImpl implements StudentService {
     public StudentListResponse searchStudents(String searchTerm, Pageable pageable) {
         log.info("Searching students with term: '{}', page: {}", searchTerm, pageable.getPageNumber());
 
-        Page<Student> studentPage = studentRepository.searchStudents(searchTerm, pageable);
+        // Convert entity field names to database column names for native query sorting
+        Pageable nativeQueryPageable = convertToNativeQueryPageable(pageable);
+
+        Page<Student> studentPage = studentRepository.searchStudents(searchTerm, nativeQueryPageable);
 
         List<StudentSummary> summaries = studentPage.getContent().stream()
                 .map(this::mapToStudentSummary)
@@ -507,5 +510,38 @@ public class StudentServiceImpl implements StudentService {
     public ParentContactResponse updateParentContact(UUID contactId, ParentContactRequest request) {
         log.info("Updating parent contact via StudentService: {}", contactId);
         return parentContactService.updateParentContact(contactId, request);
+    }
+
+    /**
+     * Convert entity field names to database column names for native query sorting.
+     * This is necessary because native SQL queries use database column names (snake_case)
+     * while entity field names use Java naming conventions (camelCase).
+     */
+    private Pageable convertToNativeQueryPageable(Pageable pageable) {
+        if (pageable.getSort().isUnsorted()) {
+            return pageable;
+        }
+
+        org.springframework.data.domain.Sort newSort = org.springframework.data.domain.Sort.unsorted();
+        for (org.springframework.data.domain.Sort.Order order : pageable.getSort()) {
+            String property = order.getProperty();
+            // Convert camelCase to snake_case
+            String columnName = camelCaseToSnakeCase(property);
+            newSort = newSort.and(org.springframework.data.domain.Sort.by(order.getDirection(), columnName));
+        }
+
+        return org.springframework.data.domain.PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                newSort
+        );
+    }
+
+    /**
+     * Convert camelCase string to snake_case.
+     * Example: lastName -> last_name, firstNameKhmer -> first_name_khmer
+     */
+    private String camelCaseToSnakeCase(String camelCase) {
+        return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 }

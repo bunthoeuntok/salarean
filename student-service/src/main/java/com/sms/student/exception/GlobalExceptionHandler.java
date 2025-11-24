@@ -82,6 +82,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getErrorCode()));
     }
 
+    @ExceptionHandler(SchoolNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleSchoolNotFound(SchoolNotFoundException ex) {
+        log.error("School not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
     @ExceptionHandler(UnauthorizedClassAccessException.class)
     public ResponseEntity<ApiResponse<Void>> handleUnauthorizedClassAccess(UnauthorizedClassAccessException ex) {
         log.error("Unauthorized class access: {}", ex.getMessage());
