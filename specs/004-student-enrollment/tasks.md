@@ -25,10 +25,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify student-service project structure matches plan.md requirements
-- [ ] T002 Verify existing dependencies in student-service/pom.xml (Spring Boot 3.5.7, Spring Data JPA, Lombok, Hibernate Validator, Flyway)
-- [ ] T003 [P] Verify existing security configuration in student-service/src/main/java/com/sms/student/security/
-- [ ] T004 [P] Verify existing ApiResponse wrapper in sms-common module
+- [X] T001 Verify student-service project structure matches plan.md requirements
+- [X] T002 Verify existing dependencies in student-service/pom.xml (Spring Boot 3.5.7, Spring Data JPA, Lombok, Hibernate Validator, Flyway)
+- [X] T003 [P] Verify existing security configuration in student-service/src/main/java/com/sms/student/security/
+- [X] T004 [P] Verify existing ApiResponse wrapper in sms-common module
 
 ---
 
@@ -38,19 +38,19 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create EnrollmentStatus enum in student-service/src/main/java/com/sms/student/model/EnrollmentStatus.java
-- [ ] T006 [P] Add enrollment-specific error codes to StudentErrorCode enum in student-service/src/main/java/com/sms/student/exception/StudentErrorCode.java (DUPLICATE_ENROLLMENT, ENROLLMENT_NOT_FOUND, INVALID_ENROLLMENT_STATUS)
-- [ ] T007 Create V6__add_enrollment_status_field.sql migration in student-service/src/main/resources/db/migration/ (adds status, transfer_date, transfer_reason fields with indexes and constraints)
-- [ ] T008 Update Enrollment entity in student-service/src/main/java/com/sms/student/model/Enrollment.java (add status, transferDate, transferReason fields)
-- [ ] T009 Create EnrollmentRepository interface in student-service/src/main/java/com/sms/student/repository/EnrollmentRepository.java (extends JpaRepository with custom query for enrollment history)
-- [ ] T010 [P] Create EnrollmentRequest DTO in student-service/src/main/java/com/sms/student/dto/EnrollmentRequest.java
-- [ ] T011 [P] Create TransferRequest DTO in student-service/src/main/java/com/sms/student/dto/TransferRequest.java
-- [ ] T012 [P] Create EnrollmentResponse DTO in student-service/src/main/java/com/sms/student/dto/EnrollmentResponse.java
-- [ ] T013 [P] Create EnrollmentHistoryResponse DTO in student-service/src/main/java/com/sms/student/dto/EnrollmentHistoryResponse.java
-- [ ] T014 [P] Create DuplicateEnrollmentException in student-service/src/main/java/com/sms/student/exception/DuplicateEnrollmentException.java
-- [ ] T015 [P] Create EnrollmentNotFoundException in student-service/src/main/java/com/sms/student/exception/EnrollmentNotFoundException.java
-- [ ] T016 Update GlobalExceptionHandler in student-service/src/main/java/com/sms/student/exception/GlobalExceptionHandler.java to handle new enrollment exceptions
-- [ ] T017 Run Flyway migration and verify V6 migration applied successfully (check flyway_schema_history and student_class_enrollments table structure)
+- [X] T005 Create EnrollmentStatus enum in student-service/src/main/java/com/sms/student/model/EnrollmentStatus.java
+- [X] T006 [P] Add enrollment-specific error codes to StudentErrorCode enum in student-service/src/main/java/com/sms/student/exception/StudentErrorCode.java (DUPLICATE_ENROLLMENT, ENROLLMENT_NOT_FOUND, INVALID_ENROLLMENT_STATUS)
+- [X] T007 Create V6__add_enrollment_status_field.sql migration in student-service/src/main/resources/db/migration/ (adds status, transfer_date, transfer_reason fields with indexes and constraints)
+- [X] T008 Update Enrollment entity in student-service/src/main/java/com/sms/student/model/Enrollment.java (add status, transferDate, transferReason fields)
+- [X] T009 Create EnrollmentRepository interface in student-service/src/main/java/com/sms/student/repository/EnrollmentRepository.java (extends JpaRepository with custom query for enrollment history)
+- [X] T010 [P] Create EnrollmentRequest DTO in student-service/src/main/java/com/sms/student/dto/EnrollmentRequest.java
+- [X] T011 [P] Create TransferRequest DTO in student-service/src/main/java/com/sms/student/dto/TransferRequest.java
+- [X] T012 [P] Create EnrollmentResponse DTO in student-service/src/main/java/com/sms/student/dto/EnrollmentResponse.java
+- [X] T013 [P] Create EnrollmentHistoryResponse DTO in student-service/src/main/java/com/sms/student/dto/EnrollmentHistoryResponse.java
+- [X] T014 [P] Create DuplicateEnrollmentException in student-service/src/main/java/com/sms/student/exception/DuplicateEnrollmentException.java
+- [X] T015 [P] Create EnrollmentNotFoundException in student-service/src/main/java/com/sms/student/exception/EnrollmentNotFoundException.java
+- [X] T016 Update GlobalExceptionHandler in student-service/src/main/java/com/sms/student/exception/GlobalExceptionHandler.java to handle new enrollment exceptions
+- [X] T017 Run Flyway migration and verify V6 migration applied successfully (check flyway_schema_history and student_class_enrollments table structure)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,11 +69,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Create EnrollmentService interface in student-service/src/main/java/com/sms/student/service/EnrollmentService.java (define getEnrollmentHistory method)
-- [ ] T019 [US1] Implement getEnrollmentHistory method in student-service/src/main/java/com/sms/student/service/EnrollmentServiceImpl.java (uses JOIN FETCH to load class and school, maps to EnrollmentHistoryResponse with status counts)
-- [ ] T020 [US1] Create EnrollmentController in student-service/src/main/java/com/sms/student/controller/EnrollmentController.java with GET /api/students/{id}/enrollment-history endpoint
-- [ ] T021 [US1] Add OpenAPI annotations to EnrollmentController.getEnrollmentHistory method (@Operation, @ApiResponses for 200, 404)
-- [ ] T022 [US1] Add entity-to-DTO mapping method in EnrollmentServiceImpl (mapToResponse and mapToHistoryResponse helpers with denormalized className and schoolName)
+- [X] T018 [US1] Create EnrollmentService interface in student-service/src/main/java/com/sms/student/service/EnrollmentService.java (define getEnrollmentHistory method)
+- [X] T019 [US1] Implement getEnrollmentHistory method in student-service/src/main/java/com/sms/student/service/EnrollmentServiceImpl.java (uses JOIN FETCH to load class and school, maps to EnrollmentHistoryResponse with status counts)
+- [X] T020 [US1] Create EnrollmentController in student-service/src/main/java/com/sms/student/controller/EnrollmentController.java with GET /api/students/{id}/enrollment-history endpoint
+- [X] T021 [US1] Add OpenAPI annotations to EnrollmentController.getEnrollmentHistory method (@Operation, @ApiResponses for 200, 404)
+- [X] T022 [US1] Add entity-to-DTO mapping method in EnrollmentServiceImpl (mapToResponse and mapToHistoryResponse helpers with denormalized className and schoolName)
 - [ ] T023 [US1] Verify endpoint responds with 404 STUDENT_NOT_FOUND when student ID doesn't exist
 - [ ] T024 [US1] Verify endpoint responds with 200 and empty enrollments list when student has no enrollment history
 - [ ] T025 [US1] Test endpoint with student having multiple enrollments (verify ordering, status counts, denormalized fields)
@@ -96,13 +96,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Add enrollStudent method to EnrollmentService interface in student-service/src/main/java/com/sms/student/service/EnrollmentService.java
-- [ ] T027 [US2] Implement enrollStudent method in EnrollmentServiceImpl with @Transactional annotation (validates student exists, class exists, no duplicate enrollment, capacity available, creates enrollment with status ACTIVE and reason NEW, increments class student_count)
-- [ ] T028 [US2] Add POST /api/students/{id}/enroll endpoint to EnrollmentController with @Valid request body
-- [ ] T029 [US2] Add OpenAPI annotations to EnrollmentController.enrollStudent method (@Operation, @ApiResponses for 200, 400, 404, 409)
-- [ ] T030 [US2] Add duplicate enrollment check in EnrollmentServiceImpl (query for active enrollment with same student_id and class_id, throw DuplicateEnrollmentException if exists)
-- [ ] T031 [US2] Add class capacity validation in EnrollmentServiceImpl (check if studentCount >= maxCapacity, throw ClassCapacityExceededException if full, use optimistic locking with version field)
-- [ ] T032 [US2] Add class student_count increment logic in EnrollmentServiceImpl (classEntity.setStudentCount(count + 1), save class entity)
+- [x] T026 [US2] Add enrollStudent method to EnrollmentService interface in student-service/src/main/java/com/sms/student/service/EnrollmentService.java
+- [x] T027 [US2] Implement enrollStudent method in EnrollmentServiceImpl with @Transactional annotation (validates student exists, class exists, no duplicate enrollment, capacity available, creates enrollment with status ACTIVE and reason NEW, increments class student_count)
+- [x] T028 [US2] Add POST /api/students/{id}/enroll endpoint to EnrollmentController with @Valid request body
+- [x] T029 [US2] Add OpenAPI annotations to EnrollmentController.enrollStudent method (@Operation, @ApiResponses for 200, 400, 404, 409)
+- [x] T030 [US2] Add duplicate enrollment check in EnrollmentServiceImpl (query for active enrollment with same student_id and class_id, throw DuplicateEnrollmentException if exists)
+- [x] T031 [US2] Add class capacity validation in EnrollmentServiceImpl (check if studentCount >= maxCapacity, throw ClassCapacityExceededException if full, use optimistic locking with version field)
+- [x] T032 [US2] Add class student_count increment logic in EnrollmentServiceImpl (classEntity.setStudentCount(count + 1), save class entity)
 - [ ] T033 [US2] Verify endpoint creates enrollment successfully with 200 response when all validations pass
 - [ ] T034 [US2] Verify endpoint returns 404 STUDENT_NOT_FOUND when student doesn't exist
 - [ ] T035 [US2] Verify endpoint returns 404 CLASS_NOT_FOUND when class doesn't exist
@@ -132,15 +132,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Add transferStudent method to EnrollmentService interface in student-service/src/main/java/com/sms/student/service/EnrollmentService.java
-- [ ] T041 [US3] Implement transferStudent method in EnrollmentServiceImpl with @Transactional annotation (validates student exists, finds active enrollment, validates target class exists and has capacity, marks old enrollment as TRANSFERRED, creates new enrollment with reason TRANSFER, updates both class student_counts)
-- [ ] T042 [US3] Add POST /api/students/{id}/transfer endpoint to EnrollmentController with @Valid request body
-- [ ] T043 [US3] Add OpenAPI annotations to EnrollmentController.transferStudent method (@Operation, @ApiResponses for 200, 400, 404, 409)
-- [ ] T044 [US3] Add active enrollment lookup in EnrollmentServiceImpl (query for enrollment with student_id and status ACTIVE, throw EnrollmentNotFoundException if not found or multiple found)
-- [ ] T045 [US3] Add old enrollment closure logic in EnrollmentServiceImpl (set status=TRANSFERRED, endDate=today, transferDate=today, transferReason=request.reason)
-- [ ] T046 [US3] Add new enrollment creation logic in EnrollmentServiceImpl (create enrollment with student, targetClass, enrollmentDate=today, reason=TRANSFER, status=ACTIVE, notes=request.reason)
-- [ ] T047 [US3] Add class student count update logic in EnrollmentServiceImpl (decrement old class count, increment new class count, save both)
-- [ ] T048 [US3] Add target class capacity validation in EnrollmentServiceImpl (reuse capacity check from User Story 2, use optimistic locking)
+- [x] T040 [US3] Add transferStudent method to EnrollmentService interface in student-service/src/main/java/com/sms/student/service/EnrollmentService.java
+- [x] T041 [US3] Implement transferStudent method in EnrollmentServiceImpl with @Transactional annotation (validates student exists, finds active enrollment, validates target class exists and has capacity, marks old enrollment as TRANSFERRED, creates new enrollment with reason TRANSFER, updates both class student_counts)
+- [x] T042 [US3] Add POST /api/students/{id}/transfer endpoint to EnrollmentController with @Valid request body
+- [x] T043 [US3] Add OpenAPI annotations to EnrollmentController.transferStudent method (@Operation, @ApiResponses for 200, 400, 404, 409)
+- [x] T044 [US3] Add active enrollment lookup in EnrollmentServiceImpl (query for enrollment with student_id and status ACTIVE, throw EnrollmentNotFoundException if not found or multiple found)
+- [x] T045 [US3] Add old enrollment closure logic in EnrollmentServiceImpl (set status=TRANSFERRED, endDate=today, transferDate=today, transferReason=request.reason)
+- [x] T046 [US3] Add new enrollment creation logic in EnrollmentServiceImpl (create enrollment with student, targetClass, enrollmentDate=today, reason=TRANSFER, status=ACTIVE, notes=request.reason)
+- [x] T047 [US3] Add class student count update logic in EnrollmentServiceImpl (decrement old class count, increment new class count, save both)
+- [x] T048 [US3] Add target class capacity validation in EnrollmentServiceImpl (reuse capacity check from User Story 2, use optimistic locking)
 - [ ] T049 [US3] Verify endpoint transfers student successfully with 200 response when all validations pass
 - [ ] T050 [US3] Verify endpoint returns 404 STUDENT_NOT_FOUND when student doesn't exist
 - [ ] T051 [US3] Verify endpoint returns 404 ENROLLMENT_NOT_FOUND when student has no active enrollment

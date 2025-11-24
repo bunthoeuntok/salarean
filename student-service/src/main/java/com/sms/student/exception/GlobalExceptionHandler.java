@@ -78,13 +78,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleClassCapacityExceeded(ClassCapacityExceededException ex) {
         log.error("Class capacity exceeded: {}", ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(ex.getErrorCode()));
     }
 
     @ExceptionHandler(ParentContactNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleParentContactNotFound(ParentContactNotFoundException ex) {
         log.error("Parent contact not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(DuplicateEnrollmentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateEnrollment(DuplicateEnrollmentException ex) {
+        log.error("Duplicate enrollment: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(EnrollmentNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEnrollmentNotFound(EnrollmentNotFoundException ex) {
+        log.error("Enrollment not found: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(ex.getErrorCode()));
