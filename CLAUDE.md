@@ -10,6 +10,10 @@ Auto-generated from all feature plans. Last updated: 2025-11-20
 - N/A (this is a standardization/documentation feature, not a data feature) (001-service-standards)
 - Java 21+ + Spring Data JPA, Spring Web, Lombok, Hibernate Validator, Flyway (004-student-enrollment)
 - PostgreSQL 15+ (student_db database) (004-student-enrollment)
+- Java 21 with Spring Boot 3.5.7 (005-class-management)
+- PostgreSQL 15+ (dedicated `class_db` database with tables: classes, enrollment_history) (005-class-management)
+- Java 21 with Spring Boot 3.5.7 (existing student-service stack) (005-class-management)
+- PostgreSQL 15+ (existing `student_db` database; **NEW tables**: classes, enrollment_history) (005-class-management)
 
 - Java 21 (Spring Boot 3.5.7) + Spring Boot, Spring Security, Spring Data JPA, JWT (jjwt 0.12.5), BCrypt for password hashing (001-teacher-auth)
 
@@ -29,9 +33,9 @@ tests/
 Java 21 (Spring Boot 3.5.7): Follow standard conventions
 
 ## Recent Changes
+- 005-class-management: Added Java 21 with Spring Boot 3.5.7 (existing student-service stack)
+- 005-class-management: Added Java 21 with Spring Boot 3.5.7
 - 004-student-enrollment: Added Java 21+ + Spring Data JPA, Spring Web, Lombok, Hibernate Validator, Flyway
-- 001-service-standards: Added Java 21 (Spring Boot 3.5.7), Bash scripting for automation + Spring Boot, Spring Security, Spring Data JPA, Netflix Eureka, Docker Compose
-- 003-student-crud: Added Java 21+ (Spring Boot 3.5.7)
 
 
 <!-- MANUAL ADDITIONS START -->
