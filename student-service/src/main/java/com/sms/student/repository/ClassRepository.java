@@ -51,4 +51,32 @@ public interface ClassRepository extends JpaRepository<SchoolClass, UUID> {
      * @return Optional containing the class if found and owned by teacher
      */
     Optional<SchoolClass> findByIdAndTeacherId(UUID classId, UUID teacherId);
+
+    /**
+     * Check if a class exists with the given schoolId, grade, section, and academic year.
+     * Used to prevent duplicate class creation (enforces unique constraint).
+     *
+     * @param schoolId     school UUID
+     * @param grade        grade level (1-12)
+     * @param section      section identifier
+     * @param academicYear academic year (format "YYYY-YYYY")
+     * @return true if class exists, false otherwise
+     */
+    boolean existsBySchoolIdAndGradeAndSectionAndAcademicYear(
+        UUID schoolId, Integer grade, String section, String academicYear
+    );
+
+    /**
+     * Find all classes with the given schoolId, grade, section, and academic year.
+     * Used for duplicate checking during updates (need to exclude current class).
+     *
+     * @param schoolId     school UUID
+     * @param grade        grade level (1-12)
+     * @param section      section identifier
+     * @param academicYear academic year (format "YYYY-YYYY")
+     * @return list of matching classes
+     */
+    List<SchoolClass> findBySchoolIdAndGradeAndSectionAndAcademicYear(
+        UUID schoolId, Integer grade, String section, String academicYear
+    );
 }

@@ -36,8 +36,12 @@ public class ClassCacheService {
 
     private static final String SERVICE_NAME = "student-service";
     private static final String TEACHER_ENTITY = "teacher";
+    private static final String CLASS_ENTITY = "class";
     private static final String CLASSES_SUFFIX = "classes";
+    private static final String HISTORY_SUFFIX = "history";
     private static final Duration TEACHER_CLASSES_TTL = Duration.ofMinutes(30);
+    private static final Duration CLASS_DETAILS_TTL = Duration.ofMinutes(15);
+    private static final Duration ENROLLMENT_HISTORY_TTL = Duration.ofMinutes(60);
 
     private final CacheService cacheService;
 
@@ -93,6 +97,115 @@ public class ClassCacheService {
         );
 
         log.debug("Evicting cached teacher classes for key: {}", cacheKey);
+        cacheService.evict(cacheKey);
+    }
+
+    /**
+     * Get cached class details.
+     *
+     * @param classId UUID of the class
+     * @return optional containing cached class details, or empty if not cached
+     */
+    @SuppressWarnings("unchecked")
+    public Optional<com.sms.student.dto.ClassDetailDto> getClassDetails(UUID classId) {
+        String cacheKey = CacheKeyGenerator.generateKey(
+            SERVICE_NAME,
+            CLASS_ENTITY,
+            classId.toString()
+        );
+
+        log.debug("Fetching cached class details for key: {}", cacheKey);
+        return (Optional<com.sms.student.dto.ClassDetailDto>) (Optional<?>)
+            cacheService.get(cacheKey, com.sms.student.dto.ClassDetailDto.class);
+    }
+
+    /**
+     * Cache class details including student roster.
+     *
+     * @param classId      UUID of the class
+     * @param classDetails class detail DTO to cache
+     */
+    public void cacheClassDetails(UUID classId, com.sms.student.dto.ClassDetailDto classDetails) {
+        String cacheKey = CacheKeyGenerator.generateKey(
+            SERVICE_NAME,
+            CLASS_ENTITY,
+            classId.toString()
+        );
+
+        log.debug("Caching class details for key: {} (TTL: {})", cacheKey, CLASS_DETAILS_TTL);
+        cacheService.put(cacheKey, classDetails, CLASS_DETAILS_TTL);
+    }
+
+    /**
+     * Evict cached class details.
+     * Called when class data or enrollment changes.
+     *
+     * @param classId UUID of the class
+     */
+    public void evictClassDetails(UUID classId) {
+        String cacheKey = CacheKeyGenerator.generateKey(
+            SERVICE_NAME,
+            CLASS_ENTITY,
+            classId.toString()
+        );
+
+        log.debug("Evicting cached class details for key: {}", cacheKey);
+        cacheService.evict(cacheKey);
+    }
+
+    /**
+     * Get cached enrollment history for a class.
+     *
+     * @param classId UUID of the class
+     * @return optional containing cached enrollment history, or empty if not cached
+     */
+    @SuppressWarnings("unchecked")
+    public Optional<List<com.sms.student.dto.EnrollmentHistoryDto>> getEnrollmentHistory(UUID classId) {
+        String cacheKey = CacheKeyGenerator.generateKey(
+            SERVICE_NAME,
+            CLASS_ENTITY,
+            classId.toString(),
+            HISTORY_SUFFIX
+        );
+
+        log.debug("Fetching cached enrollment history for key: {}", cacheKey);
+        return (Optional<List<com.sms.student.dto.EnrollmentHistoryDto>>) (Optional<?>)
+            cacheService.get(cacheKey, List.class);
+    }
+
+    /**
+     * Cache enrollment history for a class.
+     *
+     * @param classId UUID of the class
+     * @param history enrollment history list to cache
+     */
+    public void cacheEnrollmentHistory(UUID classId, List<com.sms.student.dto.EnrollmentHistoryDto> history) {
+        String cacheKey = CacheKeyGenerator.generateKey(
+            SERVICE_NAME,
+            CLASS_ENTITY,
+            classId.toString(),
+            HISTORY_SUFFIX
+        );
+
+        log.debug("Caching enrollment history for key: {} (TTL: {})", cacheKey, ENROLLMENT_HISTORY_TTL);
+        cacheService.put(cacheKey, history, ENROLLMENT_HISTORY_TTL);
+    }
+
+    /**
+     * Evict cached enrollment history for a class.
+     * Called when enrollment changes occur.
+     *
+     * @param classId UUID of the class
+     */
+    public void evictEnrollmentHistory(UUID classId) {
+        String cacheKey = CacheKeyGenerator.generateKey(
+            SERVICE_NAME,
+            CLASS_ENTITY,
+            classId.toString(),
+            HISTORY_SUFFIX
+        );
+
+        log.debug("Evicting cached enrollment history for key: {}", cacheKey);
         cacheService.evict(cacheKey);
     }
 }

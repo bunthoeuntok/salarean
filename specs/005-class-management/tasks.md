@@ -190,21 +190,21 @@ docker exec -it redis redis-cli KEYS "student-service:teacher:classes:*"
 ### Tasks
 
 #### DTOs
-- [ ] T038 [P] [US2] Create ClassDetailDto in student-service/src/main/java/com/sms/student/dto/ClassDetailDto.java (extends ClassSummaryDto, adds: description, updatedAt)
-- [ ] T039 [P] [US2] Create StudentRosterItemDto in student-service/src/main/java/com/sms/student/dto/StudentRosterItemDto.java (fields: studentId, studentIdNumber, firstNameLatin, lastNameLatin, gradeLevel, enrollmentDate, status)
+- [X] T038 [P] [US2] Create ClassDetailDto in student-service/src/main/java/com/sms/student/dto/ClassDetailDto.java (extends ClassSummaryDto, adds: description, updatedAt)
+- [X] T039 [P] [US2] Create StudentRosterItemDto in student-service/src/main/java/com/sms/student/dto/StudentRosterItemDto.java (fields: studentId, studentIdNumber, firstNameLatin, lastNameLatin, gradeLevel, enrollmentDate, status)
 
 #### Service Layer
-- [ ] T040 [US2] Add getClassDetails method to ClassService interface
-- [ ] T041 [US2] Implement ClassServiceImpl.getClassDetails in student-service/src/main/java/com/sms/student/service/ClassServiceImpl.java (query by classId, verify teacher authorization, throw ClassNotFoundException if not found)
-- [ ] T042 [US2] Add getClassStudents method to ClassService interface
-- [ ] T043 [US2] Implement ClassServiceImpl.getClassStudents (query enrollment records, fetch student details, map to StudentRosterItemDto)
-- [ ] T044 [US2] Add cache methods in ClassCacheService (cacheClassDetails with 15min TTL, evictClassDetails, cache key: student-service:class:{classId})
-- [ ] T045 [US2] Integrate cache in ClassServiceImpl.getClassDetails and getClassStudents (cache combined response)
+- [X] T040 [US2] Add getClassDetails method to ClassService interface
+- [X] T041 [US2] Implement ClassServiceImpl.getClassDetails in student-service/src/main/java/com/sms/student/service/ClassServiceImpl.java (query by classId, verify teacher authorization, throw ClassNotFoundException if not found)
+- [X] T042 [US2] Add getClassStudents method to ClassService interface
+- [X] T043 [US2] Implement ClassServiceImpl.getClassStudents (query enrollment records, fetch student details, map to StudentRosterItemDto)
+- [X] T044 [US2] Add cache methods in ClassCacheService (cacheClassDetails with 15min TTL, evictClassDetails, cache key: student-service:class:{classId})
+- [X] T045 [US2] Integrate cache in ClassServiceImpl.getClassDetails and getClassStudents (cache combined response)
 
 #### Controller
-- [ ] T046 [US2] Add GET /api/classes/{id} endpoint in ClassController (extract teacherId from JWT, verify authorization, return ClassDetailDto)
-- [ ] T047 [US2] Add GET /api/classes/{id}/students endpoint in ClassController (extract teacherId from JWT, verify authorization, return StudentRosterItemDto list)
-- [ ] T048 [US2] Add teacher authorization check (verify class belongs to teacher before returning data)
+- [X] T046 [US2] Add GET /api/classes/{id} endpoint in ClassController (extract teacherId from JWT, verify authorization, return ClassDetailDto)
+- [X] T047 [US2] Add GET /api/classes/{id}/students endpoint in ClassController (extract teacherId from JWT, verify authorization, return StudentRosterItemDto list)
+- [X] T048 [US2] Add teacher authorization check (verify class belongs to teacher before returning data)
 
 **Completion Criteria**:
 - ✅ Teacher can view detailed class information

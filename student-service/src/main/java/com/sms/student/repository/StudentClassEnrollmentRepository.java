@@ -48,4 +48,10 @@ public interface StudentClassEnrollmentRepository extends JpaRepository<StudentC
     @Query("SELECT sce.classId FROM StudentClassEnrollment sce " +
            "WHERE sce.studentId = :studentId AND sce.endDate IS NULL")
     Optional<UUID> findCurrentClassIdByStudentId(@Param("studentId") UUID studentId);
+
+    // Find all enrollments for a class (current and past) ordered by enrollment date descending
+    @Query("SELECT sce FROM StudentClassEnrollment sce " +
+           "WHERE sce.classId = :classId " +
+           "ORDER BY sce.enrollmentDate DESC, sce.createdAt DESC")
+    List<StudentClassEnrollment> findAllByClassIdOrderByEnrollmentDateDesc(@Param("classId") UUID classId);
 }
