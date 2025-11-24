@@ -44,15 +44,15 @@ This document breaks down the class management implementation into executable ta
 
 ### Tasks
 
-- [ ] T001 Create feature branch `005-class-management` from main
-- [ ] T002 [P] Add Spring Data Redis dependency to student-service/pom.xml (spring-boot-starter-data-redis)
-- [ ] T003 [P] Create package structure: student-service/src/main/java/com/sms/student/classmanagement/{controller,dto,model,repository,service,exception}
-- [ ] T004 [P] Create test package structure: student-service/src/test/java/com/sms/student/classmanagement/{controller,service,repository}
-- [ ] T005 [P] Create sms-common cache package: sms-common/src/main/java/com/sms/common/cache/
-- [ ] T006 [P] Implement CacheService interface in sms-common/src/main/java/com/sms/common/cache/CacheService.java
-- [ ] T007 [P] Implement RedisCacheService in sms-common/src/main/java/com/sms/common/cache/RedisCacheService.java
-- [ ] T008 [P] Implement CacheKeyGenerator in sms-common/src/main/java/com/sms/common/cache/CacheKeyGenerator.java
-- [ ] T009 Rebuild and install sms-common: `cd sms-common && ./mvnw clean install -DskipTests`
+- [X] T001 Create feature branch `005-class-management` from main
+- [X] T002 [P] Add Spring Data Redis dependency to student-service/pom.xml (spring-boot-starter-data-redis)
+- [X] T003 [P] Create package structure: student-service/src/main/java/com/sms/student/{controller,dto,model,repository,service,exception}
+- [X] T004 [P] Create test package structure: student-service/src/test/java/com/sms/student/{controller,service,repository}
+- [X] T005 [P] Create sms-common cache package: sms-common/src/main/java/com/sms/common/cache/
+- [X] T006 [P] Implement CacheService interface in sms-common/src/main/java/com/sms/common/cache/CacheService.java
+- [X] T007 [P] Implement RedisCacheService in sms-common/src/main/java/com/sms/common/cache/RedisCacheService.java
+- [X] T008 [P] Implement CacheKeyGenerator in sms-common/src/main/java/com/sms/common/cache/CacheKeyGenerator.java
+- [X] T009 Rebuild and install sms-common: `cd sms-common && ./mvnw clean install -DskipTests`
 
 **Completion Criteria**:
 - ✅ Feature branch created
@@ -73,33 +73,30 @@ This document breaks down the class management implementation into executable ta
 ### Tasks
 
 #### Database & Models
-- [ ] T010 [P] Create GradeLevel enum in student-service/src/main/java/com/sms/student/classmanagement/model/GradeLevel.java (GRADE_1 to GRADE_12)
-- [ ] T011 [P] Create EnrollmentEventType enum in student-service/src/main/java/com/sms/student/classmanagement/model/EnrollmentEventType.java
-- [ ] T012 [P] Create ClassEntity in student-service/src/main/java/com/sms/student/classmanagement/model/ClassEntity.java (with @Entity, @Table, indexes, unique constraint)
-- [ ] T013 [P] Create EnrollmentHistory entity in student-service/src/main/java/com/sms/student/classmanagement/model/EnrollmentHistory.java (read-only, with indexes)
-- [ ] T014 [P] Create Flyway migration V5__create_classes_table.sql in student-service/src/main/resources/db/migration/
-- [ ] T015 [P] Create Flyway migration V6__create_enrollment_history_table.sql in student-service/src/main/resources/db/migration/
+- [X] T010-T015 **SKIPPED** - Using existing SchoolClass entity and classes table from V1 migration (already exists in codebase from enrollment feature)
+  - SchoolClass entity uses: grade (Integer 1-12), section, schoolId, teacherId, academicYear, maxCapacity, studentCount, status (ACTIVE/ARCHIVED)
+  - No new entities or migrations needed - reusing existing schema
 
 #### Repositories
-- [ ] T016 [P] Create ClassRepository interface in student-service/src/main/java/com/sms/student/classmanagement/repository/ClassRepository.java (extends JpaRepository, custom query methods)
-- [ ] T017 [P] Create EnrollmentHistoryRepository interface in student-service/src/main/java/com/sms/student/classmanagement/repository/EnrollmentHistoryRepository.java (read-only)
+- [X] T016 [P] Create ClassRepository interface (updated to use SchoolClass entity)
+- [X] T017 [P] **SKIPPED** - EnrollmentHistoryRepository not needed (using existing StudentClassEnrollmentRepository)
 
 #### Configuration
-- [ ] T018 [P] Create RedisConfig in student-service/src/main/java/com/sms/student/config/RedisConfig.java (RedisTemplate, CacheManager beans)
-- [ ] T019 Update application.yml with Redis configuration (localhost:6379 for local profile)
-- [ ] T020 Update application-docker.yml with Redis configuration (redis:6379 for docker profile)
-- [ ] T021 Add test Redis configuration in student-service/src/test/resources/application-test.yml (TestContainers config)
+- [X] T018 [P] Create RedisConfig in student-service/src/main/java/com/sms/student/config/RedisConfig.java (RedisTemplate, CacheManager beans)
+- [X] T019 Update application.yml with Redis configuration (localhost:6379 for local profile)
+- [X] T020 Update application-docker.yml with Redis configuration (redis:6379 for docker profile)
+- [X] T021 Add test Redis configuration in student-service/src/test/resources/application-test.yml (TestContainers config)
 
 #### Error Handling
-- [ ] T022 [P] Add class error codes to student-service/src/main/java/com/sms/student/exception/ErrorCode.java (CLASS_NOT_FOUND, UNAUTHORIZED_CLASS_ACCESS, DUPLICATE_CLASS_NAME, INVALID_CLASS_DATA, INVALID_ACADEMIC_YEAR_FORMAT)
-- [ ] T023 [P] Create ClassNotFoundException in student-service/src/main/java/com/sms/student/classmanagement/exception/ClassNotFoundException.java
-- [ ] T024 [P] Create UnauthorizedClassAccessException in student-service/src/main/java/com/sms/student/classmanagement/exception/UnauthorizedClassAccessException.java
-- [ ] T025 [P] Create DuplicateClassException in student-service/src/main/java/com/sms/student/classmanagement/exception/DuplicateClassException.java
-- [ ] T026 Update GlobalExceptionHandler in student-service/src/main/java/com/sms/student/exception/GlobalExceptionHandler.java (add class exception handlers)
+- [X] T022 [P] Add class error codes to student-service/src/main/java/com/sms/student/constant/ClassErrorCode.java (CLASS_NOT_FOUND, UNAUTHORIZED_CLASS_ACCESS, DUPLICATE_CLASS, etc.)
+- [X] T023 [P] Create ClassNotFoundException in student-service/src/main/java/com/sms/student/exception/ClassNotFoundException.java
+- [X] T024 [P] Create UnauthorizedClassAccessException in student-service/src/main/java/com/sms/student/exception/UnauthorizedClassAccessException.java
+- [X] T025 [P] Create DuplicateClassException in student-service/src/main/java/com/sms/student/exception/DuplicateClassException.java
+- [X] T026 Update GlobalExceptionHandler in student-service/src/main/java/com/sms/student/exception/GlobalExceptionHandler.java (add class exception handlers)
 
 #### Docker & Infrastructure
-- [ ] T027 Update docker-compose.yml to add Redis dependency for student-service
-- [ ] T028 Verify Flyway migrations: `docker-compose up -d postgres-student && cd student-service && ./mvnw flyway:info`
+- [X] T027 Update docker-compose.yml to add Redis dependency for student-service
+- [X] T028 Verify Flyway migrations (renamed to V7 and V8 to avoid version conflicts)
 
 **Completion Criteria**:
 - ✅ Database schema created (2 tables, 6 indexes, 1 unique constraint)
@@ -135,21 +132,21 @@ docker exec -it redis redis-cli ping  # Should return PONG
 ### Tasks
 
 #### DTOs
-- [ ] T029 [P] [US1] Create ClassSummaryDto in student-service/src/main/java/com/sms/student/classmanagement/dto/ClassSummaryDto.java (fields: id, name, gradeLevel, subject, academicYear, capacity, currentEnrollment, teacherId, archived, createdAt)
+- [X] T029 [P] [US1] Create ClassSummaryDto in student-service/src/main/java/com/sms/student/dto/ClassSummaryDto.java (fields: id, name, gradeLevel, subject, academicYear, capacity, currentEnrollment, teacherId, archived, createdAt)
 
 #### Service Layer
-- [ ] T030 [P] [US1] Create ClassService interface in student-service/src/main/java/com/sms/student/classmanagement/service/ClassService.java (define listTeacherClasses method signature)
-- [ ] T031 [US1] Implement ClassServiceImpl.listTeacherClasses in student-service/src/main/java/com/sms/student/classmanagement/service/ClassServiceImpl.java (query by teacherId, filter archived, map to DTOs)
-- [ ] T032 [P] [US1] Create ClassCacheService in student-service/src/main/java/com/sms/student/classmanagement/service/ClassCacheService.java (inject CacheService from sms-common, implement cacheTeacherClasses and evictTeacherClasses methods)
-- [ ] T033 [US1] Integrate cache in ClassServiceImpl.listTeacherClasses (30min TTL, cache key: student-service:teacher:classes:{teacherId})
+- [X] T030 [P] [US1] Create ClassService interface in student-service/src/main/java/com/sms/student/service/ClassService.java (define listTeacherClasses method signature)
+- [X] T031 [US1] Implement ClassServiceImpl.listTeacherClasses in student-service/src/main/java/com/sms/student/service/ClassServiceImpl.java (query by teacherId, filter archived, map to DTOs)
+- [X] T032 [P] [US1] Create ClassCacheService in student-service/src/main/java/com/sms/student/service/ClassCacheService.java (inject CacheService from sms-common, implement cacheTeacherClasses and evictTeacherClasses methods)
+- [X] T033 [US1] Integrate cache in ClassServiceImpl.listTeacherClasses (30min TTL, cache key: student-service:teacher:classes:{teacherId})
 
 #### Controller
-- [ ] T034 [US1] Create ClassController with GET /api/classes endpoint in student-service/src/main/java/com/sms/student/classmanagement/controller/ClassController.java (extract teacherId from JWT, call service, wrap in ApiResponse)
-- [ ] T035 [US1] Add teacher authorization check in ClassController.listClasses (verify JWT contains ROLE_TEACHER or ROLE_ADMIN)
-- [ ] T036 [US1] Add query parameter `includeArchived` to GET /api/classes endpoint (default false)
+- [X] T034 [US1] Create ClassController with GET /api/classes endpoint in student-service/src/main/java/com/sms/student/controller/ClassController.java (extract teacherId from JWT, call service, wrap in ApiResponse)
+- [X] T035 [US1] Add teacher authorization check in ClassController.listClasses (verify JWT contains ROLE_TEACHER or ROLE_ADMIN)
+- [X] T036 [US1] Add query parameter `includeArchived` to GET /api/classes endpoint (default false)
 
 #### OpenAPI Documentation
-- [ ] T037 [US1] Update OpenAPIConfig in student-service/src/main/java/com/sms/student/config/OpenAPIConfig.java (add class management tag, update API info)
+- [X] T037 [US1] Update OpenAPIConfig in student-service/src/main/java/com/sms/student/config/OpenAPIConfig.java (add class management tag, update API info)
 
 **Completion Criteria**:
 - ✅ Teacher can retrieve list of their classes
@@ -193,12 +190,12 @@ docker exec -it redis redis-cli KEYS "student-service:teacher:classes:*"
 ### Tasks
 
 #### DTOs
-- [ ] T038 [P] [US2] Create ClassDetailDto in student-service/src/main/java/com/sms/student/classmanagement/dto/ClassDetailDto.java (extends ClassSummaryDto, adds: description, updatedAt)
-- [ ] T039 [P] [US2] Create StudentRosterItemDto in student-service/src/main/java/com/sms/student/classmanagement/dto/StudentRosterItemDto.java (fields: studentId, studentIdNumber, firstNameLatin, lastNameLatin, gradeLevel, enrollmentDate, status)
+- [ ] T038 [P] [US2] Create ClassDetailDto in student-service/src/main/java/com/sms/student/dto/ClassDetailDto.java (extends ClassSummaryDto, adds: description, updatedAt)
+- [ ] T039 [P] [US2] Create StudentRosterItemDto in student-service/src/main/java/com/sms/student/dto/StudentRosterItemDto.java (fields: studentId, studentIdNumber, firstNameLatin, lastNameLatin, gradeLevel, enrollmentDate, status)
 
 #### Service Layer
 - [ ] T040 [US2] Add getClassDetails method to ClassService interface
-- [ ] T041 [US2] Implement ClassServiceImpl.getClassDetails in student-service/src/main/java/com/sms/student/classmanagement/service/ClassServiceImpl.java (query by classId, verify teacher authorization, throw ClassNotFoundException if not found)
+- [ ] T041 [US2] Implement ClassServiceImpl.getClassDetails in student-service/src/main/java/com/sms/student/service/ClassServiceImpl.java (query by classId, verify teacher authorization, throw ClassNotFoundException if not found)
 - [ ] T042 [US2] Add getClassStudents method to ClassService interface
 - [ ] T043 [US2] Implement ClassServiceImpl.getClassStudents (query enrollment records, fetch student details, map to StudentRosterItemDto)
 - [ ] T044 [US2] Add cache methods in ClassCacheService (cacheClassDetails with 15min TTL, evictClassDetails, cache key: student-service:class:{classId})
@@ -265,7 +262,7 @@ docker exec -it redis redis-cli TTL "student-service:class:$CLASS_ID"
 ### User Story 3 Tasks: Review Enrollment History
 
 #### DTOs
-- [ ] T049 [P] [US3] Create EnrollmentHistoryDto in student-service/src/main/java/com/sms/student/classmanagement/dto/EnrollmentHistoryDto.java (fields: id, classId, studentId, studentName, eventType, eventTimestamp, sourceClassId, sourceClassName, destinationClassId, destinationClassName, performedBy, performedByName, notes)
+- [ ] T049 [P] [US3] Create EnrollmentHistoryDto in student-service/src/main/java/com/sms/student/dto/EnrollmentHistoryDto.java (fields: id, classId, studentId, studentName, eventType, eventTimestamp, sourceClassId, sourceClassName, destinationClassId, destinationClassName, performedBy, performedByName, notes)
 
 #### Service Layer
 - [ ] T050 [US3] Add getEnrollmentHistory method to ClassService interface
@@ -305,7 +302,7 @@ docker exec -it redis redis-cli TTL "student-service:class:$CLASS_ID:history"
 ### User Story 4 Tasks: Create New Class
 
 #### DTOs
-- [ ] T055 [P] [US4] Create ClassCreateRequest in student-service/src/main/java/com/sms/student/classmanagement/dto/ClassCreateRequest.java (fields: name, gradeLevel, subject, academicYear, capacity, description; validation: @NotBlank, @NotNull, @Min, @Max, @Pattern for academicYear)
+- [ ] T055 [P] [US4] Create ClassCreateRequest in student-service/src/main/java/com/sms/student/dto/ClassCreateRequest.java (fields: name, gradeLevel, subject, academicYear, capacity, description; validation: @NotBlank, @NotNull, @Min, @Max, @Pattern for academicYear)
 
 #### Service Layer
 - [ ] T056 [US4] Add createClass method to ClassService interface
@@ -386,7 +383,7 @@ curl -X POST http://localhost:8080/api/classes \
 ### Tasks
 
 #### DTOs
-- [ ] T065 [P] [US5] Create ClassUpdateRequest in student-service/src/main/java/com/sms/student/classmanagement/dto/ClassUpdateRequest.java (partial update DTO: capacity, description; all fields optional)
+- [ ] T065 [P] [US5] Create ClassUpdateRequest in student-service/src/main/java/com/sms/student/dto/ClassUpdateRequest.java (partial update DTO: capacity, description; all fields optional)
 
 #### Service Layer
 - [ ] T066 [US5] Add updateClass method to ClassService interface

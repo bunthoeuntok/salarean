@@ -82,6 +82,22 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getErrorCode()));
     }
 
+    @ExceptionHandler(UnauthorizedClassAccessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedClassAccess(UnauthorizedClassAccessException ex) {
+        log.error("Unauthorized class access: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(DuplicateClassException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateClass(DuplicateClassException ex) {
+        log.error("Duplicate class: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(ex.getErrorCode()));
+    }
+
     @ExceptionHandler(ParentContactNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleParentContactNotFound(ParentContactNotFoundException ex) {
         log.error("Parent contact not found: {}", ex.getMessage());

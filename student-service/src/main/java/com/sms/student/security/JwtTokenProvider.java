@@ -99,4 +99,17 @@ public class JwtTokenProvider {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Extract user ID from JWT token
+     *
+     * The subject claim contains the user's UUID as a string
+     *
+     * @param token JWT token string
+     * @return User UUID
+     */
+    public java.util.UUID extractUserId(String token) {
+        String userIdStr = extractUsername(token);
+        return java.util.UUID.fromString(userIdStr);
+    }
 }

@@ -36,7 +36,13 @@ public class OpenAPIConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Student Service API")
-                        .description("Student Management System - Student Service REST API")
+                        .description("Student Management System - Student Service REST API\n\n" +
+                                "**Features:**\n" +
+                                "- Student CRUD operations\n" +
+                                "- Parent contact management\n" +
+                                "- Student enrollment and transfer\n" +
+                                "- Class management for teachers\n" +
+                                "- Photo upload and processing")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("SMS Development Team")

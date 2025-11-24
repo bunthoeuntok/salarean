@@ -1,0 +1,27 @@
+# Test configuration for student-service
+# Uses embedded Redis or test containers for integration tests
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/student_db_test
+    username: sms_user
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  redis:
+    # For integration tests, use embedded Redis or Testcontainers
+    # This configuration will be overridden by @DataRedisTest or Testcontainers
+    host: localhost
+    port: 6379
+    timeout: 1000ms
+
+# Disable Eureka registration in tests
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    com.sms.student: DEBUG
