@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { ApiResponse } from '@/types/api.types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
@@ -7,21 +8,8 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required for HTTP-only cookies
 })
-
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
 
 // Response interceptor to handle token refresh
 api.interceptors.response.use(
@@ -29,32 +17,43 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
+    // Handle 401 errors by attempting token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (refreshToken) {
-          const response = await axios.post(`${API_URL}/api/auth/refresh`, {
-            refreshToken,
-          })
+        // Attempt to refresh token (cookies sent automatically)
+        await axios.post(`${API_URL}/api/auth/refresh`, {}, {
+          withCredentials: true,
+        })
 
-          const { accessToken } = response.data
-          localStorage.setItem('accessToken', accessToken)
-
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
-          return api(originalRequest)
+        // Retry original request
+        return api(originalRequest)
+      } catch {
+        // Refresh failed, redirect to login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/sign-in'
         }
-      } catch (refreshError) {
-        // Redirect to login
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        window.location.href = '/login'
       }
     }
 
     return Promise.reject(error)
   }
 )
+
+/**
+ * Type-safe API request helper
+ */
+export async function apiRequest<T>(
+  request: Promise<{ data: ApiResponse<T> }>
+): Promise<T> {
+  const response = await request
+
+  if (response.data.errorCode !== 'SUCCESS') {
+    throw new Error(response.data.errorCode)
+  }
+
+  return response.data.data as T
+}
 
 export default api
