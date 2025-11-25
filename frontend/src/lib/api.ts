@@ -55,9 +55,12 @@ api.interceptors.response.use(
     // Handle 401 errors by attempting token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Skip refresh for auth endpoints to prevent loops
-      if (originalRequest.url?.includes('/api/auth/refresh') ||
-          originalRequest.url?.includes('/api/auth/login') ||
-          originalRequest.url?.includes('/api/auth/register')) {
+      const skipRefreshUrls = [
+        '/api/auth/refresh',
+        '/api/auth/login',
+        '/api/auth/register'
+      ]
+      if (skipRefreshUrls.some(url => originalRequest.url?.includes(url))) {
         return Promise.reject(error)
       }
 
@@ -89,11 +92,17 @@ api.interceptors.response.use(
           // Reset auth store
           useAuthStore.getState().reset()
 
-          // Show session expired toast
-          toast.error('Your session has expired. Please sign in again.')
+          // Only redirect if not already on an auth page
+          const authPaths = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password']
+          const isOnAuthPage = authPaths.some(path => window.location.pathname.startsWith(path))
 
-          // Redirect to sign-in
-          window.location.href = '/sign-in'
+          if (!isOnAuthPage) {
+            // Show session expired toast
+            toast.error('Your session has expired. Please sign in again.')
+
+            // Redirect to sign-in
+            window.location.href = '/sign-in'
+          }
         }
 
         return Promise.reject(refreshError)

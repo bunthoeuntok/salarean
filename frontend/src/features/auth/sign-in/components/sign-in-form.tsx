@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -25,12 +24,9 @@ import { useAuthStore } from '@/store/auth-store'
 import { handleServerError } from '@/lib/handle-server-error'
 
 export function SignInForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
 
   const { setUser, language } = useAuthStore()
-  const redirectTo = searchParams.get('redirect') || '/dashboard'
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -44,20 +40,14 @@ export function SignInForm() {
     setIsLoading(true)
 
     try {
-      const response = await authService.login(data)
+      // Login sets HTTP-only cookies
+      await authService.login(data)
 
-      // Set user in store
-      setUser({
-        userId: response.userId,
-        email: response.email,
-        phoneNumber: response.phoneNumber,
-        preferredLanguage: response.preferredLanguage,
-        createdAt: response.createdAt,
-        lastLoginAt: response.lastLoginAt,
-      })
+      // Fetch full profile after successful login
+      const user = await authService.getCurrentUser()
+      setUser(user)
 
-      // Redirect to dashboard or original destination
-      router.push(redirectTo)
+      // Auth layout handles redirect to dashboard automatically
     } catch (error) {
       const errorMessage = handleServerError(error, language)
       toast.error(errorMessage)

@@ -1,13 +1,17 @@
 /**
  * Authenticated user profile from backend
+ * Maps to: ProfileResponse from auth-service
  */
 export interface AuthUser {
-  userId: string // UUID
+  id: string // UUID
   email: string
   phoneNumber: string
+  name: string | null
   preferredLanguage: 'en' | 'km'
+  profilePhotoUrl: string | null
+  profilePhotoUploadedAt: string | null // ISO datetime
+  accountStatus: string
   createdAt: string // ISO datetime
-  lastLoginAt: string // ISO datetime
 }
 
 /**

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -30,7 +29,6 @@ import { useAuthStore } from '@/store/auth-store'
 import { handleServerError } from '@/lib/handle-server-error'
 
 export function SignUpForm() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const { setUser, language } = useAuthStore()
 
@@ -52,27 +50,21 @@ export function SignUpForm() {
     setIsLoading(true)
 
     try {
-      const response = await authService.register({
+      // Register sets HTTP-only cookies (auto sign-in)
+      await authService.register({
         email: data.email,
         phoneNumber: data.phoneNumber,
         password: data.password,
         preferredLanguage: data.preferredLanguage,
       })
 
-      // Set user in store (auto sign-in after registration)
-      setUser({
-        userId: response.userId,
-        email: response.email,
-        phoneNumber: response.phoneNumber,
-        preferredLanguage: response.preferredLanguage,
-        createdAt: response.createdAt,
-        lastLoginAt: response.lastLoginAt,
-      })
+      // Fetch full profile after successful registration
+      const user = await authService.getCurrentUser()
+      setUser(user)
 
       toast.success('Account created successfully!')
 
-      // Redirect to dashboard
-      router.push('/dashboard')
+      // Auth layout handles redirect to dashboard automatically
     } catch (error) {
       const errorMessage = handleServerError(error, language)
       toast.error(errorMessage)

@@ -29,7 +29,7 @@ export const authService = {
    * @returns Promise with current user data
    */
   async getCurrentUser(): Promise<AuthUser> {
-    return apiRequest<AuthUser>(api.get('/api/auth/me'))
+    return apiRequest<AuthUser>(api.get('/api/profile/me'))
   },
 
   /**
