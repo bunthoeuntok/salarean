@@ -19,6 +19,7 @@ import com.sms.student.repository.ClassRepository;
 import com.sms.student.repository.EnrollmentRepository;
 import com.sms.student.repository.SchoolRepository;
 import com.sms.student.repository.StudentRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final StudentRepository studentRepository;
     private final SchoolRepository schoolRepository;
     private final ClassRepository classRepository;
+    private final EntityManager entityManager;
 
     @Override
     public EnrollmentHistoryResponse getEnrollmentHistory(UUID studentId) {
@@ -193,9 +195,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         oldClass.decrementEnrollment();
         classRepository.save(oldClass);
 
+        // 7. Flush changes to database before creating new enrollment
+        // This ensures the unique constraint idx_enrollment_student_active is satisfied
+        // (the old enrollment's end_date is no longer NULL before we insert the new one)
+        entityManager.flush();
+
         log.info("Marked old enrollment as TRANSFERRED. Old class student count: {}", oldClass.getStudentCount());
 
-        // 7. Create new enrollment
+        // 8. Create new enrollment
         Enrollment newEnrollment = Enrollment.builder()
                 .student(currentEnrollment.getStudent())
                 .schoolClass(newClass)
@@ -207,18 +214,18 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         newEnrollment = enrollmentRepository.save(newEnrollment);
 
-        // 8. Increment new class student count
+        // 9. Increment new class student count
         newClass.incrementEnrollment();
         classRepository.save(newClass);
 
         log.info("Successfully transferred student {} from class {} to class {}. New class student count: {}",
                 studentId, oldClass.getId(), newClass.getId(), newClass.getStudentCount());
 
-        // 9. Fetch school for denormalization
+        // 10. Fetch school for denormalization
         School school = schoolRepository.findById(newClass.getSchoolId())
                 .orElse(null);
 
-        // 10. Map to response DTO
+        // 11. Map to response DTO
         return mapToResponse(newEnrollment, school);
     }
 

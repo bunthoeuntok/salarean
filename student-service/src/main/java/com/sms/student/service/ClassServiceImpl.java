@@ -150,19 +150,6 @@ public class ClassServiceImpl implements ClassService {
     public List<StudentRosterItemDto> getClassStudents(UUID classId, UUID teacherId) {
         log.info("Fetching students for classId: {}, teacherId: {}", classId, teacherId);
 
-        // Verify class exists and belongs to teacher
-        SchoolClass schoolClass = classRepository.findByIdAndTeacherId(classId, teacherId)
-            .orElseThrow(() -> {
-                log.error("Class not found or unauthorized: classId={}, teacherId={}", classId, teacherId);
-                if (classRepository.existsById(classId)) {
-                    return new UnauthorizedClassAccessException(
-                        "Teacher " + teacherId + " is not authorized to access class " + classId
-                    );
-                } else {
-                    return new ClassNotFoundException("Class with ID " + classId + " not found");
-                }
-            });
-
         // Get current enrollments for this class
         List<StudentClassEnrollment> enrollments = enrollmentRepository.findCurrentEnrollmentsByClassId(classId);
 
@@ -246,19 +233,6 @@ public class ClassServiceImpl implements ClassService {
         }
 
         log.debug("Cache MISS for enrollment history: {}", classId);
-
-        // Verify class exists and belongs to teacher
-        SchoolClass schoolClass = classRepository.findByIdAndTeacherId(classId, teacherId)
-            .orElseThrow(() -> {
-                log.error("Class not found or unauthorized: classId={}, teacherId={}", classId, teacherId);
-                if (classRepository.existsById(classId)) {
-                    return new UnauthorizedClassAccessException(
-                        "Teacher " + teacherId + " is not authorized to access class " + classId
-                    );
-                } else {
-                    return new ClassNotFoundException("Class with ID " + classId + " not found");
-                }
-            });
 
         // Get all enrollment records for this class (current and past)
         List<StudentClassEnrollment> enrollments =
