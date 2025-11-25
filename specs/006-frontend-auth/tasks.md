@@ -45,40 +45,40 @@
 
 ### Type Definitions
 
-- [ ] T009 [P] Create API response types (ApiResponse, PagedResponse) in frontend/src/types/api.types.ts
-- [ ] T010 [P] Create auth types (AuthUser, LoginRequest, RegisterRequest, AuthResponse, etc.) in frontend/src/types/auth.types.ts
-- [ ] T011 [P] Create error code types (CommonErrorCode, AuthErrorCode) in frontend/src/types/error-codes.types.ts
+- [x] T009 [P] Create API response types (ApiResponse, PagedResponse) in frontend/src/types/api.types.ts
+- [x] T010 [P] Create auth types (AuthUser, LoginRequest, RegisterRequest, AuthResponse, etc.) in frontend/src/types/auth.types.ts
+- [x] T011 [P] Create error code types (CommonErrorCode, AuthErrorCode) in frontend/src/types/error-codes.types.ts
 
 ### Validation Schemas
 
-- [ ] T012 [P] Create Zod validation schemas (loginSchema, registerSchema, passwordSchema, khmerPhoneRegex) in frontend/src/lib/validations/auth.schema.ts
+- [x] T012 [P] Create Zod validation schemas (loginSchema, registerSchema, passwordSchema, khmerPhoneRegex) in frontend/src/lib/validations/auth.schema.ts
 
 ### i18n Infrastructure
 
-- [ ] T013 [P] Create i18n type definitions in frontend/src/lib/i18n/types.ts
-- [ ] T014 [P] Create translations file with English and Khmer error code mappings in frontend/src/lib/i18n/translations.ts
-- [ ] T015 Create language detection and translation helper functions in frontend/src/lib/i18n/index.ts
+- [x] T013 [P] Create i18n type definitions in frontend/src/lib/i18n/types.ts
+- [x] T014 [P] Create translations file with English and Khmer error code mappings in frontend/src/lib/i18n/translations.ts
+- [x] T015 Create language detection and translation helper functions in frontend/src/lib/i18n/index.ts
 
 ### API Client Infrastructure
 
-- [ ] T016 Create Axios instance with baseURL, withCredentials, and response interceptor in frontend/src/lib/api-client.ts
-- [ ] T017 [P] Create error handling utilities (mapErrorCode to i18n message) in frontend/src/lib/handle-server-error.ts
-- [ ] T018 [P] Create utility functions (cn, sleep) in frontend/src/lib/utils.ts
+- [x] T016 Create Axios instance with baseURL, withCredentials, and response interceptor in frontend/src/lib/api-client.ts
+- [x] T017 [P] Create error handling utilities (mapErrorCode to i18n message) in frontend/src/lib/handle-server-error.ts
+- [x] T018 [P] Create utility functions (cn, sleep) in frontend/src/lib/utils.ts
 
 ### State Management
 
-- [ ] T019 Create Zustand auth store with AuthState interface (isAuthenticated, user, preferredLanguage, actions) in frontend/src/stores/auth-store.ts
+- [x] T019 Create Zustand auth store with AuthState interface (isAuthenticated, user, preferredLanguage, actions) in frontend/src/stores/auth-store.ts
 
 ### Routing Infrastructure
 
-- [ ] T020 Create root route with providers (QueryClientProvider, ThemeProvider, Toaster) in frontend/src/routes/__root.tsx
-- [ ] T021 Create main.tsx entry point with QueryClient and Router configuration in frontend/src/main.tsx
+- [x] T020 Create root route with providers (QueryClientProvider, ThemeProvider, Toaster) in frontend/src/routes/__root.tsx
+- [x] T021 Create main.tsx entry point with QueryClient and Router configuration in frontend/src/main.tsx
 
 ### Shared UI Components
 
-- [ ] T022 [P] Create PasswordInput component with show/hide toggle in frontend/src/components/password-input.tsx
-- [ ] T023 [P] Create auth layout component (centered card with logo) in frontend/src/features/auth/auth-layout.tsx
-- [ ] T024 [P] Create theme provider context in frontend/src/context/theme-provider.tsx
+- [x] T022 [P] Create PasswordInput component with show/hide toggle in frontend/src/components/password-input.tsx
+- [x] T023 [P] Create auth layout component (centered card with logo) in frontend/src/features/auth/auth-layout.tsx
+- [x] T024 [P] Create theme provider context in frontend/src/context/theme-provider.tsx
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -92,28 +92,28 @@
 
 ### API Service
 
-- [ ] T025 [US1] Create auth service with login function (POST /api/auth/login) in frontend/src/services/auth.service.ts
-- [ ] T026 [US1] Add getCurrentUser function (GET /api/auth/me) to auth service in frontend/src/services/auth.service.ts
+- [x] T025 [US1] Create auth service with login function (POST /api/auth/login) in frontend/src/services/auth.service.ts
+- [x] T026 [US1] Add getCurrentUser function (GET /api/auth/me) to auth service in frontend/src/services/auth.service.ts
 
 ### Sign-In Feature
 
-- [ ] T027 [P] [US1] Create sign-in form component with email/phone and password fields in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
-- [ ] T028 [US1] Implement sign-in form submission with validation and API call in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
-- [ ] T029 [US1] Add error handling with i18n error messages to sign-in form in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
-- [ ] T030 [P] [US1] Create sign-in page component in frontend/src/features/auth/sign-in/index.tsx
-- [ ] T031 [US1] Create sign-in route with redirect search param handling in frontend/src/routes/(auth)/sign-in.tsx
+- [x] T027 [P] [US1] Create sign-in form component with email/phone and password fields in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
+- [x] T028 [US1] Implement sign-in form submission with validation and API call in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
+- [x] T029 [US1] Add error handling with i18n error messages to sign-in form in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
+- [x] T030 [P] [US1] Create sign-in page component in frontend/src/features/auth/sign-in/index.tsx
+- [x] T031 [US1] Create sign-in route with redirect search param handling in frontend/src/app/(auth)/sign-in/page.tsx
 
 ### Protected Routes
 
-- [ ] T032 [US1] Create authenticated layout route with beforeLoad auth check in frontend/src/routes/_authenticated/route.tsx
-- [ ] T033 [P] [US1] Create authenticated layout component with sidebar placeholder in frontend/src/components/layout/authenticated-layout.tsx
-- [ ] T034 [US1] Create dashboard index route (post-login landing page) in frontend/src/routes/_authenticated/index.tsx
-- [ ] T035 [P] [US1] Create simple dashboard component in frontend/src/features/dashboard/index.tsx
+- [x] T032 [US1] Create authenticated layout route with beforeLoad auth check in frontend/src/app/(authenticated)/layout.tsx
+- [x] T033 [P] [US1] Create authenticated layout component with sidebar placeholder in frontend/src/components/layout/authenticated-layout.tsx
+- [x] T034 [US1] Create dashboard index route (post-login landing page) in frontend/src/app/(authenticated)/dashboard/page.tsx
+- [x] T035 [P] [US1] Create simple dashboard component in frontend/src/features/dashboard/index.tsx
 
 ### Session Management
 
-- [ ] T036 [US1] Implement session check on app load (call /api/auth/me and hydrate store) in frontend/src/main.tsx
-- [ ] T037 [US1] Add redirect to sign-in for already-authenticated users accessing /sign-in in frontend/src/routes/(auth)/sign-in.tsx
+- [x] T036 [US1] Implement session check on app load (call /api/auth/me and hydrate store) in frontend/src/components/providers.tsx
+- [x] T037 [US1] Add redirect to sign-in for already-authenticated users accessing /sign-in in frontend/src/app/(auth)/layout.tsx
 
 **Checkpoint**: User Story 1 complete - Teachers can sign in and access dashboard
 
@@ -127,23 +127,23 @@
 
 ### API Service Extension
 
-- [ ] T038 [US2] Add register function (POST /api/auth/register) to auth service in frontend/src/services/auth.service.ts
+- [x] T038 [US2] Add register function (POST /api/auth/register) to auth service in frontend/src/services/auth.service.ts
 
 ### Registration Feature
 
-- [ ] T039 [P] [US2] Create password strength indicator component in frontend/src/features/auth/sign-up/components/password-strength.tsx
-- [ ] T040 [P] [US2] Create registration form component with email, phone, password, confirm password fields in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
-- [ ] T041 [US2] Implement real-time password strength feedback in registration form in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
-- [ ] T042 [US2] Implement Cambodia phone validation with format hint in registration form in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
-- [ ] T043 [US2] Implement registration form submission with validation and API call in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
-- [ ] T044 [US2] Add error handling for duplicate email/phone errors with i18n in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
-- [ ] T045 [P] [US2] Create sign-up page component in frontend/src/features/auth/sign-up/index.tsx
-- [ ] T046 [US2] Create sign-up route in frontend/src/routes/(auth)/sign-up.tsx
+- [x] T039 [P] [US2] Create password strength indicator component in frontend/src/features/auth/sign-up/components/password-strength.tsx
+- [x] T040 [P] [US2] Create registration form component with email, phone, password, confirm password fields in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
+- [x] T041 [US2] Implement real-time password strength feedback in registration form in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
+- [x] T042 [US2] Implement Cambodia phone validation with format hint in registration form in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
+- [x] T043 [US2] Implement registration form submission with validation and API call in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
+- [x] T044 [US2] Add error handling for duplicate email/phone errors with i18n in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
+- [x] T045 [P] [US2] Create sign-up page component in frontend/src/features/auth/sign-up/index.tsx
+- [x] T046 [US2] Create sign-up route in frontend/src/app/(auth)/sign-up/page.tsx
 
 ### Navigation
 
-- [ ] T047 [US2] Add link from sign-in to sign-up page in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
-- [ ] T048 [US2] Add link from sign-up to sign-in page in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
+- [x] T047 [US2] Add link from sign-in to sign-up page in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
+- [x] T048 [US2] Add link from sign-up to sign-in page in frontend/src/features/auth/sign-up/components/sign-up-form.tsx
 
 **Checkpoint**: User Story 2 complete - New teachers can register
 
