@@ -26,7 +26,7 @@ import { handleServerError } from '@/lib/handle-server-error'
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false)
 
-  const { setUser, language } = useAuthStore()
+  const { setUser, setTokens, language } = useAuthStore()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -40,8 +40,11 @@ export function SignInForm() {
     setIsLoading(true)
 
     try {
-      // Login sets HTTP-only cookies
-      await authService.login(data)
+      // Login returns tokens
+      const authResponse = await authService.login(data)
+
+      // Store tokens in auth store
+      setTokens(authResponse.token, authResponse.refreshToken)
 
       // Fetch full profile after successful login
       const user = await authService.getCurrentUser()

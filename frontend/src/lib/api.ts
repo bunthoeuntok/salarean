@@ -10,8 +10,19 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Required for HTTP-only cookies
 })
+
+// Request interceptor to add Authorization header
+api.interceptors.request.use(
+  (config) => {
+    const { accessToken } = useAuthStore.getState()
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
 // Flag to prevent multiple refresh attempts
 let isRefreshing = false
@@ -64,6 +75,14 @@ api.interceptors.response.use(
         return Promise.reject(error)
       }
 
+      const { refreshToken } = useAuthStore.getState()
+
+      // No refresh token available
+      if (!refreshToken) {
+        useAuthStore.getState().reset()
+        return Promise.reject(error)
+      }
+
       if (isRefreshing) {
         // Queue the request while refresh is in progress
         return new Promise((resolve, reject) => {
@@ -75,10 +94,16 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        // Attempt to refresh token (cookies sent automatically)
-        await axios.post(`${API_URL}/api/auth/refresh`, {}, {
-          withCredentials: true,
-        })
+        // Attempt to refresh token
+        const response = await axios.post<ApiResponse<{ accessToken: string; refreshToken: string }>>(
+          `${API_URL}/api/auth/refresh`,
+          { refreshToken }
+        )
+
+        if (response.data.errorCode === 'SUCCESS' && response.data.data) {
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data
+          useAuthStore.getState().setTokens(newAccessToken, newRefreshToken)
+        }
 
         processQueue(null)
 
@@ -89,7 +114,6 @@ api.interceptors.response.use(
 
         // Refresh failed - reset auth state and redirect to login
         if (typeof window !== 'undefined') {
-          // Reset auth store
           useAuthStore.getState().reset()
 
           // Only redirect if not already on an auth page
@@ -97,10 +121,7 @@ api.interceptors.response.use(
           const isOnAuthPage = authPaths.some(path => window.location.pathname.startsWith(path))
 
           if (!isOnAuthPage) {
-            // Show session expired toast
             toast.error('Your session has expired. Please sign in again.')
-
-            // Redirect to sign-in
             window.location.href = '/sign-in'
           }
         }

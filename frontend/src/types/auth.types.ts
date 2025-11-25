@@ -33,13 +33,15 @@ export interface RegisterRequest {
 }
 
 /**
- * Auth response from login/register (without tokens - they're in cookies)
+ * Auth response from login/register
  */
 export interface AuthResponse {
   userId: string
   email: string
   phoneNumber: string
   preferredLanguage: 'en' | 'km'
+  token: string // Access token
+  refreshToken: string // Refresh token
   expiresIn: number // Access token expiry in seconds
   createdAt: string
   lastLoginAt: string

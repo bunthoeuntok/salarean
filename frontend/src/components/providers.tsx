@@ -9,12 +9,18 @@ import { useAuthStore } from '@/store/auth-store'
 import { authService } from '@/services/auth.service'
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
-  const { setUser, setLoading, reset } = useAuthStore()
+  const { setUser, setLoading, reset, accessToken } = useAuthStore()
 
   useEffect(() => {
     async function checkSession() {
+      // Only try to fetch user if we have an access token
+      if (!accessToken) {
+        setLoading(false)
+        return
+      }
+
       try {
-        // Try to get current user (validates session via HTTP-only cookie)
+        // Try to get current user (validates session via access token)
         const user = await authService.getCurrentUser()
         setUser(user)
       } catch {
@@ -24,7 +30,7 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
     }
 
     checkSession()
-  }, [setUser, setLoading, reset])
+  }, [setUser, setLoading, reset, accessToken])
 
   return <>{children}</>
 }

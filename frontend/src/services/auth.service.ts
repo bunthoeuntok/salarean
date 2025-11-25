@@ -44,21 +44,13 @@ export const authService = {
   },
 
   /**
-   * Refresh access token using refresh token
-   * Tokens are sent/received via HTTP-only cookies
-   * @returns Promise that resolves on successful refresh
-   */
-  async refresh(): Promise<void> {
-    await api.post('/api/auth/refresh', {})
-  },
-
-  /**
    * Logout current user
-   * Invalidates tokens on the server and clears HTTP-only cookies
+   * Invalidates refresh token on the server
+   * @param refreshToken - The refresh token to invalidate
    * @returns Promise that resolves on successful logout
    */
-  async logout(): Promise<void> {
-    await api.post('/api/auth/logout', {})
+  async logout(refreshToken: string): Promise<void> {
+    await api.post('/api/auth/logout', { refreshToken })
   },
 
   /**

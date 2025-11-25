@@ -30,7 +30,7 @@ import { handleServerError } from '@/lib/handle-server-error'
 
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false)
-  const { setUser, language } = useAuthStore()
+  const { setUser, setTokens, language } = useAuthStore()
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -50,13 +50,16 @@ export function SignUpForm() {
     setIsLoading(true)
 
     try {
-      // Register sets HTTP-only cookies (auto sign-in)
-      await authService.register({
+      // Register returns tokens (auto sign-in)
+      const authResponse = await authService.register({
         email: data.email,
         phoneNumber: data.phoneNumber,
         password: data.password,
         preferredLanguage: data.preferredLanguage,
       })
+
+      // Store tokens in auth store
+      setTokens(authResponse.token, authResponse.refreshToken)
 
       // Fetch full profile after successful registration
       const user = await authService.getCurrentUser()

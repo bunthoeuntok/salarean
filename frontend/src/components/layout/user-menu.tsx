@@ -21,14 +21,16 @@ import { authService } from '@/services/auth.service'
 export function UserMenu() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const { user, logout: resetAuthStore } = useAuthStore()
+  const { user, refreshToken, logout: resetAuthStore } = useAuthStore()
 
   async function handleSignOut() {
     setIsLoading(true)
 
     try {
-      // Call logout API to invalidate server-side session
-      await authService.logout()
+      // Call logout API to invalidate refresh token on server
+      if (refreshToken) {
+        await authService.logout(refreshToken)
+      }
 
       // Reset auth store
       resetAuthStore()
@@ -37,7 +39,7 @@ export function UserMenu() {
       router.push('/sign-in')
     } catch {
       // Even if API fails, reset local state and redirect
-      // (cookies may already be expired)
+      // (token may already be expired)
       resetAuthStore()
       toast.error('Sign out completed with warnings')
       router.push('/sign-in')
