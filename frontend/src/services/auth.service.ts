@@ -4,6 +4,8 @@ import type {
   AuthUser,
   LoginRequest,
   RegisterRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
 } from '@/types/auth.types'
 
 /**
@@ -39,5 +41,42 @@ export const authService = {
     return apiRequest<AuthResponse>(
       api.post('/api/auth/register', data)
     )
+  },
+
+  /**
+   * Refresh access token using refresh token
+   * Tokens are sent/received via HTTP-only cookies
+   * @returns Promise that resolves on successful refresh
+   */
+  async refresh(): Promise<void> {
+    await api.post('/api/auth/refresh', {})
+  },
+
+  /**
+   * Logout current user
+   * Invalidates tokens on the server and clears HTTP-only cookies
+   * @returns Promise that resolves on successful logout
+   */
+  async logout(): Promise<void> {
+    await api.post('/api/auth/logout', {})
+  },
+
+  /**
+   * Request password reset email
+   * @param data - Email address for password reset
+   * @returns Promise that resolves on successful request
+   * Note: Always returns success for security (prevents email enumeration)
+   */
+  async forgotPassword(data: ForgotPasswordRequest): Promise<void> {
+    await api.post('/api/auth/forgot-password', data)
+  },
+
+  /**
+   * Reset password using token from email
+   * @param data - Reset token and new password
+   * @returns Promise that resolves on successful password reset
+   */
+  async resetPassword(data: ResetPasswordRequest): Promise<void> {
+    await api.post('/api/auth/reset-password', data)
   },
 }

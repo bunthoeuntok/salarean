@@ -1,0 +1,32 @@
+'use client'
+
+import { useEffect } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
+import NProgress from 'nprogress'
+
+// Configure NProgress
+NProgress.configure({
+  showSpinner: false,
+  trickleSpeed: 200,
+  minimum: 0.1,
+})
+
+export function NavigationProgress() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    NProgress.done()
+  }, [pathname, searchParams])
+
+  return null
+}
+
+// Hook to manually control progress bar
+export function useNavigationProgress() {
+  return {
+    start: () => NProgress.start(),
+    done: () => NProgress.done(),
+    inc: () => NProgress.inc(),
+  }
+}

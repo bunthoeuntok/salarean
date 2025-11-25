@@ -157,15 +157,15 @@
 
 ### Token Refresh
 
-- [ ] T049 [US3] Add refresh function (POST /api/auth/refresh) to auth service in frontend/src/services/auth.service.ts
-- [ ] T050 [US3] Implement 401 response interceptor with automatic token refresh in frontend/src/lib/api-client.ts
-- [ ] T051 [US3] Add retry logic after successful refresh in API client interceptor in frontend/src/lib/api-client.ts
-- [ ] T052 [US3] Implement redirect to sign-in on refresh failure in API client interceptor in frontend/src/lib/api-client.ts
+- [x] T049 [US3] Add refresh function (POST /api/auth/refresh) to auth service in frontend/src/services/auth.service.ts
+- [x] T050 [US3] Implement 401 response interceptor with automatic token refresh in frontend/src/lib/api.ts
+- [x] T051 [US3] Add retry logic after successful refresh in API client interceptor in frontend/src/lib/api.ts
+- [x] T052 [US3] Implement redirect to sign-in on refresh failure in API client interceptor in frontend/src/lib/api.ts
 
 ### Session Validation
 
-- [ ] T053 [US3] Add session expired toast message on auth failure in frontend/src/lib/api-client.ts
-- [ ] T054 [US3] Ensure auth store resets properly on session expiry in frontend/src/stores/auth-store.ts
+- [x] T053 [US3] Add session expired toast message on auth failure in frontend/src/lib/api.ts
+- [x] T054 [US3] Ensure auth store resets properly on session expiry in frontend/src/store/auth-store.ts
 
 **Checkpoint**: User Story 3 complete - Sessions persist and auto-refresh
 
@@ -179,13 +179,13 @@
 
 ### API Service Extension
 
-- [ ] T055 [US4] Add logout function (POST /api/auth/logout) to auth service in frontend/src/services/auth.service.ts
+- [x] T055 [US4] Add logout function (POST /api/auth/logout) to auth service in frontend/src/services/auth.service.ts
 
 ### Sign Out Feature
 
-- [ ] T056 [P] [US4] Create user menu component with sign out button in frontend/src/components/layout/user-menu.tsx
-- [ ] T057 [US4] Implement sign out handler (call API, reset store, redirect) in frontend/src/components/layout/user-menu.tsx
-- [ ] T058 [US4] Add user menu to authenticated layout header in frontend/src/components/layout/authenticated-layout.tsx
+- [x] T056 [P] [US4] Create user menu component with sign out button in frontend/src/components/layout/user-menu.tsx
+- [x] T057 [US4] Implement sign out handler (call API, reset store, redirect) in frontend/src/components/layout/user-menu.tsx
+- [x] T058 [US4] Add user menu to authenticated layout header in frontend/src/components/layout/authenticated-layout.tsx
 
 **Checkpoint**: User Story 4 complete - Teachers can sign out
 
@@ -199,28 +199,28 @@
 
 ### API Service Extension
 
-- [ ] T059 [US5] Add forgotPassword function (POST /api/auth/forgot-password) to auth service in frontend/src/services/auth.service.ts
-- [ ] T060 [US5] Add resetPassword function (POST /api/auth/reset-password) to auth service in frontend/src/services/auth.service.ts
+- [x] T059 [US5] Add forgotPassword function (POST /api/auth/forgot-password) to auth service in frontend/src/services/auth.service.ts
+- [x] T060 [US5] Add resetPassword function (POST /api/auth/reset-password) to auth service in frontend/src/services/auth.service.ts
 
 ### Forgot Password Feature
 
-- [ ] T061 [P] [US5] Create forgot password form component in frontend/src/features/auth/forgot-password/components/forgot-password-form.tsx
-- [ ] T062 [US5] Implement forgot password submission with email validation in frontend/src/features/auth/forgot-password/components/forgot-password-form.tsx
-- [ ] T063 [US5] Add success message display (always show success for security) in frontend/src/features/auth/forgot-password/components/forgot-password-form.tsx
-- [ ] T064 [P] [US5] Create forgot password page component in frontend/src/features/auth/forgot-password/index.tsx
-- [ ] T065 [US5] Create forgot password route in frontend/src/routes/(auth)/forgot-password.tsx
+- [x] T061 [P] [US5] Create forgot password form component in frontend/src/features/auth/forgot-password/components/forgot-password-form.tsx
+- [x] T062 [US5] Implement forgot password submission with email validation in frontend/src/features/auth/forgot-password/components/forgot-password-form.tsx
+- [x] T063 [US5] Add success message display (always show success for security) in frontend/src/features/auth/forgot-password/components/forgot-password-form.tsx
+- [x] T064 [P] [US5] Create forgot password page component in frontend/src/features/auth/forgot-password/index.tsx
+- [x] T065 [US5] Create forgot password route in frontend/src/app/(auth)/forgot-password/page.tsx
 
 ### Reset Password Feature
 
-- [ ] T066 [P] [US5] Create reset password form component with new password and confirm fields in frontend/src/features/auth/reset-password/components/reset-password-form.tsx
-- [ ] T067 [US5] Implement reset password submission with token from URL in frontend/src/features/auth/reset-password/components/reset-password-form.tsx
-- [ ] T068 [US5] Add error handling for invalid/expired token with retry option in frontend/src/features/auth/reset-password/components/reset-password-form.tsx
-- [ ] T069 [P] [US5] Create reset password page component in frontend/src/features/auth/reset-password/index.tsx
-- [ ] T070 [US5] Create reset password route with token query param in frontend/src/routes/(auth)/reset-password.tsx
+- [x] T066 [P] [US5] Create reset password form component with new password and confirm fields in frontend/src/features/auth/reset-password/components/reset-password-form.tsx
+- [x] T067 [US5] Implement reset password submission with token from URL in frontend/src/features/auth/reset-password/components/reset-password-form.tsx
+- [x] T068 [US5] Add error handling for invalid/expired token with retry option in frontend/src/features/auth/reset-password/components/reset-password-form.tsx
+- [x] T069 [P] [US5] Create reset password page component in frontend/src/features/auth/reset-password/index.tsx
+- [x] T070 [US5] Create reset password route with token query param in frontend/src/app/(auth)/reset-password/page.tsx
 
 ### Navigation
 
-- [ ] T071 [US5] Add forgot password link to sign-in form in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
+- [x] T071 [US5] Add forgot password link to sign-in form in frontend/src/features/auth/sign-in/components/sign-in-form.tsx
 
 **Checkpoint**: User Story 5 complete - Password reset flow works
 

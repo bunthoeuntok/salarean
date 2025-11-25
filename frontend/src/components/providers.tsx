@@ -1,9 +1,10 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from './ui/sonner'
+import { NavigationProgress } from './navigation-progress'
 import { useAuthStore } from '@/store/auth-store'
 import { authService } from '@/services/auth.service'
 
@@ -50,6 +51,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         <AuthInitializer>
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
           {children}
           <Toaster />
         </AuthInitializer>

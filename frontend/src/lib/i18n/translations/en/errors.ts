@@ -37,6 +37,9 @@ export const errorsEn: ErrorCodeTranslations = {
   RATE_LIMIT_EXCEEDED: 'Too many requests. Please wait and try again',
   DATABASE_ERROR: 'Database error occurred',
 
+  // Frontend-specific errors
+  NETWORK_ERROR: 'Network error. Please check your connection and try again',
+
   // Auth-specific errors
   INVALID_CREDENTIALS: 'Invalid email/phone or password',
   ACCOUNT_LOCKED: 'Account locked due to too many failed attempts',

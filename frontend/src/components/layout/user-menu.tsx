@@ -1,0 +1,84 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { LogOut, User } from 'lucide-react'
+import { toast } from 'sonner'
+
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+import { useAuthStore } from '@/store/auth-store'
+import { authService } from '@/services/auth.service'
+
+export function UserMenu() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const { user, logout: resetAuthStore } = useAuthStore()
+
+  async function handleSignOut() {
+    setIsLoading(true)
+
+    try {
+      // Call logout API to invalidate server-side session
+      await authService.logout()
+
+      // Reset auth store
+      resetAuthStore()
+
+      // Redirect to sign-in
+      router.push('/sign-in')
+    } catch {
+      // Even if API fails, reset local state and redirect
+      // (cookies may already be expired)
+      resetAuthStore()
+      toast.error('Sign out completed with warnings')
+      router.push('/sign-in')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="gap-2">
+          <User className="h-4 w-4" />
+          <span className="hidden sm:inline-block max-w-[150px] truncate">
+            {user?.email || 'Teacher'}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {user?.email || 'Teacher'}
+            </p>
+            {user?.phoneNumber && (
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.phoneNumber}
+              </p>
+            )}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          disabled={isLoading}
+          className="text-destructive focus:text-destructive"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {isLoading ? 'Signing out...' : 'Sign out'}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}

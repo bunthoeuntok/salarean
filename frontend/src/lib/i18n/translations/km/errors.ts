@@ -37,6 +37,9 @@ export const errorsKm: ErrorCodeTranslations = {
   RATE_LIMIT_EXCEEDED: 'សំណើច្រើនពេក។ សូមរង់ចាំហើយព្យាយាមម្តងទៀត',
   DATABASE_ERROR: 'មានកំហុសមូលដ្ឋានទិន្នន័យ',
 
+  // Frontend-specific errors
+  NETWORK_ERROR: 'កំហុសបណ្តាញ។ សូមពិនិត្យការភ្ជាប់របស់អ្នកហើយព្យាយាមម្តងទៀត',
+
   // Auth-specific errors
   INVALID_CREDENTIALS: 'អ៊ីមែល/ទូរសព្ទ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ',
   ACCOUNT_LOCKED: 'គណនីត្រូវបានចាក់សោដោយសារការព្យាយាមច្រើនដងពេក',

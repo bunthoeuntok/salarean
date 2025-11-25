@@ -70,6 +70,12 @@ export type AuthErrorCode =
   | 'CORRUPTED_IMAGE'
 
 /**
+ * Frontend-specific error codes (not returned from backend)
+ */
+export type FrontendErrorCode =
+  | 'NETWORK_ERROR' // Client has no network connection
+
+/**
  * Union of all error codes that can be returned from API
  */
-export type ErrorCode = CommonErrorCode | AuthErrorCode
+export type ErrorCode = CommonErrorCode | AuthErrorCode | FrontendErrorCode

@@ -10,6 +10,14 @@ import { getErrorMessage } from './i18n'
 export function getErrorCode(error: unknown): ErrorCode {
   // Handle Axios errors with API response format
   if (error instanceof AxiosError) {
+    // Check for network errors first
+    if (!error.response) {
+      if (error.message === 'Network Error' || error.code === 'ERR_NETWORK') {
+        return 'NETWORK_ERROR'
+      }
+      return 'SERVICE_UNAVAILABLE'
+    }
+
     const data = error.response?.data as ApiResponse<unknown> | undefined
     if (data?.errorCode) {
       return data.errorCode as ErrorCode
@@ -97,6 +105,8 @@ function isValidErrorCode(code: string): code is ErrorCode {
     'INVALID_PHOTO_FORMAT',
     'PHOTO_UPLOAD_FAILED',
     'CORRUPTED_IMAGE',
+    // Frontend-specific errors
+    'NETWORK_ERROR',
   ]
   return validCodes.includes(code as ErrorCode)
 }
