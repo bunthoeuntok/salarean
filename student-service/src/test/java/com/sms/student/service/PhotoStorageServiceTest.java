@@ -3,7 +3,9 @@ package com.sms.student.service;
 import com.sms.student.exception.InvalidPhotoFormatException;
 import com.sms.student.exception.PhotoProcessingException;
 import com.sms.student.exception.PhotoSizeExceededException;
-import com.sms.student.service.LocalPhotoStorageService;
+import com.sms.student.service.PhotoStorageService;
+import com.sms.student.service.interfaces.IPhotoStorageService;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,14 +29,14 @@ class PhotoStorageServiceTest {
     @TempDir
     Path tempDir;
 
-    private PhotoStorageService photoStorageService;
+    private IPhotoStorageService photoStorageService;
     private byte[] validJpegData;
     private byte[] validPngData;
     private byte[] largeSizeData;
 
     @BeforeEach
     void setUp() throws IOException {
-        photoStorageService = new LocalPhotoStorageService();
+        photoStorageService = new PhotoStorageService();
         ReflectionTestUtils.setField(photoStorageService, "basePath", tempDir.toString());
 
         // Create minimal valid JPEG data (small test image)

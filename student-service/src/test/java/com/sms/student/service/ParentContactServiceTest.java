@@ -10,7 +10,7 @@ import com.sms.student.exception.ParentContactNotFoundException;
 import com.sms.student.exception.StudentNotFoundException;
 import com.sms.student.repository.ParentContactRepository;
 import com.sms.student.repository.StudentRepository;
-import com.sms.student.service.ParentContactServiceImpl;
+import com.sms.student.service.ParentContactService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class ParentContactServiceTest {
     private StudentRepository studentRepository;
 
     @InjectMocks
-    private ParentContactServiceImpl parentContactService;
+    private ParentContactService parentContactService;
 
     private UUID studentId;
     private UUID contactId;

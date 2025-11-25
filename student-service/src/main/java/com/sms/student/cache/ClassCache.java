@@ -1,4 +1,4 @@
-package com.sms.student.service;
+package com.sms.student.cache;
 
 import com.sms.common.cache.CacheKeyGenerator;
 import com.sms.common.cache.CacheService;
@@ -32,7 +32,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ClassCacheService {
+public class ClassCache {
 
     private static final String SERVICE_NAME = "student-service";
     private static final String TEACHER_ENTITY = "teacher";

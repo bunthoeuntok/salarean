@@ -59,7 +59,7 @@ class StudentServiceTest {
     private SchoolRepository schoolRepository;
 
     @InjectMocks
-    private StudentServiceImpl studentService;
+    private StudentService studentService;
 
     private StudentRequest validRequest;
     private SchoolClass mockClass;

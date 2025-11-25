@@ -3,7 +3,8 @@ package com.sms.student.controller;
 import com.sms.common.dto.ApiResponse;
 import com.sms.student.dto.*;
 import com.sms.student.enums.DeletionReason;
-import com.sms.student.service.StudentService;
+import com.sms.student.service.interfaces.IStudentService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import java.util.UUID;
 @Slf4j
 public class StudentController {
 
-    private final StudentService studentService;
+    private final IStudentService studentService;
 
     /**
      * Create a new student profile.

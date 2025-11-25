@@ -5,7 +5,8 @@ import com.sms.student.dto.EnrollmentHistoryResponse;
 import com.sms.student.dto.EnrollmentRequest;
 import com.sms.student.dto.EnrollmentResponse;
 import com.sms.student.dto.TransferRequest;
-import com.sms.student.service.EnrollmentService;
+import com.sms.student.service.interfaces.IEnrollmentService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @Slf4j
 public class EnrollmentController {
 
-    private final EnrollmentService enrollmentService;
+    private final IEnrollmentService enrollmentService;
 
     /**
      * Get complete enrollment history for a student.
@@ -36,10 +37,7 @@ public class EnrollmentController {
         description = "Retrieve complete enrollment history for a student including all past and current class enrollments"
     )
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "History retrieved successfully"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Student not found"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "History retrieved successfully")
     })
     public ResponseEntity<ApiResponse<EnrollmentHistoryResponse>> getEnrollmentHistory(
             @PathVariable UUID id) {
@@ -59,12 +57,7 @@ public class EnrollmentController {
         description = "Enroll a student in a specific class. Validates student exists, class exists, no duplicate enrollment, and capacity available. Creates enrollment with status ACTIVE and reason NEW. Increments class student_count."
     )
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Student enrolled successfully"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation error - invalid request data"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Student or class not found"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Duplicate enrollment or class capacity exceeded"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Student enrolled successfully")
     })
     public ResponseEntity<ApiResponse<EnrollmentResponse>> enrollStudent(
             @PathVariable UUID id,
@@ -87,12 +80,7 @@ public class EnrollmentController {
         description = "Transfer a student from their current class to a new class. Marks old enrollment as TRANSFERRED, creates new enrollment with status ACTIVE and reason TRANSFER. Updates both class student counts atomically."
     )
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Student transferred successfully"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation error - invalid request data"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Student not found, no active enrollment, or target class not found"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Target class capacity exceeded"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Student transferred successfully")
     })
     public ResponseEntity<ApiResponse<EnrollmentResponse>> transferStudent(
             @PathVariable UUID id,

@@ -8,7 +8,8 @@ import com.sms.student.dto.ClassUpdateRequest;
 import com.sms.student.dto.EnrollmentHistoryDto;
 import com.sms.student.dto.StudentRosterItemDto;
 import com.sms.student.security.JwtTokenProvider;
-import com.sms.student.service.ClassService;
+import com.sms.student.service.interfaces.IClassService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,7 +41,7 @@ import java.util.UUID;
 @Tag(name = "Class Management", description = "APIs for teachers to manage their academic classes")
 public class ClassController {
 
-    private final ClassService classService;
+    private final IClassService classService;
     private final JwtTokenProvider jwtTokenProvider;
 
     /**

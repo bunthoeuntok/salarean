@@ -2,7 +2,8 @@ package com.sms.student.controller;
 
 import com.sms.common.dto.ApiResponse;
 import com.sms.student.dto.SchoolResponse;
-import com.sms.student.service.SchoolService;
+import com.sms.student.service.interfaces.ISchoolService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class SchoolController {
 
-    private final SchoolService schoolService;
+    private final ISchoolService schoolService;
 
     /**
      * List all schools.

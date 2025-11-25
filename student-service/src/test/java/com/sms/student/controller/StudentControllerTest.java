@@ -5,7 +5,7 @@ import com.sms.student.dto.*;
 import com.sms.student.enums.Gender;
 import com.sms.student.enums.Relationship;
 import com.sms.student.enums.StudentStatus;
-import com.sms.student.service.StudentService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import com.sms.student.exception.InvalidStudentDataException;
 import com.sms.student.exception.StudentNotFoundException;
+import com.sms.student.service.interfaces.IStudentService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,7 +44,7 @@ class StudentControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private StudentService studentService;
+    private IStudentService studentService;
 
     private StudentRequest validRequest;
     private StudentResponse mockResponse;
