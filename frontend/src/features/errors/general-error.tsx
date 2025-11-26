@@ -1,6 +1,4 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
+import { useNavigate } from '@tanstack/react-router'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -10,7 +8,7 @@ type GeneralErrorProps = {
 }
 
 export function GeneralError({ error, reset }: GeneralErrorProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center p-4 text-center">
@@ -24,7 +22,7 @@ export function GeneralError({ error, reset }: GeneralErrorProps) {
         problem persists.
       </p>
 
-      {error?.message && process.env.NODE_ENV === 'development' && (
+      {error?.message && import.meta.env.DEV && (
         <div className="mt-4 max-w-lg rounded-md bg-muted p-4">
           <p className="font-mono text-xs text-muted-foreground">
             {error.message}
@@ -44,7 +42,7 @@ export function GeneralError({ error, reset }: GeneralErrorProps) {
             Try Again
           </Button>
         )}
-        <Button onClick={() => router.push('/')}>
+        <Button onClick={() => navigate({ to: '/' })}>
           <Home className="mr-2 h-4 w-4" />
           Go Home
         </Button>

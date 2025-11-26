@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import type { ApiResponse } from '@/types/api.types'
 import { useAuthStore } from '@/store/auth-store'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 export const api = axios.create({
   baseURL: API_URL,

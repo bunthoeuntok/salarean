@@ -1,11 +1,9 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
+import { useNavigate } from '@tanstack/react-router'
 import { FileQuestion, Home, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function NotFoundError() {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center p-4 text-center">
@@ -20,11 +18,11 @@ export function NotFoundError() {
       </p>
 
       <div className="mt-6 flex gap-4">
-        <Button variant="outline" onClick={() => router.back()}>
+        <Button variant="outline" onClick={() => window.history.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Go Back
         </Button>
-        <Button onClick={() => router.push('/')}>
+        <Button onClick={() => navigate({ to: '/' })}>
           <Home className="mr-2 h-4 w-4" />
           Go Home
         </Button>

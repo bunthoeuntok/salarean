@@ -1,5 +1,3 @@
-'use client'
-
 import { Logo } from '@/assets/logo'
 import { UserMenu } from './user-menu'
 

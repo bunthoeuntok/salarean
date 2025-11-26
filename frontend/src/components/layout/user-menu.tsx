@@ -1,7 +1,5 @@
-'use client'
-
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from '@tanstack/react-router'
 import { LogOut, User } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -19,7 +17,7 @@ import { useAuthStore } from '@/store/auth-store'
 import { authService } from '@/services/auth.service'
 
 export function UserMenu() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const { user, refreshToken, logout: resetAuthStore } = useAuthStore()
 
@@ -36,13 +34,13 @@ export function UserMenu() {
       resetAuthStore()
 
       // Redirect to sign-in
-      router.push('/sign-in')
+      navigate({ to: '/sign-in' })
     } catch {
       // Even if API fails, reset local state and redirect
       // (token may already be expired)
       resetAuthStore()
       toast.error('Sign out completed with warnings')
-      router.push('/sign-in')
+      navigate({ to: '/sign-in' })
     } finally {
       setIsLoading(false)
     }

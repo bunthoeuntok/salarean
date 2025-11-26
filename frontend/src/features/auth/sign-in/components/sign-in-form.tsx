@@ -1,9 +1,7 @@
-'use client'
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -25,6 +23,8 @@ import { handleServerError } from '@/lib/handle-server-error'
 
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const search = useSearch({ from: '/(auth)/sign-in' })
 
   const { setUser, setTokens, language } = useAuthStore()
 
@@ -50,7 +50,9 @@ export function SignInForm() {
       const user = await authService.getCurrentUser()
       setUser(user)
 
-      // Auth layout handles redirect to dashboard automatically
+      // Redirect to dashboard or the page they were trying to access
+      const redirectTo = search.redirect || '/dashboard'
+      navigate({ to: redirectTo })
     } catch (error) {
       const errorMessage = handleServerError(error, language)
       toast.error(errorMessage)
@@ -89,7 +91,7 @@ export function SignInForm() {
               <div className="flex items-center justify-between">
                 <FormLabel>Password</FormLabel>
                 <Link
-                  href="/forgot-password"
+                  to="/forgot-password"
                   className="text-sm text-muted-foreground hover:text-primary"
                 >
                   Forgot password?
@@ -114,7 +116,7 @@ export function SignInForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/sign-up" className="text-primary hover:underline">
+          <Link to="/sign-up" className="text-primary hover:underline">
             Sign up
           </Link>
         </p>

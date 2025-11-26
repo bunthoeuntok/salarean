@@ -79,7 +79,7 @@ export const registerSchema = z
     phoneNumber: phoneSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, 'Please confirm your password'),
-    preferredLanguage: z.enum(['en', 'km']).optional().default('en'),
+    preferredLanguage: z.enum(['en', 'km']).default('en'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -87,6 +87,7 @@ export const registerSchema = z
   })
 
 export type RegisterFormData = z.infer<typeof registerSchema>
+export type RegisterFormInput = z.input<typeof registerSchema>
 
 /**
  * Forgot password form schema

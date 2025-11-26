@@ -1,9 +1,7 @@
-'use client'
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
+import { Link } from '@tanstack/react-router'
 import { CheckCircle2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -65,7 +63,7 @@ export function ForgotPasswordForm() {
         </div>
         <div className="pt-4">
           <Link
-            href="/sign-in"
+            to="/sign-in"
             className="text-sm text-primary hover:underline"
           >
             Back to sign in
@@ -104,7 +102,7 @@ export function ForgotPasswordForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Remember your password?{' '}
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link to="/sign-in" className="text-primary hover:underline">
             Sign in
           </Link>
         </p>

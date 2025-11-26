@@ -1,10 +1,7 @@
-'use client'
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 
@@ -29,14 +26,14 @@ import { useAuthStore } from '@/store/auth-store'
 import { handleServerError, getErrorCode } from '@/lib/handle-server-error'
 
 export function ResetPasswordForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const navigate = useNavigate()
+  const search = useSearch({ from: '/(auth)/reset-password' })
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [tokenError, setTokenError] = useState<string | null>(null)
   const { language } = useAuthStore()
 
-  const token = searchParams.get('token') || ''
+  const token = search.token || ''
 
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
@@ -65,7 +62,7 @@ export function ResetPasswordForm() {
 
       // Redirect to sign-in after delay
       setTimeout(() => {
-        router.push('/sign-in')
+        navigate({ to: '/sign-in' })
       }, 3000)
     } catch (error) {
       const errorCode = getErrorCode(error)
@@ -102,7 +99,7 @@ export function ResetPasswordForm() {
         </div>
         <div className="pt-4">
           <Link
-            href="/sign-in"
+            to="/sign-in"
             className="text-sm text-primary hover:underline"
           >
             Sign in now
@@ -124,12 +121,12 @@ export function ResetPasswordForm() {
           <p className="text-sm text-muted-foreground">{tokenError}</p>
         </div>
         <div className="pt-4 space-y-2">
-          <Link href="/forgot-password">
+          <Link to="/forgot-password">
             <Button className="w-full">Request New Reset Link</Button>
           </Link>
           <p className="text-sm text-muted-foreground">
             or{' '}
-            <Link href="/sign-in" className="text-primary hover:underline">
+            <Link to="/sign-in" className="text-primary hover:underline">
               return to sign in
             </Link>
           </p>
@@ -152,12 +149,12 @@ export function ResetPasswordForm() {
           </p>
         </div>
         <div className="pt-4 space-y-2">
-          <Link href="/forgot-password">
+          <Link to="/forgot-password">
             <Button className="w-full">Request Password Reset</Button>
           </Link>
           <p className="text-sm text-muted-foreground">
             or{' '}
-            <Link href="/sign-in" className="text-primary hover:underline">
+            <Link to="/sign-in" className="text-primary hover:underline">
               return to sign in
             </Link>
           </p>
@@ -214,7 +211,7 @@ export function ResetPasswordForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Remember your password?{' '}
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link to="/sign-in" className="text-primary hover:underline">
             Sign in
           </Link>
         </p>

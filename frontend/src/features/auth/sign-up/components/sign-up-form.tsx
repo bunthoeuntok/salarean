@@ -1,9 +1,7 @@
-'use client'
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -23,6 +21,7 @@ import { PasswordStrength } from './password-strength'
 import {
   registerSchema,
   type RegisterFormData,
+  type RegisterFormInput,
 } from '@/lib/validations/auth.schema'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
@@ -30,9 +29,10 @@ import { handleServerError } from '@/lib/handle-server-error'
 
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
   const { setUser, setTokens, language } = useAuthStore()
 
-  const form = useForm<RegisterFormData>({
+  const form = useForm<RegisterFormInput, unknown, RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
@@ -67,7 +67,8 @@ export function SignUpForm() {
 
       toast.success('Account created successfully!')
 
-      // Auth layout handles redirect to dashboard automatically
+      // Redirect to dashboard
+      navigate({ to: '/dashboard' })
     } catch (error) {
       const errorMessage = handleServerError(error, language)
       toast.error(errorMessage)
@@ -167,7 +168,7 @@ export function SignUpForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link to="/sign-in" className="text-primary hover:underline">
             Sign in
           </Link>
         </p>

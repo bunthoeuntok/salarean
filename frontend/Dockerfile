@@ -1,4 +1,4 @@
-# Frontend Dockerfile
+# Frontend Dockerfile (Vite + React)
 FROM node:20-alpine AS base
 
 # Install pnpm
@@ -13,39 +13,28 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# Rebuild the source code only when needed
+# Build stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Set build-time environment variables
-ARG NEXT_PUBLIC_API_URL=http://localhost:8080
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ARG VITE_API_URL=http://localhost:8080
+ENV VITE_API_URL=${VITE_API_URL}
 
-# Build Next.js app
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build Vite app
 RUN pnpm build
 
-# Production image
-FROM base AS runner
-WORKDIR /app
+# Production image - serve with nginx
+FROM nginx:alpine AS runner
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node", "server.js"]
+CMD ["nginx", "-g", "daemon off;"]

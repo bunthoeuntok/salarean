@@ -114,7 +114,7 @@ function isValidErrorCode(code: string): code is ErrorCode {
 /**
  * Handle server error and return localized message
  */
-export function handleServerError(error: unknown, lang: Language): string {
+export function handleServerError(error: unknown, lang: Language = 'en'): string {
   const errorCode = getErrorCode(error)
   return getErrorMessage(errorCode, lang)
 }

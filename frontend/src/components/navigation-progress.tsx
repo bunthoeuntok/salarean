@@ -1,7 +1,5 @@
-'use client'
-
 import { useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useLocation } from '@tanstack/react-router'
 import NProgress from 'nprogress'
 
 // Configure NProgress
@@ -12,12 +10,11 @@ NProgress.configure({
 })
 
 export function NavigationProgress() {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const location = useLocation()
 
   useEffect(() => {
     NProgress.done()
-  }, [pathname, searchParams])
+  }, [location.pathname, location.search])
 
   return null
 }
