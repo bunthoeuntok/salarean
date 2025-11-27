@@ -118,7 +118,7 @@ export const uiKm: UITranslations = {
     signOut: 'ចេញពីគណនី',
   },
   search: {
-    placeholder: 'វាយពាក្យបញ្ជា ឬស្វែងរក...',
+    placeholder: 'ស្វែងរក...',
     noResults: 'រកមិនឃើញលទ្ធផល។',
     theme: 'រូបរាង',
     light: 'ភ្លឺ',

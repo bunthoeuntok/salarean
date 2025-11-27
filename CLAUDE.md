@@ -22,17 +22,66 @@ Auto-generated from all feature plans. Last updated: 2025-11-20
 ## Project Structure
 
 ```text
-src/
-tests/
+salarean/
+├── frontend/                    # React 19 SPA with Vite 7.x
+│   ├── src/
+│   │   ├── routes/              # TanStack Router route definitions
+│   │   ├── components/          # React components (ui/, forms/, layout/)
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── lib/                 # Utilities (api/, i18n/, utils/)
+│   │   ├── services/            # API service functions
+│   │   ├── store/               # Zustand stores
+│   │   └── types/               # TypeScript types
+│   └── package.json
+├── auth-service/                # Spring Boot 3.5.7 microservice
+├── student-service/             # Spring Boot 3.5.7 microservice
+├── api-gateway/                 # API Gateway (routing, JWT validation)
+├── eureka-server/               # Service discovery
+├── sms-common/                  # Shared library (DTOs, utils)
+├── specs/                       # Feature specifications
+├── .standards/                  # Microservice standards & templates
+└── docker-compose.yml           # Multi-service orchestration
 ```
 
 ## Commands
 
-# Add commands for Java 21 (Spring Boot 3.5.7)
+### Frontend (React 19 + Vite)
+```bash
+cd frontend
+pnpm install     # Install dependencies
+pnpm dev         # Start dev server (http://localhost:5173)
+pnpm build       # Production build
+pnpm preview     # Preview production build
+```
+
+### Backend (Spring Boot 3.5.7)
+```bash
+cd {service-name}
+./mvnw clean compile          # Compile
+./mvnw test                   # Run tests
+./mvnw spring-boot:run        # Run locally
+```
+
+### Docker
+```bash
+docker-compose up -d          # Start all services
+docker-compose logs -f        # View logs
+docker-compose down           # Stop all services
+```
 
 ## Code Style
 
-Java 21 (Spring Boot 3.5.7): Follow standard conventions
+### Frontend (TypeScript/React)
+- ESLint + Prettier for formatting
+- Strict TypeScript mode
+- shadcn/ui component patterns
+- Zustand for client state, TanStack Query for server state
+
+### Backend (Java 21)
+- Follow standard Spring Boot conventions
+- Package structure: config/, controller/, dto/, exception/, model/, repository/, security/, service/, validation/
+- Use `@RequiredArgsConstructor` for dependency injection
+- `ApiResponse<T>` wrapper for all API responses
 
 ## Recent Changes
 - 006-frontend-auth: Added TypeScript 5.x with React 19 + Vite 7.x, TanStack Router, TanStack Query, Zustand, Tailwind CSS 4.x, shadcn/ui, Axios, Zod, react-hook-form

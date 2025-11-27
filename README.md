@@ -5,11 +5,14 @@ A comprehensive school management system for Cambodia built with microservices a
 ## Tech Stack
 
 ### Frontend
-- **Next.js 14** - React framework with SSR
-- **TypeScript** - Type safety
-- **TailwindCSS** - Styling
-- **React Query** - Data fetching
-- **Zustand** - State management
+- **React 19** - UI library with Vite 7.x build tool
+- **TypeScript 5.x** - Type safety (strict mode)
+- **TanStack Router** - Type-safe file-based routing
+- **TanStack Query** - Server state management
+- **Zustand** - Client state management
+- **Tailwind CSS 4.x** - Styling with shadcn/ui components
+- **react-hook-form + Zod** - Form handling and validation
+- **i18next** - Internationalization (Khmer/English)
 
 ### Backend
 - **Spring Boot 3.2** - Microservices framework
@@ -28,7 +31,7 @@ A comprehensive school management system for Cambodia built with microservices a
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
 │   Nginx     │────▶│  Frontend   │     │   API Gateway   │
-│   (80/443)  │     │   (3000)    │     │     (8080)      │
+│   (80/443)  │     │   (5173)    │     │     (8080)      │
 └─────────────┘     └─────────────┘     └────────┬────────┘
                                                  │
         ┌────────────────────────────────────────┼────────────────┐
@@ -49,7 +52,7 @@ A comprehensive school management system for Cambodia built with microservices a
 
 | Service | Port | Description |
 |---------|------|-------------|
-| Frontend | 3000 | Next.js web application |
+| Frontend | 5173 | React SPA with Vite |
 | API Gateway | 8080 | Request routing, JWT validation |
 | Eureka Server | 8761 | Service discovery |
 | Auth Service | 8081 | Authentication, JWT tokens |
@@ -64,7 +67,7 @@ A comprehensive school management system for Cambodia built with microservices a
 ### Prerequisites
 
 - Docker & Docker Compose
-- Node.js 20+ (for frontend development)
+- Node.js 20+ with pnpm (for frontend development)
 - Java 21+ (for backend development)
 - Maven 3.9+ (for building backend services)
 
@@ -104,7 +107,7 @@ docker-compose down
 
 ### 4. Access Applications
 
-- **Frontend**: http://localhost:3000
+- **Frontend**: http://localhost:5173
 - **API Gateway**: http://localhost:8080
 - **Eureka Dashboard**: http://localhost:8761
 - **RabbitMQ Management**: http://localhost:15672
@@ -117,13 +120,16 @@ docker-compose down
 cd frontend
 
 # Install dependencies
-npm install
+pnpm install
 
-# Start development server
-npm run dev
+# Start development server (Vite)
+pnpm dev
 
 # Build for production
-npm run build
+pnpm build
+
+# Preview production build
+pnpm preview
 ```
 
 ### Backend Development

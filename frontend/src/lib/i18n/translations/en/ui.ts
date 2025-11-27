@@ -118,7 +118,7 @@ export const uiEn: UITranslations = {
     signOut: 'Sign Out',
   },
   search: {
-    placeholder: 'Type a command or search...',
+    placeholder: 'search...',
     noResults: 'No results found.',
     theme: 'Theme',
     light: 'Light',

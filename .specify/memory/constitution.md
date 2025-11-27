@@ -1,18 +1,22 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.0 → 1.1.0 (Minor - Added backend conventions and project structure)
+Version change: 1.1.0 → 1.2.0 (Minor - Frontend technology migration from Next.js to React+Vite)
 Modified principles:
   - None (existing principles unchanged)
-Added sections:
-  - VI. Backend API Conventions (new principle)
-  - Project Structure (new major section after Core Principles)
-  - Backend Implementation Standards (new subsection under Technology Stack)
+Modified sections:
+  - Technology Stack > Frontend: Next.js 14 → React 19 + Vite 7.x
+  - Project Structure > Frontend Structure: Updated from Next.js app router to React SPA structure
+  - Repository Layout: Updated frontend description
+Added sections: None
 Removed sections: None
 Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ Compatible (Constitution Check section present)
-  - .specify/templates/spec-template.md ✅ Compatible (Requirements align with principles)
-  - .specify/templates/tasks-template.md ✅ Compatible (Phase structure supports principles)
+  - .specify/templates/plan-template.md ✅ Compatible (no frontend-specific references)
+  - .specify/templates/spec-template.md ✅ Compatible (technology-agnostic)
+  - .specify/templates/tasks-template.md ✅ Compatible (technology-agnostic)
+External documents updated:
+  - README.md ✅ UPDATED: Tech stack, architecture, ports, commands
+  - CLAUDE.md ✅ UPDATED: Project structure, frontend commands
 Follow-up TODOs: None
 ==================
 -->
@@ -120,7 +124,7 @@ The SMS project follows a **microservices monorepo** architecture with clear sep
 
 ```text
 salarean/
-├── frontend/                    # Next.js 14 web application
+├── frontend/                    # React 19 SPA with Vite
 ├── auth-service/                # Authentication & authorization microservice
 ├── student-service/             # Student records management microservice
 ├── grade-service/               # Grade calculation & management microservice
@@ -146,27 +150,34 @@ salarean/
 └── README.md                    # Project setup & quick start
 ```
 
-### Frontend Structure (Next.js 14 App Router)
+### Frontend Structure (React 19 + Vite SPA)
 
 ```text
 frontend/
 ├── src/
-│   ├── app/                     # Next.js app directory (pages & layouts)
-│   │   ├── (auth)/              # Auth route group
-│   │   ├── (dashboard)/         # Protected route group
-│   │   └── layout.tsx           # Root layout
+│   ├── routes/                  # TanStack Router route definitions
+│   │   ├── __root.tsx           # Root layout
+│   │   ├── index.tsx            # Home route
+│   │   ├── (auth)/              # Auth route group (login, register)
+│   │   └── (dashboard)/         # Protected route group
 │   ├── components/              # React components
 │   │   ├── ui/                  # shadcn/ui components
 │   │   ├── forms/               # Form components
 │   │   └── layout/              # Layout components
 │   ├── hooks/                   # Custom React hooks
 │   ├── lib/                     # Utilities & helpers
-│   ├── services/                # API client functions
+│   │   ├── api/                 # API client (Axios)
+│   │   ├── i18n/                # Internationalization (i18next)
+│   │   └── utils/               # General utilities
+│   ├── services/                # API service functions
 │   ├── store/                   # Zustand stores
 │   └── types/                   # TypeScript type definitions
 ├── public/                      # Static assets
-├── package.json
-└── next.config.js
+├── index.html                   # HTML entry point
+├── vite.config.ts               # Vite configuration
+├── tailwind.config.ts           # Tailwind CSS configuration
+├── tsconfig.json                # TypeScript configuration
+└── package.json
 ```
 
 ### Microservice Structure (Spring Boot)
@@ -242,10 +253,14 @@ specs/###-feature-name/
 The following technologies are mandated for the SMS project:
 
 ### Frontend
-- **Framework**: Next.js 14 with React Server Components
-- **Language**: TypeScript (strict mode)
-- **Styling**: TailwindCSS
-- **State**: Zustand for client state, React Query for server state
+- **Framework**: React 19 with Vite 7.x (SPA architecture)
+- **Language**: TypeScript 5.x (strict mode)
+- **Routing**: TanStack Router for type-safe file-based routing
+- **Styling**: Tailwind CSS 4.x with shadcn/ui components
+- **State Management**: Zustand for client state, TanStack Query for server state
+- **Forms**: react-hook-form with Zod validation
+- **API Client**: Axios for HTTP requests
+- **Internationalization**: i18next for Khmer/English translations
 
 ### Backend
 - **Framework**: Spring Boot 3.5+
@@ -409,4 +424,4 @@ For runtime development guidance, refer to:
 - `.specify/` - Feature specifications and implementation plans
 - `CLAUDE.md` - Auto-generated development guidelines (updated per feature)
 
-**Version**: 1.1.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-11-21
+**Version**: 1.2.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-11-27
