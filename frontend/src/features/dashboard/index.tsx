@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ConfigDrawer } from '@/components/config-drawer'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 export function DashboardPage() {
   const { user } = useAuthStore()
@@ -11,6 +12,7 @@ export function DashboardPage() {
     <>
       <Header fixed>
         <h1 className='flex-1 text-lg font-semibold'>Dashboard</h1>
+        <LanguageSwitcher />
         <ConfigDrawer />
       </Header>
       <Main>
