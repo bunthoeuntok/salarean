@@ -2,6 +2,7 @@ import { useAuthStore } from '@/store/auth-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { ConfigDrawer } from '@/components/config-drawer'
 
 export function DashboardPage() {
   const { user } = useAuthStore()
@@ -9,7 +10,8 @@ export function DashboardPage() {
   return (
     <>
       <Header fixed>
-        <h1 className='text-lg font-semibold'>Dashboard</h1>
+        <h1 className='flex-1 text-lg font-semibold'>Dashboard</h1>
+        <ConfigDrawer />
       </Header>
       <Main>
         <div className='space-y-6'>
