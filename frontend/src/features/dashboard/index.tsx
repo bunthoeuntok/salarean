@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { Search } from '@/components/search'
 
 export function DashboardPage() {
   const { user } = useAuthStore()
@@ -14,8 +15,11 @@ export function DashboardPage() {
     <>
       <Header fixed>
         <h1 className='flex-1 text-lg font-semibold'>{t.dashboard.title}</h1>
-        <LanguageSwitcher />
-        <ConfigDrawer />
+        <div className='flex items-center gap-2'>
+          <Search />
+          <LanguageSwitcher />
+          <ConfigDrawer />
+        </div>
       </Header>
       <Main>
         <div className='space-y-6'>

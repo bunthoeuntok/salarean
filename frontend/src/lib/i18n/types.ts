@@ -137,6 +137,15 @@ export interface UITranslations {
     help: string
     signOut: string
   }
+  // Search/Command menu
+  search: {
+    placeholder: string
+    noResults: string
+    theme: string
+    light: string
+    dark: string
+    system: string
+  }
 }
 
 /**

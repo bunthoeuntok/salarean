@@ -117,4 +117,12 @@ export const uiKm: UITranslations = {
     help: 'ជំនួយ',
     signOut: 'ចេញពីគណនី',
   },
+  search: {
+    placeholder: 'វាយពាក្យបញ្ជា ឬស្វែងរក...',
+    noResults: 'រកមិនឃើញលទ្ធផល។',
+    theme: 'រូបរាង',
+    light: 'ភ្លឺ',
+    dark: 'ងងឹត',
+    system: 'ប្រព័ន្ធ',
+  },
 }

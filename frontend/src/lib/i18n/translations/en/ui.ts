@@ -117,4 +117,12 @@ export const uiEn: UITranslations = {
     help: 'Help',
     signOut: 'Sign Out',
   },
+  search: {
+    placeholder: 'Type a command or search...',
+    noResults: 'No results found.',
+    theme: 'Theme',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
+  },
 }
