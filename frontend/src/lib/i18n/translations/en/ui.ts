@@ -93,4 +93,23 @@ export const uiEn: UITranslations = {
     passwordMissingSpecial: 'Password must contain a special character',
     passwordsDontMatch: "Passwords don't match",
   },
+  dashboard: {
+    title: 'Dashboard',
+    welcome: 'Welcome back',
+    subtitle: "Here's what's happening with your classes today.",
+    totalStudents: 'Total Students',
+    classes: 'Classes',
+    attendanceRate: 'Attendance Rate',
+    pendingTasks: 'Pending Tasks',
+    comingSoon: 'Coming soon',
+  },
+  nav: {
+    dashboard: 'Dashboard',
+    students: 'Students',
+    classes: 'Classes',
+    attendance: 'Attendance',
+    settings: 'Settings',
+    profile: 'Profile',
+    signOut: 'Sign Out',
+  },
 }

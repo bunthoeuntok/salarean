@@ -19,14 +19,15 @@ import { PasswordInput } from '@/components/password-input'
 import { loginSchema, type LoginFormData } from '@/lib/validations/auth.schema'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
-import { handleServerError } from '@/lib/handle-server-error'
+import { useLanguage } from '@/context/language-provider'
 
 export function SignInForm() {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const search = useSearch({ from: '/(auth)/sign-in' })
+  const { t, translateError } = useLanguage()
 
-  const { setUser, setTokens, language } = useAuthStore()
+  const { setUser, setTokens } = useAuthStore()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -54,7 +55,7 @@ export function SignInForm() {
       const redirectTo = search.redirect || '/dashboard'
       navigate({ to: redirectTo })
     } catch (error) {
-      const errorMessage = handleServerError(error, language)
+      const errorMessage = translateError((error as { errorCode?: string })?.errorCode as Parameters<typeof translateError>[0] || 'INTERNAL_ERROR')
       toast.error(errorMessage)
     } finally {
       setIsLoading(false)
@@ -69,10 +70,10 @@ export function SignInForm() {
           name="emailOrPhone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email or Phone</FormLabel>
+              <FormLabel>{t.auth.signIn.emailOrPhone}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="teacher@school.com or 0123456789"
+                  placeholder={t.auth.signIn.emailOrPhonePlaceholder}
                   autoComplete="username"
                   disabled={isLoading}
                   {...field}
@@ -89,17 +90,17 @@ export function SignInForm() {
           render={({ field }) => (
             <FormItem>
               <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t.auth.signIn.password}</FormLabel>
                 <Link
                   to="/forgot-password"
                   className="text-sm text-muted-foreground hover:text-primary"
                 >
-                  Forgot password?
+                  {t.auth.signIn.forgotPassword}
                 </Link>
               </div>
               <FormControl>
                 <PasswordInput
-                  placeholder="Enter your password"
+                  placeholder={t.auth.signIn.passwordPlaceholder}
                   autoComplete="current-password"
                   disabled={isLoading}
                   {...field}
@@ -111,13 +112,13 @@ export function SignInForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Signing in...' : 'Sign In'}
+          {isLoading ? t.auth.signIn.signingIn : t.auth.signIn.signInButton}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
+          {t.auth.signIn.noAccount}{' '}
           <Link to="/sign-up" className="text-primary hover:underline">
-            Sign up
+            {t.auth.signIn.signUp}
           </Link>
         </p>
       </form>

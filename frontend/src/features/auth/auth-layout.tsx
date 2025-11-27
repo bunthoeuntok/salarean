@@ -1,13 +1,20 @@
 import { Logo } from '@/assets/logo'
 import { cn } from '@/lib/utils'
+import { LanguageProvider } from '@/context/language-provider'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 type AuthLayoutProps = {
   children: React.ReactNode
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+function AuthLayoutContent({ children }: AuthLayoutProps) {
   return (
     <div className="container relative grid h-svh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
+      {/* Language switcher - top right */}
+      <div className="absolute top-4 right-4 z-30">
+        <LanguageSwitcher />
+      </div>
+
       {/* Left side - Form */}
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-2 py-8 sm:w-[480px] sm:p-8">
@@ -54,5 +61,13 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
     </div>
+  )
+}
+
+export function AuthLayout({ children }: AuthLayoutProps) {
+  return (
+    <LanguageProvider>
+      <AuthLayoutContent>{children}</AuthLayoutContent>
+    </LanguageProvider>
   )
 }

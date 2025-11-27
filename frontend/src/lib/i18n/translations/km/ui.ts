@@ -93,4 +93,23 @@ export const uiKm: UITranslations = {
     passwordMissingSpecial: 'ពាក្យសម្ងាត់ត្រូវមានតួអក្សរពិសេស',
     passwordsDontMatch: 'ពាក្យសម្ងាត់មិនត្រូវគ្នា',
   },
+  dashboard: {
+    title: 'ផ្ទាំងគ្រប់គ្រង',
+    welcome: 'សូមស្វាគមន៍មកវិញ',
+    subtitle: 'នេះគឺជាអ្វីដែលកើតឡើងជាមួយថ្នាក់របស់អ្នកនៅថ្ងៃនេះ។',
+    totalStudents: 'សិស្សទាំងអស់',
+    classes: 'ថ្នាក់រៀន',
+    attendanceRate: 'អត្រាវត្តមាន',
+    pendingTasks: 'កិច្ចការមិនទាន់ធ្វើ',
+    comingSoon: 'មកដល់ឆាប់ៗនេះ',
+  },
+  nav: {
+    dashboard: 'ផ្ទាំងគ្រប់គ្រង',
+    students: 'សិស្ស',
+    classes: 'ថ្នាក់រៀន',
+    attendance: 'វត្តមាន',
+    settings: 'ការកំណត់',
+    profile: 'ប្រវត្តិរូប',
+    signOut: 'ចេញពីគណនី',
+  },
 }

@@ -109,6 +109,27 @@ export interface UITranslations {
     passwordMissingSpecial: string
     passwordsDontMatch: string
   }
+  // Dashboard
+  dashboard: {
+    title: string
+    welcome: string
+    subtitle: string
+    totalStudents: string
+    classes: string
+    attendanceRate: string
+    pendingTasks: string
+    comingSoon: string
+  }
+  // Navigation
+  nav: {
+    dashboard: string
+    students: string
+    classes: string
+    attendance: string
+    settings: string
+    profile: string
+    signOut: string
+  }
 }
 
 /**

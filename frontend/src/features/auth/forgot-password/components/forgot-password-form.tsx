@@ -20,10 +20,12 @@ import {
   type ForgotPasswordFormData,
 } from '@/lib/validations/auth.schema'
 import { authService } from '@/services/auth.service'
+import { useLanguage } from '@/context/language-provider'
 
 export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const { t } = useLanguage()
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -55,10 +57,9 @@ export function ForgotPasswordForm() {
           <CheckCircle2 className="h-6 w-6 text-green-600" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Check your email</h3>
+          <h3 className="text-lg font-semibold">{t.common.success}</h3>
           <p className="text-sm text-muted-foreground">
-            If an account exists with that email address, we&apos;ve sent password
-            reset instructions to your inbox.
+            {t.auth.forgotPassword.successMessage}
           </p>
         </div>
         <div className="pt-4">
@@ -66,7 +67,7 @@ export function ForgotPasswordForm() {
             to="/sign-in"
             className="text-sm text-primary hover:underline"
           >
-            Back to sign in
+            {t.auth.forgotPassword.backToSignIn}
           </Link>
         </div>
       </div>
@@ -81,11 +82,11 @@ export function ForgotPasswordForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t.auth.forgotPassword.email}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="teacher@school.com"
+                  placeholder={t.auth.forgotPassword.emailPlaceholder}
                   autoComplete="email"
                   disabled={isLoading}
                   {...field}
@@ -97,13 +98,13 @@ export function ForgotPasswordForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Sending...' : 'Send Reset Link'}
+          {isLoading ? t.auth.forgotPassword.sending : t.auth.forgotPassword.sendButton}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Remember your password?{' '}
+          {t.auth.signUp.hasAccount}{' '}
           <Link to="/sign-in" className="text-primary hover:underline">
-            Sign in
+            {t.auth.signIn.signInButton}
           </Link>
         </p>
       </form>

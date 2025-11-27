@@ -25,12 +25,13 @@ import {
 } from '@/lib/validations/auth.schema'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
-import { handleServerError } from '@/lib/handle-server-error'
+import { useLanguage } from '@/context/language-provider'
 
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const { setUser, setTokens, language } = useAuthStore()
+  const { setUser, setTokens } = useAuthStore()
+  const { t, language, translateError } = useLanguage()
 
   const form = useForm<RegisterFormInput, unknown, RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -65,12 +66,12 @@ export function SignUpForm() {
       const user = await authService.getCurrentUser()
       setUser(user)
 
-      toast.success('Account created successfully!')
+      toast.success(t.common.success)
 
       // Redirect to dashboard
       navigate({ to: '/dashboard' })
     } catch (error) {
-      const errorMessage = handleServerError(error, language)
+      const errorMessage = translateError((error as { errorCode?: string })?.errorCode as Parameters<typeof translateError>[0] || 'INTERNAL_ERROR')
       toast.error(errorMessage)
     } finally {
       setIsLoading(false)
@@ -85,11 +86,11 @@ export function SignUpForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t.auth.signUp.email}</FormLabel>
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="teacher@school.com"
+                  placeholder={t.auth.signUp.emailPlaceholder}
                   autoComplete="email"
                   disabled={isLoading}
                   {...field}
@@ -105,11 +106,11 @@ export function SignUpForm() {
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone Number</FormLabel>
+              <FormLabel>{t.auth.signUp.phone}</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
-                  placeholder="0123456789"
+                  placeholder={t.auth.signUp.phonePlaceholder}
                   autoComplete="tel"
                   disabled={isLoading}
                   {...field}
@@ -128,10 +129,10 @@ export function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t.auth.signUp.password}</FormLabel>
               <FormControl>
                 <PasswordInput
-                  placeholder="Create a strong password"
+                  placeholder={t.auth.signUp.passwordPlaceholder}
                   autoComplete="new-password"
                   disabled={isLoading}
                   {...field}
@@ -148,10 +149,10 @@ export function SignUpForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>{t.auth.signUp.confirmPassword}</FormLabel>
               <FormControl>
                 <PasswordInput
-                  placeholder="Confirm your password"
+                  placeholder={t.auth.signUp.confirmPasswordPlaceholder}
                   autoComplete="new-password"
                   disabled={isLoading}
                   {...field}
@@ -163,13 +164,13 @@ export function SignUpForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Creating account...' : 'Create Account'}
+          {isLoading ? t.auth.signUp.signingUp : t.auth.signUp.signUpButton}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
+          {t.auth.signUp.hasAccount}{' '}
           <Link to="/sign-in" className="text-primary hover:underline">
-            Sign in
+            {t.auth.signUp.signIn}
           </Link>
         </p>
       </form>

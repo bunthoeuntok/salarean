@@ -22,8 +22,8 @@ import {
   type ResetPasswordFormData,
 } from '@/lib/validations/auth.schema'
 import { authService } from '@/services/auth.service'
-import { useAuthStore } from '@/store/auth-store'
-import { handleServerError, getErrorCode } from '@/lib/handle-server-error'
+import { useLanguage } from '@/context/language-provider'
+import { getErrorCode } from '@/lib/handle-server-error'
 
 export function ResetPasswordForm() {
   const navigate = useNavigate()
@@ -31,7 +31,7 @@ export function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [tokenError, setTokenError] = useState<string | null>(null)
-  const { language } = useAuthStore()
+  const { t, translateError } = useLanguage()
 
   const token = search.token || ''
 
@@ -58,7 +58,7 @@ export function ResetPasswordForm() {
       })
 
       setIsSuccess(true)
-      toast.success('Password reset successfully!')
+      toast.success(t.auth.resetPassword.successMessage)
 
       // Redirect to sign-in after delay
       setTimeout(() => {
@@ -69,13 +69,9 @@ export function ResetPasswordForm() {
 
       // Handle specific token errors
       if (errorCode === 'RESET_TOKEN_INVALID' || errorCode === 'RESET_TOKEN_EXPIRED') {
-        setTokenError(
-          errorCode === 'RESET_TOKEN_EXPIRED'
-            ? 'This reset link has expired. Please request a new one.'
-            : 'This reset link is invalid. Please request a new one.'
-        )
+        setTokenError(translateError(errorCode as Parameters<typeof translateError>[0]))
       } else {
-        const errorMessage = handleServerError(error, language)
+        const errorMessage = translateError((error as { errorCode?: string })?.errorCode as Parameters<typeof translateError>[0] || 'INTERNAL_ERROR')
         toast.error(errorMessage)
       }
     } finally {
@@ -91,10 +87,9 @@ export function ResetPasswordForm() {
           <CheckCircle2 className="h-6 w-6 text-green-600" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Password Reset Complete</h3>
+          <h3 className="text-lg font-semibold">{t.common.success}</h3>
           <p className="text-sm text-muted-foreground">
-            Your password has been reset successfully. You will be redirected to
-            sign in shortly.
+            {t.auth.resetPassword.successMessage}
           </p>
         </div>
         <div className="pt-4">
@@ -102,7 +97,7 @@ export function ResetPasswordForm() {
             to="/sign-in"
             className="text-sm text-primary hover:underline"
           >
-            Sign in now
+            {t.auth.signIn.signInButton}
           </Link>
         </div>
       </div>
@@ -117,17 +112,17 @@ export function ResetPasswordForm() {
           <AlertCircle className="h-6 w-6 text-destructive" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Link Expired or Invalid</h3>
+          <h3 className="text-lg font-semibold">{t.common.error}</h3>
           <p className="text-sm text-muted-foreground">{tokenError}</p>
         </div>
         <div className="pt-4 space-y-2">
           <Link to="/forgot-password">
-            <Button className="w-full">Request New Reset Link</Button>
+            <Button className="w-full">{t.auth.forgotPassword.sendButton}</Button>
           </Link>
           <p className="text-sm text-muted-foreground">
-            or{' '}
+            {t.common.or}{' '}
             <Link to="/sign-in" className="text-primary hover:underline">
-              return to sign in
+              {t.auth.forgotPassword.backToSignIn}
             </Link>
           </p>
         </div>
@@ -143,19 +138,19 @@ export function ResetPasswordForm() {
           <AlertCircle className="h-6 w-6 text-destructive" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Missing Reset Token</h3>
+          <h3 className="text-lg font-semibold">{t.common.error}</h3>
           <p className="text-sm text-muted-foreground">
-            No reset token was provided. Please use the link from your email.
+            {t.validation.required}
           </p>
         </div>
         <div className="pt-4 space-y-2">
           <Link to="/forgot-password">
-            <Button className="w-full">Request Password Reset</Button>
+            <Button className="w-full">{t.auth.forgotPassword.sendButton}</Button>
           </Link>
           <p className="text-sm text-muted-foreground">
-            or{' '}
+            {t.common.or}{' '}
             <Link to="/sign-in" className="text-primary hover:underline">
-              return to sign in
+              {t.auth.forgotPassword.backToSignIn}
             </Link>
           </p>
         </div>
@@ -171,10 +166,10 @@ export function ResetPasswordForm() {
           name="newPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>New Password</FormLabel>
+              <FormLabel>{t.auth.resetPassword.newPassword}</FormLabel>
               <FormControl>
                 <PasswordInput
-                  placeholder="Enter your new password"
+                  placeholder={t.auth.resetPassword.newPasswordPlaceholder}
                   autoComplete="new-password"
                   disabled={isLoading}
                   {...field}
@@ -191,10 +186,10 @@ export function ResetPasswordForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm New Password</FormLabel>
+              <FormLabel>{t.auth.resetPassword.confirmPassword}</FormLabel>
               <FormControl>
                 <PasswordInput
-                  placeholder="Confirm your new password"
+                  placeholder={t.auth.resetPassword.confirmPasswordPlaceholder}
                   autoComplete="new-password"
                   disabled={isLoading}
                   {...field}
@@ -206,13 +201,13 @@ export function ResetPasswordForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Resetting...' : 'Reset Password'}
+          {isLoading ? t.auth.resetPassword.resetting : t.auth.resetPassword.resetButton}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Remember your password?{' '}
+          {t.auth.signUp.hasAccount}{' '}
           <Link to="/sign-in" className="text-primary hover:underline">
-            Sign in
+            {t.auth.signIn.signInButton}
           </Link>
         </p>
       </form>
