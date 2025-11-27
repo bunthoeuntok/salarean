@@ -1,24 +1,34 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { SignUpForm } from './components/sign-up-form'
 
 export function SignUpPage() {
   return (
-    <Card className="border-0 shadow-none sm:border sm:shadow-sm">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Create Account</CardTitle>
-        <CardDescription>
-          Enter your details to create a new teacher account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <SignUpForm />
-      </CardContent>
-    </Card>
+    <>
+      <div className="flex flex-col space-y-2 text-start">
+        <h2 className="text-lg font-semibold tracking-tight">Create account</h2>
+        <p className="text-muted-foreground text-sm">
+          Enter your details below
+          <br />
+          to create a new teacher account
+        </p>
+      </div>
+      <SignUpForm />
+      <p className="text-muted-foreground px-8 text-center text-sm">
+        By clicking create account, you agree to our{' '}
+        <a
+          href="/terms"
+          className="hover:text-primary underline underline-offset-4"
+        >
+          Terms of Service
+        </a>{' '}
+        and{' '}
+        <a
+          href="/privacy"
+          className="hover:text-primary underline underline-offset-4"
+        >
+          Privacy Policy
+        </a>
+        .
+      </p>
+    </>
   )
 }
