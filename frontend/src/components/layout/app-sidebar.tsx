@@ -9,12 +9,13 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { sidebarData } from './data/sidebar-data'
+import { useSidebarData } from './data/use-sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
+  const sidebarData = useSidebarData()
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>

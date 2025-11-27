@@ -122,12 +122,19 @@ export interface UITranslations {
   }
   // Navigation
   nav: {
+    // Groups
+    overview: string
+    management: string
+    // Items
     dashboard: string
     students: string
     classes: string
     attendance: string
+    schedule: string
     settings: string
     profile: string
+    notifications: string
+    help: string
     signOut: string
   }
 }

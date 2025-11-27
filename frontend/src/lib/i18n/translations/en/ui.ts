@@ -104,12 +104,17 @@ export const uiEn: UITranslations = {
     comingSoon: 'Coming soon',
   },
   nav: {
+    overview: 'Overview',
+    management: 'Management',
     dashboard: 'Dashboard',
     students: 'Students',
     classes: 'Classes',
     attendance: 'Attendance',
+    schedule: 'Schedule',
     settings: 'Settings',
     profile: 'Profile',
+    notifications: 'Notifications',
+    help: 'Help',
     signOut: 'Sign Out',
   },
 }
