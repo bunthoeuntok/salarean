@@ -3,9 +3,6 @@ import { useLanguage } from '@/context/language-provider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { ConfigDrawer } from '@/components/config-drawer'
-import { LanguageSwitcher } from '@/components/language-switcher'
-import { Search } from '@/components/search'
 
 export function DashboardPage() {
   const { user } = useAuthStore()
@@ -13,15 +10,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <Header fixed>
-        <div className='flex items-center justify-between w-full'>
-          <Search />
-          <div>
-            <LanguageSwitcher />
-            <ConfigDrawer />
-          </div>
-        </div>
-      </Header>
+      <Header fixed />
       <Main>
         <div className='space-y-6'>
           <div>
