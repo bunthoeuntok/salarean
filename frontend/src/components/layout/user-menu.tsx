@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { LogOut, User } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { LogOut, Settings, User } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -13,12 +13,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+import { useLanguage } from '@/context/language-provider'
 import { useAuthStore } from '@/store/auth-store'
 import { authService } from '@/services/auth.service'
 
 export function UserMenu() {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
+  const { t } = useLanguage()
   const { user, refreshToken, logout: resetAuthStore } = useAuthStore()
 
   async function handleSignOut() {
@@ -70,13 +72,20 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/settings">
+            <Settings className="mr-2 h-4 w-4" />
+            {t.nav.settings}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
           disabled={isLoading}
           className="text-destructive focus:text-destructive"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          {isLoading ? 'Signing out...' : 'Sign out'}
+          {isLoading ? t.auth.signOut.confirmButton : t.nav.signOut}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

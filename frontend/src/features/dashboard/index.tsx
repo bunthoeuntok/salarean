@@ -14,11 +14,12 @@ export function DashboardPage() {
   return (
     <>
       <Header fixed>
-        <h1 className='flex-1 text-lg font-semibold'>{t.dashboard.title}</h1>
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center justify-between w-full'>
           <Search />
-          <LanguageSwitcher />
-          <ConfigDrawer />
+          <div>
+            <LanguageSwitcher />
+            <ConfigDrawer />
+          </div>
         </div>
       </Header>
       <Main>

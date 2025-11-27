@@ -146,6 +146,51 @@ export interface UITranslations {
     dark: string
     system: string
   }
+  // Settings
+  settings: {
+    title: string
+    description: string
+    profile: {
+      title: string
+      description: string
+      name: string
+      namePlaceholder: string
+      nameDescription: string
+      email: string
+      emailPlaceholder: string
+      phone: string
+      phonePlaceholder: string
+      language: string
+      languagePlaceholder: string
+      languageEnglish: string
+      languageKhmer: string
+      languageDescription: string
+      changePhoto: string
+      removePhoto: string
+      photoHint: string
+      updateButton: string
+      updating: string
+      updateSuccess: string
+      photoUploadSuccess: string
+      photoDeleteSuccess: string
+      invalidFileType: string
+      fileTooLarge: string
+    }
+    account: {
+      title: string
+      description: string
+      currentPassword: string
+      currentPasswordPlaceholder: string
+      newPassword: string
+      newPasswordPlaceholder: string
+      confirmPassword: string
+      confirmPasswordPlaceholder: string
+      passwordRequirements: string
+      changePasswordButton: string
+      changingPassword: string
+      passwordChangeSuccess: string
+    }
+  }
 }
 
 /**

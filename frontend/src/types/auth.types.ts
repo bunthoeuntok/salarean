@@ -69,3 +69,21 @@ export interface ChangePasswordRequest {
   currentPassword: string
   newPassword: string
 }
+
+/**
+ * Update profile request
+ */
+export interface UpdateProfileRequest {
+  name?: string
+  email?: string
+  phoneNumber?: string
+  preferredLanguage?: 'en' | 'km'
+}
+
+/**
+ * Photo upload response
+ */
+export interface PhotoUploadResponse {
+  profilePhotoUrl: string
+  profilePhotoUploadedAt: string
+}
