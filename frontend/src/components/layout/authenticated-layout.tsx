@@ -1,23 +1,29 @@
-import { Logo } from '@/assets/logo'
-import { UserMenu } from './user-menu'
+import { cn } from '@/lib/utils'
+import { getCookie } from '@/lib/cookies'
+import { LayoutProvider } from '@/context/layout-provider'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/layout/app-sidebar'
 
 type AuthenticatedLayoutProps = {
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
+  const defaultOpen = getCookie('sidebar_state') !== 'false'
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <Logo size="sm" />
-          <UserMenu />
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="container py-6">{children}</main>
-    </div>
+    <LayoutProvider>
+      <SidebarProvider defaultOpen={defaultOpen}>
+        <AppSidebar />
+        <SidebarInset
+          className={cn(
+            '@container/content',
+            'has-data-[layout=fixed]:h-svh',
+            'peer-data-[variant=inset]:has-data-[layout=fixed]:h-[calc(100svh-(var(--spacing)*4))]'
+          )}
+        >
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </LayoutProvider>
   )
 }
