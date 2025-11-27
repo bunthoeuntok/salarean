@@ -191,6 +191,65 @@ export interface UITranslations {
       passwordChangeSuccess: string
     }
   }
+  // Students
+  students: {
+    title: string
+    description: string
+    addStudent: string
+    searchPlaceholder: string
+    columns: {
+      code: string
+      name: string
+      gender: string
+      dateOfBirth: string
+      contact: string
+      class: string
+      status: string
+      actions: string
+    }
+    actions: {
+      view: string
+      edit: string
+      delete: string
+    }
+    status: {
+      ACTIVE: string
+      INACTIVE: string
+      GRADUATED: string
+      TRANSFERRED: string
+    }
+    gender: {
+      MALE: string
+      FEMALE: string
+    }
+  }
+  // Classes
+  classes: {
+    title: string
+    description: string
+    addClass: string
+    searchPlaceholder: string
+    columns: {
+      name: string
+      grade: string
+      academicYear: string
+      teacher: string
+      enrollment: string
+      status: string
+      actions: string
+    }
+    actions: {
+      view: string
+      edit: string
+      delete: string
+      manageStudents: string
+    }
+    status: {
+      ACTIVE: string
+      INACTIVE: string
+      COMPLETED: string
+    }
+  }
 }
 
 /**
