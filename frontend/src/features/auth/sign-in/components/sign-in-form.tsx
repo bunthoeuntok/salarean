@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
-import { loginSchema, type LoginFormData } from '@/lib/validations/auth.schema'
+import { useValidationSchemas, type LoginFormData } from '@/hooks/use-validation-schemas'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
 import { useLanguage } from '@/context/language-provider'
@@ -26,6 +26,7 @@ export function SignInForm() {
   const navigate = useNavigate()
   const search = useSearch({ from: '/(auth)/sign-in' })
   const { t, translateError } = useLanguage()
+  const { loginSchema } = useValidationSchemas()
 
   const { setUser, setTokens } = useAuthStore()
 

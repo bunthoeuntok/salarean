@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -19,32 +18,15 @@ import { PasswordInput } from '@/components/password-input'
 
 import { useLanguage } from '@/context/language-provider'
 import { profileService } from '@/services/profile.service'
-
-const passwordFormSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Password must contain an uppercase letter')
-      .regex(/[a-z]/, 'Password must contain a lowercase letter')
-      .regex(/[0-9]/, 'Password must contain a digit')
-      .regex(/[^A-Za-z0-9]/, 'Password must contain a special character'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  })
-
-type PasswordFormValues = z.infer<typeof passwordFormSchema>
+import { useValidationSchemas, type ChangePasswordFormData } from '@/hooks/use-validation-schemas'
 
 export function PasswordForm() {
   const { t, translateError } = useLanguage()
+  const { changePasswordSchema } = useValidationSchemas()
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordFormSchema),
+  const form = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       currentPassword: '',
       newPassword: '',
@@ -52,7 +34,7 @@ export function PasswordForm() {
     },
   })
 
-  async function onSubmit(data: PasswordFormValues) {
+  async function onSubmit(data: ChangePasswordFormData) {
     setIsLoading(true)
     try {
       await profileService.changePassword({

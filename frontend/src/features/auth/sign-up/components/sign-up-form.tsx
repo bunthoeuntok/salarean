@@ -18,11 +18,7 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 import { PasswordStrength } from './password-strength'
 
-import {
-  registerSchema,
-  type RegisterFormData,
-  type RegisterFormInput,
-} from '@/lib/validations/auth.schema'
+import { useValidationSchemas, type RegisterFormData } from '@/hooks/use-validation-schemas'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
 import { useLanguage } from '@/context/language-provider'
@@ -32,9 +28,10 @@ export function SignUpForm() {
   const navigate = useNavigate()
   const { setUser, setTokens } = useAuthStore()
   const { t, language, translateError } = useLanguage()
+  const { registerSchema } = useValidationSchemas()
 
-  const form = useForm<RegisterFormInput, unknown, RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema) as never,
     defaultValues: {
       email: '',
       phoneNumber: '',

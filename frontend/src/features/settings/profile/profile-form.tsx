@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { toast } from 'sonner'
 import { Camera, Loader2, Trash2 } from 'lucide-react'
 
@@ -28,25 +27,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useLanguage } from '@/context/language-provider'
 import { useAuthStore } from '@/store/auth-store'
 import { profileService } from '@/services/profile.service'
-
-const profileFormSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100).optional().or(z.literal('')),
-  email: z.string().email('Invalid email address'),
-  phoneNumber: z.string().regex(/^0[1-9][0-9]{7,8}$/, 'Invalid Cambodia phone number'),
-  preferredLanguage: z.enum(['en', 'km']),
-})
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+import { useValidationSchemas, type ProfileFormData } from '@/hooks/use-validation-schemas'
 
 export function ProfileForm() {
   const { t, translateError, setLanguage } = useLanguage()
   const { user, setUser } = useAuthStore()
+  const { profileSchema } = useValidationSchemas()
   const [isLoading, setIsLoading] = useState(false)
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user?.name || '',
       email: user?.email || '',
@@ -55,7 +47,7 @@ export function ProfileForm() {
     },
   })
 
-  async function onSubmit(data: ProfileFormValues) {
+  async function onSubmit(data: ProfileFormData) {
     setIsLoading(true)
     try {
       const updatedUser = await profileService.updateProfile({

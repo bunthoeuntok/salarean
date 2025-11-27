@@ -15,10 +15,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordFormData,
-} from '@/lib/validations/auth.schema'
+import { useValidationSchemas, type ForgotPasswordFormData } from '@/hooks/use-validation-schemas'
 import { authService } from '@/services/auth.service'
 import { useLanguage } from '@/context/language-provider'
 
@@ -26,6 +23,7 @@ export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const { t } = useLanguage()
+  const { forgotPasswordSchema } = useValidationSchemas()
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),

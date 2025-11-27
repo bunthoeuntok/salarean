@@ -17,10 +17,7 @@ import {
 import { PasswordInput } from '@/components/password-input'
 import { PasswordStrength } from '@/features/auth/sign-up/components/password-strength'
 
-import {
-  resetPasswordSchema,
-  type ResetPasswordFormData,
-} from '@/lib/validations/auth.schema'
+import { useValidationSchemas, type ResetPasswordFormData } from '@/hooks/use-validation-schemas'
 import { authService } from '@/services/auth.service'
 import { useLanguage } from '@/context/language-provider'
 import { getErrorCode } from '@/lib/handle-server-error'
@@ -32,6 +29,7 @@ export function ResetPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false)
   const [tokenError, setTokenError] = useState<string | null>(null)
   const { t, translateError } = useLanguage()
+  const { resetPasswordSchema } = useValidationSchemas()
 
   const token = search.token || ''
 

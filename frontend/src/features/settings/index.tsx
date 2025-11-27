@@ -4,6 +4,9 @@ import { useLanguage } from '@/context/language-provider'
 import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { ConfigDrawer } from '@/components/config-drawer'
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { Search } from '@/components/search'
 import { SidebarNav } from './components/sidebar-nav'
 
 export function Settings() {
@@ -25,7 +28,13 @@ export function Settings() {
   return (
     <>
       <Header fixed>
-        <div className='ms-auto' />
+        <div className='flex items-center justify-between w-full'>
+          <Search />
+          <div>
+            <LanguageSwitcher />
+            <ConfigDrawer />
+          </div>
+        </div>
       </Header>
 
       <Main fixed>
