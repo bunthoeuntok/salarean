@@ -2,6 +2,8 @@ package com.sms.student.repository;
 
 import com.sms.student.enums.ClassStatus;
 import com.sms.student.model.SchoolClass;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -41,6 +43,25 @@ public interface ClassRepository extends JpaRepository<SchoolClass, UUID> {
      * @return list of all classes for the teacher
      */
     List<SchoolClass> findByTeacherId(UUID teacherId);
+
+    /**
+     * Find all classes for a specific teacher with pagination and status filter.
+     *
+     * @param teacherId UUID of the teacher
+     * @param status    class status (ACTIVE or ARCHIVED)
+     * @param pageable  pagination parameters
+     * @return page of classes matching criteria
+     */
+    Page<SchoolClass> findByTeacherIdAndStatus(UUID teacherId, ClassStatus status, Pageable pageable);
+
+    /**
+     * Find all classes for a specific teacher with pagination (all statuses).
+     *
+     * @param teacherId UUID of the teacher
+     * @param pageable  pagination parameters
+     * @return page of all classes for the teacher
+     */
+    Page<SchoolClass> findByTeacherId(UUID teacherId, Pageable pageable);
 
     /**
      * Find a class by ID and verify teacher ownership.

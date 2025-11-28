@@ -1,8 +1,10 @@
 package com.sms.student.service.interfaces;
 
 import com.sms.student.dto.ClassDetailDto;
+import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassSummaryDto;
 import com.sms.student.dto.StudentRosterItemDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +34,16 @@ public interface IClassService {
      * @return list of class summaries
      */
     List<ClassSummaryDto> listTeacherClasses(UUID teacherId, boolean includeArchived);
+
+    /**
+     * List all classes for a specific teacher with pagination.
+     *
+     * @param teacherId       UUID of the teacher
+     * @param includeArchived whether to include archived classes
+     * @param pageable        pagination parameters
+     * @return paginated list of class summaries
+     */
+    ClassListResponse listTeacherClassesPaginated(UUID teacherId, boolean includeArchived, Pageable pageable);
 
     /**
      * Get detailed information about a specific class.

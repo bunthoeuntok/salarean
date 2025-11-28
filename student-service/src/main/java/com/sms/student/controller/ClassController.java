@@ -3,7 +3,7 @@ package com.sms.student.controller;
 import com.sms.common.dto.ApiResponse;
 import com.sms.student.dto.ClassCreateRequest;
 import com.sms.student.dto.ClassDetailDto;
-import com.sms.student.dto.ClassSummaryDto;
+import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassUpdateRequest;
 import com.sms.student.dto.EnrollmentHistoryDto;
 import com.sms.student.dto.StudentRosterItemDto;
@@ -17,6 +17,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,31 +48,43 @@ public class ClassController {
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * List all classes for the authenticated teacher.
+     * List all classes for the authenticated teacher with pagination.
      *
      * <p>GET /api/classes</p>
      *
      * <p>Query Parameters:
      * <ul>
+     *   <li>page (optional, default: 0) - Page number (0-indexed)</li>
+     *   <li>size (optional, default: 20) - Page size</li>
+     *   <li>sort (optional, default: "grade,asc") - Sort field and direction</li>
      *   <li>includeArchived (optional, default: false) - Include archived classes in results</li>
      * </ul>
      * </p>
      *
-     * <p>Returns list of class summaries with current enrollment counts.</p>
+     * <p>Returns paginated list of class summaries with current enrollment counts.</p>
      *
+     * @param page            page number (0-indexed)
+     * @param size            page size
+     * @param sort            sort field and direction (e.g., "grade,asc")
      * @param includeArchived whether to include archived classes (default: false)
      * @param request         HTTP request to extract JWT token
-     * @return list of class summaries
+     * @return paginated list of class summaries
      */
     @GetMapping
     @PreAuthorize("hasRole('TEACHER')")
     @Operation(
         summary = "List teacher's classes",
-        description = "Retrieve all classes assigned to the authenticated teacher. " +
+        description = "Retrieve all classes assigned to the authenticated teacher with pagination. " +
                       "By default, only active classes are returned. " +
                       "Set includeArchived=true to see archived classes."
     )
-    public ResponseEntity<ApiResponse<List<ClassSummaryDto>>> listClasses(
+    public ResponseEntity<ApiResponse<ClassListResponse>> listClasses(
+            @Parameter(description = "Page number (0-indexed)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "20")
+            @RequestParam(defaultValue = "20") int size,
+            @Parameter(description = "Sort field and direction", example = "grade,asc")
+            @RequestParam(defaultValue = "grade,asc") String sort,
             @Parameter(description = "Include archived classes in results", example = "false")
             @RequestParam(defaultValue = "false") boolean includeArchived,
             HttpServletRequest request) {
@@ -77,13 +92,29 @@ public class ClassController {
         // Extract teacher ID from JWT token
         UUID teacherId = extractTeacherIdFromRequest(request);
 
-        log.info("Fetching classes for teacher: {} (includeArchived: {})", teacherId, includeArchived);
+        log.info("Fetching classes for teacher: {} (page: {}, size: {}, includeArchived: {})",
+                 teacherId, page, size, includeArchived);
 
-        List<ClassSummaryDto> classes = classService.listTeacherClasses(teacherId, includeArchived);
+        Pageable pageable = createPageable(page, size, sort);
+        ClassListResponse response = classService.listTeacherClassesPaginated(teacherId, includeArchived, pageable);
 
-        log.info("Found {} classes for teacher: {}", classes.size(), teacherId);
+        log.info("Found {} classes for teacher: {} (page {} of {})",
+                 response.getContent().size(), teacherId, page + 1, response.getTotalPages());
 
-        return ResponseEntity.ok(ApiResponse.success(classes));
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Helper method to create Pageable with sorting.
+     */
+    private Pageable createPageable(int page, int size, String sortParam) {
+        String[] sortParts = sortParam.split(",");
+        String sortField = sortParts[0];
+        Sort.Direction direction = sortParts.length > 1 && "desc".equalsIgnoreCase(sortParts[1])
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        return PageRequest.of(page, size, Sort.by(direction, sortField));
     }
 
     /**

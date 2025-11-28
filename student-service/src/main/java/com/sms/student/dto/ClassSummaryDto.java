@@ -30,19 +30,14 @@ public class ClassSummaryDto {
     private UUID id;
 
     /**
-     * School UUID that this class belongs to.
+     * Display name for the class (e.g., "Grade 10 - Section A").
      */
-    private UUID schoolId;
+    private String name;
 
     /**
-     * UUID of the teacher assigned to this class.
+     * Grade level as string (e.g., "10", "11", "12").
      */
-    private UUID teacherId;
-
-    /**
-     * Grade level (1-12).
-     */
-    private Integer grade;
+    private String grade;
 
     /**
      * Section identifier (e.g., "A", "B", "1").
@@ -57,17 +52,27 @@ public class ClassSummaryDto {
     /**
      * Maximum number of students allowed.
      */
-    private Integer maxCapacity;
+    private Integer capacity;
 
     /**
      * Current number of enrolled students.
      */
-    private Integer studentCount;
+    private Integer currentEnrollment;
 
     /**
-     * Class status (ACTIVE or ARCHIVED).
+     * Class status (ACTIVE, INACTIVE, or COMPLETED).
      */
     private ClassStatus status;
+
+    /**
+     * UUID of the teacher assigned to this class.
+     */
+    private UUID teacherId;
+
+    /**
+     * Name of the teacher assigned to this class.
+     */
+    private String teacherName;
 
     /**
      * Timestamp when the class was created.

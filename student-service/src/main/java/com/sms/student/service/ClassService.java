@@ -2,6 +2,7 @@ package com.sms.student.service;
 
 import com.sms.student.cache.ClassCache;
 import com.sms.student.dto.ClassDetailDto;
+import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassSummaryDto;
 import com.sms.student.dto.StudentRosterItemDto;
 import com.sms.student.enums.ClassStatus;
@@ -17,6 +18,8 @@ import com.sms.student.service.interfaces.IClassService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,6 +98,38 @@ public class ClassService implements IClassService {
         }
 
         return classSummaries;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ClassListResponse listTeacherClassesPaginated(UUID teacherId, boolean includeArchived, Pageable pageable) {
+        log.info("Fetching paginated classes for teacher: {} (includeArchived: {}, page: {}, size: {})",
+                 teacherId, includeArchived, pageable.getPageNumber(), pageable.getPageSize());
+
+        // Fetch from database with pagination
+        Page<SchoolClass> classPage;
+        if (includeArchived) {
+            classPage = classRepository.findByTeacherId(teacherId, pageable);
+        } else {
+            classPage = classRepository.findByTeacherIdAndStatus(teacherId, ClassStatus.ACTIVE, pageable);
+        }
+
+        log.debug("Found {} classes for teacher: {} (page {} of {})",
+                 classPage.getNumberOfElements(), teacherId,
+                 classPage.getNumber() + 1, classPage.getTotalPages());
+
+        // Map to DTOs
+        List<ClassSummaryDto> classSummaries = classPage.getContent().stream()
+            .map(this::mapToSummaryDto)
+            .collect(Collectors.toList());
+
+        return ClassListResponse.builder()
+            .content(classSummaries)
+            .page(classPage.getNumber())
+            .size(classPage.getSize())
+            .totalElements(classPage.getTotalElements())
+            .totalPages(classPage.getTotalPages())
+            .build();
     }
 
     @Override
@@ -183,16 +218,22 @@ public class ClassService implements IClassService {
      * @return class summary DTO
      */
     private ClassSummaryDto mapToSummaryDto(SchoolClass entity) {
+        // Build display name: "Grade X - Section Y" or just "Grade X" if no section
+        String displayName = entity.getSection() != null && !entity.getSection().isEmpty()
+            ? String.format("Grade %d - Section %s", entity.getGrade(), entity.getSection())
+            : String.format("Grade %d", entity.getGrade());
+
         return ClassSummaryDto.builder()
             .id(entity.getId())
-            .schoolId(entity.getSchoolId())
-            .teacherId(entity.getTeacherId())
-            .grade(entity.getGrade())
+            .name(displayName)
+            .grade(String.valueOf(entity.getGrade()))
             .section(entity.getSection())
             .academicYear(entity.getAcademicYear())
-            .maxCapacity(entity.getMaxCapacity())
-            .studentCount(entity.getStudentCount())
+            .capacity(entity.getMaxCapacity())
+            .currentEnrollment(entity.getStudentCount())
             .status(entity.getStatus())
+            .teacherId(entity.getTeacherId())
+            .teacherName(null) // TODO: Fetch from auth-service if needed
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .build();
@@ -508,16 +549,16 @@ public class ClassService implements IClassService {
                 }
             });
 
-        // Check if already archived
-        if (schoolClass.getStatus() == ClassStatus.ARCHIVED) {
+        // Check if already completed/archived
+        if (schoolClass.getStatus() == ClassStatus.COMPLETED) {
             log.warn("Class {} is already archived", classId);
             // Return current state without modification
             List<StudentRosterItemDto> students = getClassStudents(classId, teacherId);
             return mapToDetailDto(schoolClass, students);
         }
 
-        // Archive the class
-        schoolClass.setStatus(ClassStatus.ARCHIVED);
+        // Archive the class (mark as completed)
+        schoolClass.setStatus(ClassStatus.COMPLETED);
         SchoolClass archivedClass = classRepository.save(schoolClass);
 
         log.info("Successfully archived class: {}", classId);
