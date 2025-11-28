@@ -5,7 +5,7 @@ import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
-import { DataTable } from '@/components/data-table'
+import { DataTable, getStoredPageSize } from '@/components/data-table'
 import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
 import type { ClassStatus } from '@/types/class.types'
@@ -13,7 +13,7 @@ import type { ClassStatus } from '@/types/class.types'
 export function ClassesPage() {
   const { t } = useLanguage()
   const [pageIndex, setPageIndex] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(() => getStoredPageSize('classes-table'))
   const [searchValue, setSearchValue] = useState('')
   const [sorting, setSorting] = useState<{ id: string; desc: boolean }[]>([])
 

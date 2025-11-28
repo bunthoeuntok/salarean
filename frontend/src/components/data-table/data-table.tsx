@@ -77,7 +77,7 @@ export function DataTable<TData, TValue>({
     [columns]
   )
 
-  // Use localStorage persistence for column state
+  // Use localStorage persistence for column state and page size
   const {
     columnOrder,
     setColumnOrder,
@@ -85,7 +85,9 @@ export function DataTable<TData, TValue>({
     setColumnVisibility,
     columnSizing,
     setColumnSizing,
-  } = useTableStateStorage(storageKey, defaultColumnOrder)
+    pageSize: storedPageSize,
+    setPageSize: setStoredPageSize,
+  } = useTableStateStorage(storageKey, defaultColumnOrder, controlledPageSize ?? 10)
 
   // Internal state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -163,7 +165,7 @@ export function DataTable<TData, TValue>({
       columnSizing,
       pagination: {
         pageIndex: controlledPageIndex ?? 0,
-        pageSize: controlledPageSize ?? 10,
+        pageSize: controlledPageSize ?? storedPageSize,
       },
     },
     pageCount: pageCount ?? -1,
@@ -187,13 +189,20 @@ export function DataTable<TData, TValue>({
     },
     onColumnOrderChange: setColumnOrder,
     onPaginationChange: (updater) => {
+      const currentPagination = {
+        pageIndex: controlledPageIndex ?? 0,
+        pageSize: controlledPageSize ?? storedPageSize,
+      }
+      const newPagination =
+        typeof updater === 'function' ? updater(currentPagination) : updater
+
+      // Persist page size to localStorage
+      if (newPagination.pageSize !== currentPagination.pageSize) {
+        setStoredPageSize(newPagination.pageSize)
+      }
+
+      // Notify parent component
       if (onPaginationChange) {
-        const currentPagination = {
-          pageIndex: controlledPageIndex ?? 0,
-          pageSize: controlledPageSize ?? 10,
-        }
-        const newPagination =
-          typeof updater === 'function' ? updater(currentPagination) : updater
         onPaginationChange(newPagination.pageIndex, newPagination.pageSize)
       }
     },
@@ -310,7 +319,10 @@ export function DataTable<TData, TValue>({
           </Table>
         </DndContext>
       </div>
-      <DataTablePagination table={table} />
+      {/* Fixed pagination for tablet and desktop */}
+      <div className='md:sticky md:bottom-0 md:bg-background md:pt-4 md:pb-2 md:border-t md:-mx-4 md:px-4'>
+        <DataTablePagination table={table} />
+      </div>
     </div>
   )
 }

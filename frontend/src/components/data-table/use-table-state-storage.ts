@@ -5,16 +5,35 @@ interface TableState {
   columnOrder: string[]
   columnVisibility: VisibilityState
   columnSizing: ColumnSizingState
+  pageSize: number
 }
 
 const STORAGE_PREFIX = 'data-table-state:'
+const DEFAULT_PAGE_SIZE = 10
+
+/**
+ * Get stored page size for a table (for initializing parent component state)
+ */
+export function getStoredPageSize(storageKey: string, defaultSize: number = DEFAULT_PAGE_SIZE): number {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}${storageKey}`)
+    if (stored) {
+      const state = JSON.parse(stored)
+      return state.pageSize ?? defaultSize
+    }
+  } catch {
+    // Ignore errors
+  }
+  return defaultSize
+}
 
 /**
  * Hook to persist and restore table state from localStorage
  */
 export function useTableStateStorage(
   storageKey: string | undefined,
-  defaultColumnOrder: string[]
+  defaultColumnOrder: string[],
+  defaultPageSize: number = DEFAULT_PAGE_SIZE
 ) {
   const fullKey = storageKey ? `${STORAGE_PREFIX}${storageKey}` : null
 
@@ -44,6 +63,9 @@ export function useTableStateStorage(
   const [columnSizing, setColumnSizingState] = useState<ColumnSizingState>(
     storedState?.columnSizing ?? {}
   )
+  const [pageSize, setPageSizeState] = useState<number>(
+    storedState?.pageSize ?? defaultPageSize
+  )
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -53,6 +75,7 @@ export function useTableStateStorage(
       columnOrder,
       columnVisibility,
       columnSizing,
+      pageSize,
     }
 
     try {
@@ -60,7 +83,7 @@ export function useTableStateStorage(
     } catch (error) {
       console.warn('Failed to save table state to localStorage:', error)
     }
-  }, [fullKey, columnOrder, columnVisibility, columnSizing])
+  }, [fullKey, columnOrder, columnVisibility, columnSizing, pageSize])
 
   // Update column order and sync with storage
   const setColumnOrder = useCallback((updater: string[] | ((prev: string[]) => string[])) => {
@@ -83,15 +106,21 @@ export function useTableStateStorage(
     []
   )
 
+  // Update page size and sync with storage
+  const setPageSize = useCallback((size: number) => {
+    setPageSizeState(size)
+  }, [])
+
   // Reset state to defaults
   const resetState = useCallback(() => {
     setColumnOrderState(defaultColumnOrder)
     setColumnVisibilityState({})
     setColumnSizingState({})
+    setPageSizeState(defaultPageSize)
     if (fullKey) {
       localStorage.removeItem(fullKey)
     }
-  }, [defaultColumnOrder, fullKey])
+  }, [defaultColumnOrder, defaultPageSize, fullKey])
 
   return {
     columnOrder,
@@ -100,6 +129,8 @@ export function useTableStateStorage(
     setColumnVisibility,
     columnSizing,
     setColumnSizing,
+    pageSize,
+    setPageSize,
     resetState,
   }
 }
