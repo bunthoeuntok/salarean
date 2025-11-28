@@ -163,27 +163,6 @@ public class StudentController {
     }
 
     /**
-     * Search students by name (supports English and Khmer).
-     * GET /api/students/search
-     * Requires TEACHER role.
-     */
-    @GetMapping("/search")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<StudentListResponse>> searchStudents(
-            @RequestParam String q,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "lastName,asc") String sort) {
-        log.info("Received request to search students with term: '{}', page: {}, size: {}",
-                 q, page, size);
-
-        Pageable pageable = createPageable(page, size, sort);
-        StudentListResponse response = studentService.searchStudents(q, pageable);
-
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
-    /**
      * Upload student photo.
      * POST /api/students/{id}/photo
      * Requires TEACHER role.

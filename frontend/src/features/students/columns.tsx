@@ -15,11 +15,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/data-table'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 
-const statusVariantMap: Record<StudentStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusVariantMap: Record<StudentStatus, 'default' | 'secondary'> = {
   ACTIVE: 'default',
-  INACTIVE: 'secondary',
-  GRADUATED: 'outline',
-  TRANSFERRED: 'destructive',
+  INACTIVE: 'secondary'
 }
 
 const genderLabels: Record<Gender, string> = {
@@ -48,8 +46,6 @@ export const createStudentColumns = (
       status: {
         ACTIVE: string
         INACTIVE: string
-        GRADUATED: string
-        TRANSFERRED: string
       }
       gender: {
         M: string

@@ -86,15 +86,6 @@ public interface IStudentService {
     StudentListResponse listActiveStudents(Pageable pageable);
 
     /**
-     * Search students by name (supports English and Khmer).
-     *
-     * @param searchTerm Search keyword
-     * @param pageable Pagination parameters
-     * @return Paginated list of matching students
-     */
-    StudentListResponse searchStudents(String searchTerm, Pageable pageable);
-
-    /**
      * Upload student photo.
      *
      * @param id Student UUID

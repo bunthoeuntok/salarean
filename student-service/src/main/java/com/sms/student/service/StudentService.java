@@ -378,29 +378,6 @@ public class StudentService implements IStudentService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public StudentListResponse searchStudents(String searchTerm, Pageable pageable) {
-        log.info("Searching students with term: '{}', page: {}", searchTerm, pageable.getPageNumber());
-
-        // Convert entity field names to database column names for native query sorting
-        Pageable nativeQueryPageable = convertToNativeQueryPageable(pageable);
-
-        Page<Student> studentPage = studentRepository.searchStudents(searchTerm, nativeQueryPageable);
-
-        List<StudentSummary> summaries = studentPage.getContent().stream()
-                .map(this::mapToStudentSummary)
-                .collect(Collectors.toList());
-
-        return StudentListResponse.builder()
-                .content(summaries)
-                .page(studentPage.getNumber())
-                .size(studentPage.getSize())
-                .totalElements(studentPage.getTotalElements())
-                .totalPages(studentPage.getTotalPages())
-                .build();
-    }
-
-    @Override
     @Transactional
     public PhotoUploadResponse uploadStudentPhoto(UUID id, byte[] photoData, String contentType) {
         log.info("Uploading photo for student: {}, size: {} bytes", id, photoData.length);

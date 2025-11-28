@@ -3,7 +3,7 @@
  */
 
 export type Gender = 'M' | 'F'
-export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED'
+export type StudentStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface Student {
   id: string

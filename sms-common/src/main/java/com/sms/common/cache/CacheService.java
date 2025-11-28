@@ -1,5 +1,6 @@
 package com.sms.common.cache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -27,6 +28,21 @@ public interface CacheService {
      * @return Optional containing the cached value if found and deserialization succeeds, empty otherwise
      */
     <T> Optional<T> get(String key, Class<T> type);
+
+    /**
+     * Retrieves a cached value by key with generic type support.
+     *
+     * <p>Use this method when caching generic types like List&lt;MyDto&gt;:</p>
+     * <pre>
+     * cacheService.get(key, new TypeReference&lt;List&lt;MyDto&gt;&gt;() {});
+     * </pre>
+     *
+     * @param key the cache key (should follow format: service:entity:id:suffix)
+     * @param typeRef the type reference for generic types
+     * @param <T> the type of the cached value
+     * @return Optional containing the cached value if found and deserialization succeeds, empty otherwise
+     */
+    <T> Optional<T> get(String key, TypeReference<T> typeRef);
 
     /**
      * Stores a value in the cache with a time-to-live (TTL).

@@ -195,9 +195,7 @@ export const uiKm: UITranslations = {
     },
     status: {
       ACTIVE: 'សកម្ម',
-      INACTIVE: 'អសកម្ម',
-      GRADUATED: 'បានបញ្ចប់ការសិក្សា',
-      TRANSFERRED: 'បានផ្ទេរ',
+      INACTIVE: 'អសកម្ម'
     },
     gender: {
       M: 'ប្រុស',

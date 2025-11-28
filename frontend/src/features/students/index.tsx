@@ -68,9 +68,7 @@ export function StudentsPage() {
         title: t.students.columns.status,
         options: [
           { label: t.students.status.ACTIVE, value: 'ACTIVE' as StudentStatus, icon: UserCheck },
-          { label: t.students.status.INACTIVE, value: 'INACTIVE' as StudentStatus, icon: UserX },
-          { label: t.students.status.GRADUATED, value: 'GRADUATED' as StudentStatus, icon: GraduationCap },
-          { label: t.students.status.TRANSFERRED, value: 'TRANSFERRED' as StudentStatus, icon: ArrowRightLeft },
+          { label: t.students.status.INACTIVE, value: 'INACTIVE' as StudentStatus, icon: UserX }
         ],
       },
       {

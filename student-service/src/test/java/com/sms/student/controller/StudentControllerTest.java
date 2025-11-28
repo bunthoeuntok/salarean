@@ -252,38 +252,6 @@ class StudentControllerTest {
     }
 
     @Test
-    void searchStudents_WithQuery_ShouldReturn200Ok() throws Exception {
-        // Arrange
-        StudentSummary summary = StudentSummary.builder()
-                .id(mockResponse.getId())
-                .studentCode("STU-2025-1234")
-                .firstName("Jane")
-                .lastName("Doe")
-                .age(15)
-                .build();
-
-        StudentListResponse listResponse = StudentListResponse.builder()
-                .content(List.of(summary))
-                .page(0)
-                .size(20)
-                .totalElements(1)
-                .totalPages(1)
-                .build();
-
-        when(studentService.searchStudents(any(), any())).thenReturn(listResponse);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/students/search")
-                        .param("q", "Jane")
-                        .param("page", "0")
-                        .param("size", "20"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[0].firstName").value("Jane"));
-    }
-
-    @Test
     void getStudentById_WithNonExistentId_ShouldReturn404NotFound() throws Exception {
         // Arrange
         UUID nonExistentId = UUID.randomUUID();
@@ -525,39 +493,6 @@ class StudentControllerTest {
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content").isEmpty())
                 .andExpect(jsonPath("$.data.totalElements").value(0));
-    }
-
-    @Test
-    void searchStudents_WithPaginationAndQuery_ShouldReturn200Ok() throws Exception {
-        // Arrange
-        StudentSummary summary = StudentSummary.builder()
-                .id(mockResponse.getId())
-                .studentCode("STU-2025-1234")
-                .firstName("Jane")
-                .lastName("Doe")
-                .age(15)
-                .build();
-
-        StudentListResponse listResponse = StudentListResponse.builder()
-                .content(List.of(summary))
-                .page(0)
-                .size(20)
-                .totalElements(1)
-                .totalPages(1)
-                .build();
-
-        when(studentService.searchStudents(any(), any())).thenReturn(listResponse);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/students/search")
-                        .param("q", "Jane")
-                        .param("page", "0")
-                        .param("size", "20")
-                        .param("sort", "firstName,asc"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.data.content[0].firstName").value("Jane"))
-                .andExpect(jsonPath("$.data.totalElements").value(1));
     }
 
     @Test

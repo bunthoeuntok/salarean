@@ -1,8 +1,11 @@
 package com.sms.student.cache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sms.common.cache.CacheKeyGenerator;
 import com.sms.common.cache.CacheService;
 import com.sms.student.dto.ClassSummaryDto;
+import com.sms.student.dto.ClassDetailDto;
+import com.sms.student.dto.EnrollmentHistoryDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,7 +54,6 @@ public class ClassCache {
      * @param teacherId UUID of the teacher
      * @return optional containing cached classes list, or empty if not cached
      */
-    @SuppressWarnings("unchecked")
     public Optional<List<ClassSummaryDto>> getTeacherClasses(UUID teacherId) {
         String cacheKey = CacheKeyGenerator.generateKey(
             SERVICE_NAME,
@@ -61,7 +63,7 @@ public class ClassCache {
         );
 
         log.debug("Fetching cached teacher classes for key: {}", cacheKey);
-        return (Optional<List<ClassSummaryDto>>) (Optional<?>) cacheService.get(cacheKey, List.class);
+        return cacheService.get(cacheKey, new TypeReference<List<ClassSummaryDto>>() {});
     }
 
     /**
@@ -106,8 +108,7 @@ public class ClassCache {
      * @param classId UUID of the class
      * @return optional containing cached class details, or empty if not cached
      */
-    @SuppressWarnings("unchecked")
-    public Optional<com.sms.student.dto.ClassDetailDto> getClassDetails(UUID classId) {
+    public Optional<ClassDetailDto> getClassDetails(UUID classId) {
         String cacheKey = CacheKeyGenerator.generateKey(
             SERVICE_NAME,
             CLASS_ENTITY,
@@ -115,8 +116,7 @@ public class ClassCache {
         );
 
         log.debug("Fetching cached class details for key: {}", cacheKey);
-        return (Optional<com.sms.student.dto.ClassDetailDto>) (Optional<?>)
-            cacheService.get(cacheKey, com.sms.student.dto.ClassDetailDto.class);
+        return cacheService.get(cacheKey, ClassDetailDto.class);
     }
 
     /**
@@ -125,7 +125,7 @@ public class ClassCache {
      * @param classId      UUID of the class
      * @param classDetails class detail DTO to cache
      */
-    public void cacheClassDetails(UUID classId, com.sms.student.dto.ClassDetailDto classDetails) {
+    public void cacheClassDetails(UUID classId, ClassDetailDto classDetails) {
         String cacheKey = CacheKeyGenerator.generateKey(
             SERVICE_NAME,
             CLASS_ENTITY,
@@ -159,8 +159,7 @@ public class ClassCache {
      * @param classId UUID of the class
      * @return optional containing cached enrollment history, or empty if not cached
      */
-    @SuppressWarnings("unchecked")
-    public Optional<List<com.sms.student.dto.EnrollmentHistoryDto>> getEnrollmentHistory(UUID classId) {
+    public Optional<List<EnrollmentHistoryDto>> getEnrollmentHistory(UUID classId) {
         String cacheKey = CacheKeyGenerator.generateKey(
             SERVICE_NAME,
             CLASS_ENTITY,
@@ -169,8 +168,7 @@ public class ClassCache {
         );
 
         log.debug("Fetching cached enrollment history for key: {}", cacheKey);
-        return (Optional<List<com.sms.student.dto.EnrollmentHistoryDto>>) (Optional<?>)
-            cacheService.get(cacheKey, List.class);
+        return cacheService.get(cacheKey, new TypeReference<List<EnrollmentHistoryDto>>() {});
     }
 
     /**
@@ -179,7 +177,7 @@ public class ClassCache {
      * @param classId UUID of the class
      * @param history enrollment history list to cache
      */
-    public void cacheEnrollmentHistory(UUID classId, List<com.sms.student.dto.EnrollmentHistoryDto> history) {
+    public void cacheEnrollmentHistory(UUID classId, List<EnrollmentHistoryDto> history) {
         String cacheKey = CacheKeyGenerator.generateKey(
             SERVICE_NAME,
             CLASS_ENTITY,

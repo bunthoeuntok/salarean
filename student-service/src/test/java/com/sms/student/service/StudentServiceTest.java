@@ -445,30 +445,6 @@ class StudentServiceTest {
     }
 
     @Test
-    void searchStudents_WithSearchTerm_ShouldReturnMatchingStudents() {
-        // Arrange
-        String searchTerm = "Jane";
-        Pageable pageable = PageRequest.of(0, 20);
-
-        List<Student> students = List.of(mockStudent);
-        Page<Student> studentPage = new PageImpl<>(students, pageable, 1);
-
-        when(studentRepository.searchStudents(searchTerm, pageable)).thenReturn(studentPage);
-        when(enrollmentRepository.findCurrentClassIdByStudentId(any())).thenReturn(Optional.empty());
-        when(parentContactRepository.findPrimaryContactByStudentId(any())).thenReturn(Optional.empty());
-
-        // Act
-        com.sms.student.dto.StudentListResponse response = studentService.searchStudents(searchTerm, pageable);
-
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getContent()).hasSize(1);
-        assertThat(response.getContent().get(0).getFirstName()).isEqualTo("Jane");
-
-        verify(studentRepository, times(1)).searchStudents(searchTerm, pageable);
-    }
-
-    @Test
     void listStudentsByClass_WithEmptyClass_ShouldReturnEmptyList() {
         // Arrange
         UUID classId = UUID.randomUUID();

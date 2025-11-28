@@ -220,8 +220,6 @@ export interface UITranslations {
     status: {
       ACTIVE: string
       INACTIVE: string
-      GRADUATED: string
-      TRANSFERRED: string
     }
     gender: {
       M: string

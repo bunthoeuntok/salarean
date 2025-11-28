@@ -40,17 +40,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID> {
     // Find students by status with pagination
     Page<Student> findByStatus(StudentStatus status, Pageable pageable);
 
-    // Search students by name (full-text search)
-    @Query(value = "SELECT * FROM students s " +
-           "WHERE to_tsvector('simple', COALESCE(s.first_name, '') || ' ' || " +
-           "COALESCE(s.last_name, '') || ' ' || " +
-           "COALESCE(s.first_name_km, '') || ' ' || " +
-           "COALESCE(s.last_name_km, '') || ' ' || " +
-           "COALESCE(s.student_code, '')) @@ plainto_tsquery('simple', :searchTerm) " +
-           "AND s.status = 'ACTIVE'",
-           nativeQuery = true)
-    Page<Student> searchStudents(@Param("searchTerm") String searchTerm, Pageable pageable);
-
     // Count students by status
     long countByStatus(StudentStatus status);
 

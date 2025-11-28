@@ -195,9 +195,7 @@ export const uiEn: UITranslations = {
     },
     status: {
       ACTIVE: 'Active',
-      INACTIVE: 'Inactive',
-      GRADUATED: 'Graduated',
-      TRANSFERRED: 'Transferred',
+      INACTIVE: 'Inactive'
     },
     gender: {
       M: 'Male',

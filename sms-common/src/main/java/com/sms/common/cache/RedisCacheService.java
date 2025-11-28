@@ -1,5 +1,6 @@
 package com.sms.common.cache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,25 @@ public class RedisCacheService implements CacheService {
 
             log.debug("Cache hit for key: {}", key);
             T value = objectMapper.convertValue(cached, type);
+            return Optional.ofNullable(value);
+
+        } catch (Exception e) {
+            log.warn("Cache get failed for key: {} - falling back to database", key, e);
+            return Optional.empty(); // Graceful degradation
+        }
+    }
+
+    @Override
+    public <T> Optional<T> get(String key, TypeReference<T> typeRef) {
+        try {
+            Object cached = redisTemplate.opsForValue().get(key);
+            if (cached == null) {
+                log.debug("Cache miss for key: {}", key);
+                return Optional.empty();
+            }
+
+            log.debug("Cache hit for key: {}", key);
+            T value = objectMapper.convertValue(cached, typeRef);
             return Optional.ofNullable(value);
 
         } catch (Exception e) {
