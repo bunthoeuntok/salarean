@@ -23,8 +23,8 @@ const statusVariantMap: Record<StudentStatus, 'default' | 'secondary' | 'destruc
 }
 
 const genderLabels: Record<Gender, string> = {
-  MALE: 'Male',
-  FEMALE: 'Female',
+  M: 'Male',
+  F: 'Female',
 }
 
 export const createStudentColumns = (
@@ -52,8 +52,8 @@ export const createStudentColumns = (
         TRANSFERRED: string
       }
       gender: {
-        MALE: string
-        FEMALE: string
+        M: string
+        F: string
       }
     }
   },
@@ -138,25 +138,25 @@ export const createStudentColumns = (
               <span className='truncate max-w-[150px]'>{student.email}</span>
             </div>
           )}
-          {student.phoneNumber && (
+          {student.primaryParentContact && (
             <div className='flex items-center gap-1 text-xs text-muted-foreground'>
               <Phone className='h-3 w-3' />
-              <span>{student.phoneNumber}</span>
+              <span>{student.primaryParentContact}</span>
             </div>
           )}
-          {!student.email && !student.phoneNumber && '-'}
+          {!student.email && !student.primaryParentContact && '-'}
         </div>
       )
     },
     size: 180,
   },
   {
-    accessorKey: 'enrolledClassName',
+    accessorKey: 'currentClassName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={t.students.columns.class} />
     ),
     cell: ({ row }) => {
-      const className = row.getValue('enrolledClassName') as string
+      const className = row.getValue('currentClassName') as string
       return className ? (
         <Badge variant='outline'>{className}</Badge>
       ) : (

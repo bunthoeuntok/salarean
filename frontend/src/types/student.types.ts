@@ -2,7 +2,7 @@
  * Student entity types
  */
 
-export type Gender = 'MALE' | 'FEMALE'
+export type Gender = 'M' | 'F'
 export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'GRADUATED' | 'TRANSFERRED'
 
 export interface Student {
@@ -15,11 +15,11 @@ export interface Student {
   dateOfBirth: string
   gender: Gender
   email?: string
-  phoneNumber?: string
+  primaryParentContact?: string
   address?: string
   status: StudentStatus
   enrolledClassId?: string
-  enrolledClassName?: string
+  currentClassName?: string
   photoUrl?: string
   createdAt: string
   updatedAt: string

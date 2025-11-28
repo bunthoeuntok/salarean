@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -18,7 +19,11 @@ public class StudentSummary {
     private String firstName;
     private String lastName;
     private String photoUrl;
+    private LocalDate dateOfBirth;
     private Integer age;
     private UUID currentClassId;
+    private String currentClassName;
     private String primaryParentContact;
+    private String gender;
+    private String status;
 }

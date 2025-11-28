@@ -482,6 +482,13 @@ public class StudentService implements IStudentService {
         UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(student.getId())
                 .orElse(null);
 
+        String currentClassName = null;
+        if (currentClassId != null) {
+            currentClassName = classRepository.findById(currentClassId)
+                    .map(c -> "Grade " + c.getGrade() + c.getSection())
+                    .orElse(null);
+        }
+
         ParentContact primaryContact = parentContactRepository.findPrimaryContactByStudentId(student.getId())
                 .orElse(null);
 
@@ -495,10 +502,14 @@ public class StudentService implements IStudentService {
                 .studentCode(student.getStudentCode())
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
+                .dateOfBirth(student.getDateOfBirth())
                 .age(student.getAge())
                 .currentClassId(currentClassId)
+                .currentClassName(currentClassName)
                 .primaryParentContact(primaryContactInfo)
                 .photoUrl(student.getPhotoUrl())
+                .gender(student.getGender().name())
+                .status(student.getStatus().name())
                 .build();
     }
 

@@ -77,8 +77,8 @@ export function StudentsPage() {
         id: 'gender',
         title: t.students.columns.gender,
         options: [
-          { label: t.students.gender.MALE, value: 'MALE' as Gender },
-          { label: t.students.gender.FEMALE, value: 'FEMALE' as Gender },
+          { label: t.students.gender.M, value: 'MALE' as Gender },
+          { label: t.students.gender.F, value: 'FEMALE' as Gender },
         ],
       },
     ],

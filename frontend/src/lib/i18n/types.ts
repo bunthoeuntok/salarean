@@ -224,8 +224,8 @@ export interface UITranslations {
       TRANSFERRED: string
     }
     gender: {
-      MALE: string
-      FEMALE: string
+      M: string
+      F: string
     }
   }
   // Classes

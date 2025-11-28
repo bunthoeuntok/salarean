@@ -200,8 +200,8 @@ export const uiEn: UITranslations = {
       TRANSFERRED: 'Transferred',
     },
     gender: {
-      MALE: 'Male',
-      FEMALE: 'Female',
+      M: 'Male',
+      F: 'Female',
     },
   },
   classes: {

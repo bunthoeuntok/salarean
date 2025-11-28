@@ -200,8 +200,8 @@ export const uiKm: UITranslations = {
       TRANSFERRED: 'បានផ្ទេរ',
     },
     gender: {
-      MALE: 'ប្រុស',
-      FEMALE: 'ស្រី',
+      M: 'ប្រុស',
+      F: 'ស្រី',
     },
   },
   classes: {
