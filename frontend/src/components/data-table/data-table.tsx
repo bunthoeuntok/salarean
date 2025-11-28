@@ -26,7 +26,6 @@ import {
   useReactTable,
   type ColumnFiltersState,
   type SortingState,
-  type VisibilityState,
   type RowSelectionState,
 } from '@tanstack/react-table'
 import { Loader2 } from 'lucide-react'
@@ -41,12 +40,14 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { DraggableTableHeader } from './data-table-draggable-header'
+import { useTableStateStorage } from './use-table-state-storage'
 import type { DataTableProps } from './types'
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   isLoading = false,
+  storageKey,
   // Pagination
   pageCount,
   pageIndex: controlledPageIndex,
@@ -70,14 +71,26 @@ export function DataTable<TData, TValue>({
   // Toolbar actions
   toolbarActions,
 }: DataTableProps<TData, TValue>) {
+  // Get default column order from columns
+  const defaultColumnOrder = useMemo(
+    () => columns.map((c) => (c as { accessorKey?: string }).accessorKey ?? c.id ?? ''),
+    [columns]
+  )
+
+  // Use localStorage persistence for column state
+  const {
+    columnOrder,
+    setColumnOrder,
+    columnVisibility,
+    setColumnVisibility,
+    columnSizing,
+    setColumnSizing,
+  } = useTableStateStorage(storageKey, defaultColumnOrder)
+
   // Internal state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [internalSorting, setInternalSorting] = useState<SortingState>([])
-  const [columnOrder, setColumnOrder] = useState<string[]>(() =>
-    columns.map((c) => (c as { accessorKey?: string }).accessorKey ?? c.id ?? '')
-  )
 
   // Use controlled or internal sorting
   const sorting = controlledSorting
@@ -130,6 +143,14 @@ export function DataTable<TData, TValue>({
     ]
   }, [columns, enableRowSelection])
 
+  // Ensure column order includes selection column if enabled
+  const effectiveColumnOrder = useMemo(() => {
+    if (enableRowSelection && !columnOrder.includes('select')) {
+      return ['select', ...columnOrder]
+    }
+    return columnOrder
+  }, [columnOrder, enableRowSelection])
+
   const table = useReactTable({
     data,
     columns: columnsWithSelection,
@@ -138,7 +159,8 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
       rowSelection,
-      columnOrder,
+      columnOrder: effectiveColumnOrder,
+      columnSizing,
       pagination: {
         pageIndex: controlledPageIndex ?? 0,
         pageSize: controlledPageSize ?? 10,
@@ -152,6 +174,7 @@ export function DataTable<TData, TValue>({
     onSortingChange: handleSortingChange,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnSizingChange: setColumnSizing,
     onRowSelectionChange: (updater) => {
       const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater
       setRowSelection(newSelection)
@@ -200,7 +223,7 @@ export function DataTable<TData, TValue>({
         })
       }
     },
-    []
+    [setColumnOrder]
   )
 
   const headerGroups = table.getHeaderGroups()
@@ -215,19 +238,19 @@ export function DataTable<TData, TValue>({
         filterableColumns={filterableColumns}
         toolbarActions={toolbarActions}
       />
-      <div className='rounded-md border'>
+      <div className='rounded-md border overflow-auto'>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           modifiers={[restrictToHorizontalAxis]}
           onDragEnd={handleDragEnd}
         >
-          <Table style={{ width: table.getCenterTotalSize() }}>
+          <Table className='w-full'>
             <TableHeader>
               {headerGroups.map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   <SortableContext
-                    items={columnOrder}
+                    items={effectiveColumnOrder}
                     strategy={horizontalListSortingStrategy}
                   >
                     {headerGroup.headers.map((header) => (

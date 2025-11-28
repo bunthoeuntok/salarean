@@ -4,6 +4,8 @@ export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   isLoading?: boolean
+  // Storage key for persisting table state (column order, visibility, sizing)
+  storageKey?: string
   // Pagination
   pageCount?: number
   pageIndex?: number

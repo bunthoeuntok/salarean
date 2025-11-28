@@ -90,6 +90,7 @@ export function StudentsPage() {
           columns={columns}
           data={data?.content ?? []}
           isLoading={isLoading}
+          storageKey='students-table'
           pageCount={data?.totalPages ?? 0}
           pageIndex={pageIndex}
           pageSize={pageSize}

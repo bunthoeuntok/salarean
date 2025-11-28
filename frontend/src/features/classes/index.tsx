@@ -82,6 +82,7 @@ export function ClassesPage() {
           columns={columns}
           data={data?.content ?? []}
           isLoading={isLoading}
+          storageKey='classes-table'
           pageCount={data?.totalPages ?? 0}
           pageIndex={pageIndex}
           pageSize={pageSize}
