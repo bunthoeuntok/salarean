@@ -125,6 +125,10 @@ export const uiEn: UITranslations = {
     dark: 'Dark',
     system: 'System',
   },
+  filter: {
+    submit: 'Search',
+    reset: 'Reset',
+  },
   settings: {
     title: 'Settings',
     description: 'Manage your account settings and preferences.',

@@ -30,7 +30,8 @@ export interface StudentListParams {
   size?: number
   sort?: string
   search?: string
-  status?: StudentStatus
+  status?: string  // Can be comma-separated values for multiple filters
+  gender?: string  // Can be comma-separated values for multiple filters
   classId?: string
 }
 

@@ -22,6 +22,7 @@ export const studentService = {
     if (params.sort) queryParams.append('sort', params.sort)
     if (params.search) queryParams.append('search', params.search)
     if (params.status) queryParams.append('status', params.status)
+    if (params.gender) queryParams.append('gender', params.gender)
     if (params.classId) queryParams.append('classId', params.classId)
 
     const queryString = queryParams.toString()

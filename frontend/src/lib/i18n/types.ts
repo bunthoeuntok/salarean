@@ -146,6 +146,11 @@ export interface UITranslations {
     dark: string
     system: string
   }
+  // Filter toolbar
+  filter: {
+    submit: string
+    reset: string
+  }
   // Settings
   settings: {
     title: string

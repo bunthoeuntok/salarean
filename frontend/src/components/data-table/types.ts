@@ -45,16 +45,35 @@ export interface DataTablePaginationProps<TData> {
   pageSizeOptions?: number[]
 }
 
+export interface FilterableColumn {
+  id: string
+  title: string
+  options: { label: string; value: string; icon?: React.ComponentType<{ className?: string }> }[]
+}
+
 export interface DataTableToolbarProps<TData> {
   table: Table<TData>
   searchValue?: string
   onSearchChange?: (value: string) => void
   searchPlaceholder?: string
-  filterableColumns?: {
-    id: string
-    title: string
-    options: { label: string; value: string; icon?: React.ComponentType<{ className?: string }> }[]
-  }[]
+  filterableColumns?: FilterableColumn[]
+  toolbarActions?: React.ReactNode
+}
+
+export interface DataTableFilterToolbarProps {
+  // Initial values from URL params
+  initialSearch?: string
+  initialFilters?: Record<string, string[]>
+  // Filterable columns configuration
+  filterableColumns?: FilterableColumn[]
+  // Callbacks
+  onSubmit: (params: { search: string; filters: Record<string, string[]> }) => void
+  onReset: () => void
+  // UI customization
+  searchPlaceholder?: string
+  submitLabel?: string
+  resetLabel?: string
+  // Additional toolbar actions
   toolbarActions?: React.ReactNode
 }
 

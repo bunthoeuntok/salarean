@@ -26,7 +26,7 @@ export interface ClassListParams {
   size?: number
   sort?: string
   search?: string
-  status?: ClassStatus
+  status?: string  // Can be comma-separated values for multiple filters
   academicYear?: string
   grade?: string
 }

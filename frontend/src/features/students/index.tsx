@@ -1,31 +1,50 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Plus, UserCheck, UserX, GraduationCap, ArrowRightLeft } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
-import { DataTable, getStoredPageSize } from '@/components/data-table'
+import {
+  DataTable,
+  DataTableFilterToolbar,
+  useTableUrlParams,
+  getStoredPageSize,
+} from '@/components/data-table'
 import { studentService } from '@/services/student.service'
 import { createStudentColumns } from './columns'
 import type { StudentStatus, Gender } from '@/types/student.types'
 
 export function StudentsPage() {
   const { t } = useLanguage()
-  const [pageIndex, setPageIndex] = useState(0)
-  const [pageSize, setPageSize] = useState(() => getStoredPageSize('students-table'))
-  const [searchValue, setSearchValue] = useState('')
-  const [sorting, setSorting] = useState<{ id: string; desc: boolean }[]>([])
+
+  // Use URL params for table state
+  const {
+    pageIndex,
+    pageSize,
+    searchValue,
+    sorting,
+    filters,
+    setPage,
+    setPageSize,
+    setSorting,
+    submitFilters,
+    resetFilters,
+  } = useTableUrlParams({
+    defaultPageSize: getStoredPageSize('students-table'),
+  })
 
   // Fetch students data
   const { data, isLoading } = useQuery({
-    queryKey: ['students', pageIndex, pageSize, searchValue, sorting],
+    queryKey: ['students', pageIndex, pageSize, searchValue, sorting, filters],
     queryFn: () =>
       studentService.getStudents({
         page: pageIndex,
         size: pageSize,
         search: searchValue || undefined,
         sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
+        status: filters.status?.join(',') || undefined,
+        gender: filters.gender?.join(',') || undefined,
       }),
   })
 
@@ -67,8 +86,11 @@ export function StudentsPage() {
   )
 
   const handlePaginationChange = (newPageIndex: number, newPageSize: number) => {
-    setPageIndex(newPageIndex)
-    setPageSize(newPageSize)
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize)
+    } else {
+      setPage(newPageIndex)
+    }
   }
 
   return (
@@ -86,25 +108,35 @@ export function StudentsPage() {
           </Button>
         </div>
 
-        <DataTable
-          columns={columns}
-          data={data?.content ?? []}
-          isLoading={isLoading}
-          storageKey='students-table'
-          pageCount={data?.totalPages ?? 0}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          onPaginationChange={handlePaginationChange}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          searchPlaceholder={t.students.searchPlaceholder}
+        {/* Filter toolbar with submit button */}
+        <DataTableFilterToolbar
+          initialSearch={searchValue}
+          initialFilters={filters}
           filterableColumns={filterableColumns}
-          enableRowSelection
-          enableColumnReordering
-          enableColumnResizing
+          onSubmit={submitFilters}
+          onReset={resetFilters}
+          searchPlaceholder={t.students.searchPlaceholder}
+          submitLabel={t.filter.submit}
+          resetLabel={t.filter.reset}
         />
+
+        <div className='mt-4'>
+          <DataTable
+            columns={columns}
+            data={data?.content ?? []}
+            isLoading={isLoading}
+            storageKey='students-table'
+            pageCount={data?.totalPages ?? 0}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onPaginationChange={handlePaginationChange}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            enableRowSelection
+            enableColumnReordering
+            enableColumnResizing
+          />
+        </div>
       </Main>
     </>
   )

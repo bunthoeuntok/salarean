@@ -1,31 +1,49 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Plus, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
-import { DataTable, getStoredPageSize } from '@/components/data-table'
+import {
+  DataTable,
+  DataTableFilterToolbar,
+  useTableUrlParams,
+  getStoredPageSize,
+} from '@/components/data-table'
 import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
 import type { ClassStatus } from '@/types/class.types'
 
 export function ClassesPage() {
   const { t } = useLanguage()
-  const [pageIndex, setPageIndex] = useState(0)
-  const [pageSize, setPageSize] = useState(() => getStoredPageSize('classes-table'))
-  const [searchValue, setSearchValue] = useState('')
-  const [sorting, setSorting] = useState<{ id: string; desc: boolean }[]>([])
+
+  // Use URL params for table state
+  const {
+    pageIndex,
+    pageSize,
+    searchValue,
+    sorting,
+    filters,
+    setPage,
+    setPageSize,
+    setSorting,
+    submitFilters,
+    resetFilters,
+  } = useTableUrlParams({
+    defaultPageSize: getStoredPageSize('classes-table'),
+  })
 
   // Fetch classes data
   const { data, isLoading } = useQuery({
-    queryKey: ['classes', pageIndex, pageSize, searchValue, sorting],
+    queryKey: ['classes', pageIndex, pageSize, searchValue, sorting, filters],
     queryFn: () =>
       classService.getClasses({
         page: pageIndex,
         size: pageSize,
         search: searchValue || undefined,
         sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
+        status: filters.status?.join(',') || undefined,
       }),
   })
 
@@ -59,8 +77,11 @@ export function ClassesPage() {
   )
 
   const handlePaginationChange = (newPageIndex: number, newPageSize: number) => {
-    setPageIndex(newPageIndex)
-    setPageSize(newPageSize)
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize)
+    } else {
+      setPage(newPageIndex)
+    }
   }
 
   return (
@@ -78,25 +99,35 @@ export function ClassesPage() {
           </Button>
         </div>
 
-        <DataTable
-          columns={columns}
-          data={data?.content ?? []}
-          isLoading={isLoading}
-          storageKey='classes-table'
-          pageCount={data?.totalPages ?? 0}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          onPaginationChange={handlePaginationChange}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          searchPlaceholder={t.classes.searchPlaceholder}
+        {/* Filter toolbar with submit button */}
+        <DataTableFilterToolbar
+          initialSearch={searchValue}
+          initialFilters={filters}
           filterableColumns={filterableColumns}
-          enableRowSelection
-          enableColumnReordering
-          enableColumnResizing
+          onSubmit={submitFilters}
+          onReset={resetFilters}
+          searchPlaceholder={t.classes.searchPlaceholder}
+          submitLabel={t.filter.submit}
+          resetLabel={t.filter.reset}
         />
+
+        <div className='mt-4'>
+          <DataTable
+            columns={columns}
+            data={data?.content ?? []}
+            isLoading={isLoading}
+            storageKey='classes-table'
+            pageCount={data?.totalPages ?? 0}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onPaginationChange={handlePaginationChange}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            enableRowSelection
+            enableColumnReordering
+            enableColumnResizing
+          />
+        </div>
       </Main>
     </>
   )

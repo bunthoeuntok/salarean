@@ -125,6 +125,10 @@ export const uiKm: UITranslations = {
     dark: 'ងងឹត',
     system: 'ប្រព័ន្ធ',
   },
+  filter: {
+    submit: 'ស្វែងរក',
+    reset: 'កំណត់ឡើងវិញ',
+  },
   settings: {
     title: 'ការកំណត់',
     description: 'គ្រប់គ្រងការកំណត់គណនី និងចំណូលចិត្តរបស់អ្នក។',
