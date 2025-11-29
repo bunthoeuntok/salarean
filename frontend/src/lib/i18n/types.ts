@@ -230,6 +230,67 @@ export interface UITranslations {
       M: string
       F: string
     }
+    modal: {
+      addTitle: string
+      editTitle: string
+      tabs: {
+        studentInfo: string
+        enrollment: string
+        parentContact: string
+      }
+      fields: {
+        firstName: string
+        firstNamePlaceholder: string
+        lastName: string
+        lastNamePlaceholder: string
+        firstNameKhmer: string
+        firstNameKhmerPlaceholder: string
+        lastNameKhmer: string
+        lastNameKhmerPlaceholder: string
+        dateOfBirth: string
+        dateOfBirthPlaceholder: string
+        gender: string
+        genderPlaceholder: string
+        class: string
+        classPlaceholder: string
+        enrollmentDate: string
+        enrollmentDatePlaceholder: string
+        address: string
+        addressPlaceholder: string
+        emergencyContact: string
+        emergencyContactPlaceholder: string
+      }
+      parentContact: {
+        title: string
+        addContact: string
+        fullName: string
+        fullNamePlaceholder: string
+        phoneNumber: string
+        phoneNumberPlaceholder: string
+        relationship: string
+        relationshipPlaceholder: string
+        isPrimary: string
+        relationships: {
+          MOTHER: string
+          FATHER: string
+          GUARDIAN: string
+          OTHER: string
+        }
+        removeContact: string
+        atLeastOne: string
+      }
+      buttons: {
+        cancel: string
+        save: string
+        saving: string
+        next: string
+        previous: string
+      }
+      success: {
+        created: string
+        updated: string
+      }
+    }
   }
   // Classes
   classes: {

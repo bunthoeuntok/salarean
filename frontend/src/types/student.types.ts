@@ -4,6 +4,7 @@
 
 export type Gender = 'M' | 'F'
 export type StudentStatus = 'ACTIVE' | 'INACTIVE'
+export type Relationship = 'MOTHER' | 'FATHER' | 'GUARDIAN' | 'OTHER'
 
 export interface Student {
   id: string
@@ -35,6 +36,13 @@ export interface StudentListParams {
   classId?: string
 }
 
+export interface ParentContactRequest {
+  fullName: string
+  phoneNumber: string
+  relationship: Relationship
+  isPrimary: boolean
+}
+
 export interface CreateStudentRequest {
   firstName: string
   lastName: string
@@ -42,9 +50,11 @@ export interface CreateStudentRequest {
   lastNameKhmer?: string
   dateOfBirth: string
   gender: Gender
-  email?: string
-  phoneNumber?: string
+  classId: string
   address?: string
+  emergencyContact?: string
+  enrollmentDate: string
+  parentContacts: ParentContactRequest[]
 }
 
 export interface UpdateStudentRequest extends Partial<CreateStudentRequest> {

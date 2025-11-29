@@ -16,11 +16,13 @@ import {
 import { studentService } from '@/services/student.service'
 import { classService } from '@/services/class.service'
 import { createStudentColumns } from './columns'
+import { AddStudentModal } from './components/add-student-modal'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 
 export function StudentsPage() {
   const { t } = useLanguage()
   const [tableInstance, setTableInstance] = useState<Table<Student> | null>(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   // Column labels for view options
   const columnLabels = useMemo(
@@ -143,11 +145,16 @@ export function StudentsPage() {
             <h2 className='text-2xl font-bold tracking-tight'>{t.students.title}</h2>
             <p className='text-muted-foreground'>{t.students.description}</p>
           </div>
-          <Button>
+          <Button onClick={() => setIsAddModalOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
             {t.students.addStudent}
           </Button>
         </div>
+
+        <AddStudentModal
+          open={isAddModalOpen}
+          onOpenChange={setIsAddModalOpen}
+        />
 
         {/* Filter toolbar with submit button */}
         <DataTableFilterToolbar
