@@ -6,6 +6,14 @@ export type Gender = 'M' | 'F'
 export type StudentStatus = 'ACTIVE' | 'INACTIVE'
 export type Relationship = 'MOTHER' | 'FATHER' | 'GUARDIAN' | 'OTHER'
 
+export interface ParentContact {
+  id: string
+  fullName: string
+  phoneNumber: string
+  relationship: Relationship
+  isPrimary: boolean
+}
+
 export interface Student {
   id: string
   studentCode: string
@@ -18,9 +26,12 @@ export interface Student {
   email?: string
   primaryParentContact?: string
   address?: string
+  emergencyContact?: string
   status: StudentStatus
   enrolledClassId?: string
   currentClassName?: string
+  enrollmentDate?: string
+  parentContacts?: ParentContact[]
   photoUrl?: string
   createdAt: string
   updatedAt: string

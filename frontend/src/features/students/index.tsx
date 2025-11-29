@@ -17,12 +17,27 @@ import { studentService } from '@/services/student.service'
 import { classService } from '@/services/class.service'
 import { createStudentColumns } from './columns'
 import { AddStudentModal } from './components/add-student-modal'
+import { EditStudentModal } from './components/edit-student-modal'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 
 export function StudentsPage() {
   const { t } = useLanguage()
   const [tableInstance, setTableInstance] = useState<Table<Student> | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editStudentId, setEditStudentId] = useState<string | null>(null)
+
+  const handleEditStudent = (student: Student) => {
+    setEditStudentId(student.id)
+    setIsEditModalOpen(true)
+  }
+
+  const handleEditModalClose = (open: boolean) => {
+    setIsEditModalOpen(open)
+    if (!open) {
+      setEditStudentId(null)
+    }
+  }
 
   // Column labels for view options
   const columnLabels = useMemo(
@@ -82,7 +97,7 @@ export function StudentsPage() {
     () =>
       createStudentColumns(
         t,
-        (student) => console.log('Edit student:', student),
+        handleEditStudent,
         (student) => console.log('Delete student:', student),
         (student) => console.log('View student:', student)
       ),
@@ -154,6 +169,12 @@ export function StudentsPage() {
         <AddStudentModal
           open={isAddModalOpen}
           onOpenChange={setIsAddModalOpen}
+        />
+
+        <EditStudentModal
+          open={isEditModalOpen}
+          onOpenChange={handleEditModalClose}
+          studentId={editStudentId}
         />
 
         {/* Filter toolbar with submit button */}
