@@ -15,6 +15,8 @@ import {
 } from '@/components/data-table'
 import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
+import { AddClassModal } from './components/add-class-modal'
+import { EditClassModal } from './components/edit-class-modal'
 import type { Class, ClassStatus } from '@/types/class.types'
 
 // Grade options (1-12)
@@ -27,6 +29,21 @@ const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
 export function ClassesPage() {
   const { t } = useLanguage()
   const [tableInstance, setTableInstance] = useState<Table<Class> | null>(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editClassId, setEditClassId] = useState<string | null>(null)
+
+  const handleEditClass = (classItem: Class) => {
+    setEditClassId(classItem.id)
+    setIsEditModalOpen(true)
+  }
+
+  const handleEditModalClose = (open: boolean) => {
+    setIsEditModalOpen(open)
+    if (!open) {
+      setEditClassId(null)
+    }
+  }
 
   // Column labels for view options
   const columnLabels = useMemo(
@@ -77,7 +94,7 @@ export function ClassesPage() {
     () =>
       createClassColumns(
         t,
-        (classItem) => console.log('Edit class:', classItem),
+        handleEditClass,
         (classItem) => console.log('Delete class:', classItem),
         (classItem) => console.log('View class:', classItem),
         (classItem) => console.log('Manage students:', classItem)
@@ -123,11 +140,22 @@ export function ClassesPage() {
             <h2 className='text-2xl font-bold tracking-tight'>{t.classes.title}</h2>
             <p className='text-muted-foreground'>{t.classes.description}</p>
           </div>
-          <Button>
+          <Button onClick={() => setIsAddModalOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
             {t.classes.addClass}
           </Button>
         </div>
+
+        <AddClassModal
+          open={isAddModalOpen}
+          onOpenChange={setIsAddModalOpen}
+        />
+
+        <EditClassModal
+          open={isEditModalOpen}
+          onOpenChange={handleEditModalClose}
+          classId={editClassId}
+        />
 
         {/* Filter toolbar with submit button */}
         <DataTableFilterToolbar

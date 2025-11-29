@@ -547,7 +547,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className='shrink-0 gap-2 sm:gap-0 px-6 py-4 -mx-6'>
+        <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6'>
           <Button type='button' variant='outline' onClick={onClose}>
             {t.students.modal.buttons.cancel}
           </Button>

@@ -319,6 +319,35 @@ export interface UITranslations {
       INACTIVE: string
       COMPLETED: string
     }
+    modal: {
+      addTitle: string
+      editTitle: string
+      fields: {
+        name: string
+        namePlaceholder: string
+        description: string
+        descriptionPlaceholder: string
+        academicYear: string
+        academicYearPlaceholder: string
+        grade: string
+        gradePlaceholder: string
+        section: string
+        sectionPlaceholder: string
+        capacity: string
+        capacityPlaceholder: string
+        status: string
+        statusPlaceholder: string
+      }
+      buttons: {
+        cancel: string
+        save: string
+        saving: string
+      }
+      success: {
+        created: string
+        updated: string
+      }
+    }
   }
 }
 
