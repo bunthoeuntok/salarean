@@ -385,10 +385,10 @@ public class StudentService implements IStudentService {
                  search, status, gender, classId);
 
         // Build specification with all filters
+        // Note: @Where annotation on Student entity handles soft-delete filtering
         org.springframework.data.jpa.domain.Specification<Student> spec =
                 org.springframework.data.jpa.domain.Specification
-                        .where(com.sms.student.repository.specification.StudentSpecification.notDeleted())
-                        .and(com.sms.student.repository.specification.StudentSpecification.hasStatus(status))
+                        .where(com.sms.student.repository.specification.StudentSpecification.hasStatus(status))
                         .and(com.sms.student.repository.specification.StudentSpecification.hasGender(gender))
                         .and(com.sms.student.repository.specification.StudentSpecification.hasClassId(classId))
                         .and(com.sms.student.repository.specification.StudentSpecification.searchByNameOrCode(search));

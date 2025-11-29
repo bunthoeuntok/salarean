@@ -84,11 +84,4 @@ public class StudentSpecification {
             );
         };
     }
-
-    /**
-     * Exclude deleted students.
-     */
-    public static Specification<Student> notDeleted() {
-        return (root, query, cb) -> cb.isFalse(root.get("deleted"));
-    }
 }
