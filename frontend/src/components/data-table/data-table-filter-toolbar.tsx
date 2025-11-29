@@ -89,6 +89,7 @@ export function DataTableFilterToolbar({
                   options={column.options}
                   selectedValues={filters[column.id] ?? []}
                   onChange={(values) => handleFilterChange(column.id, values)}
+                  singleSelect={column.singleSelect}
                 />
               ))}
             </div>

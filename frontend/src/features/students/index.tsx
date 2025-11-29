@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Plus, UserCheck, UserX, GraduationCap } from 'lucide-react'
+import { Plus, UserCheck, UserX } from 'lucide-react'
 import type { Table } from '@tanstack/react-table'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
@@ -110,7 +110,6 @@ export function StudentsPage() {
       classesData?.content?.map((c) => ({
         label: c.name,
         value: c.id,
-        icon: GraduationCap,
       })) ?? [],
     [classesData]
   )
@@ -138,6 +137,7 @@ export function StudentsPage() {
         id: 'classId',
         title: t.students.columns.class,
         options: classFilterOptions,
+        singleSelect: true,
       },
     ],
     [t, classFilterOptions]

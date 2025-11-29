@@ -29,6 +29,7 @@ export interface FilterSelectProps {
   options: FilterOption[]
   selectedValues: string[]
   onChange: (values: string[]) => void
+  singleSelect?: boolean
 }
 
 export function FilterSelect({
@@ -36,17 +37,28 @@ export function FilterSelect({
   options,
   selectedValues,
   onChange,
+  singleSelect = false,
 }: FilterSelectProps) {
   const selectedSet = new Set(selectedValues)
 
   const handleSelect = (value: string) => {
-    const newSet = new Set(selectedValues)
-    if (newSet.has(value)) {
-      newSet.delete(value)
+    if (singleSelect) {
+      // Single select: toggle off if already selected, otherwise replace
+      if (selectedSet.has(value)) {
+        onChange([])
+      } else {
+        onChange([value])
+      }
     } else {
-      newSet.add(value)
+      // Multi select: toggle in set
+      const newSet = new Set(selectedValues)
+      if (newSet.has(value)) {
+        newSet.delete(value)
+      } else {
+        newSet.add(value)
+      }
+      onChange(Array.from(newSet))
     }
-    onChange(Array.from(newSet))
   }
 
   const handleClear = () => {
@@ -109,13 +121,18 @@ export function FilterSelect({
                   >
                     <div
                       className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                        'mr-2 flex h-4 w-4 items-center justify-center border border-primary',
+                        singleSelect ? 'rounded-full' : 'rounded-sm',
                         isSelected
                           ? 'bg-primary text-primary-foreground'
                           : 'opacity-50 [&_svg]:invisible'
                       )}
                     >
-                      <CheckIcon className='h-4 w-4' />
+                      {singleSelect ? (
+                        <div className='h-2 w-2 rounded-full bg-current' />
+                      ) : (
+                        <CheckIcon className='h-4 w-4' />
+                      )}
                     </div>
                     {option.icon && (
                       <option.icon className='mr-2 h-4 w-4 text-muted-foreground' />
