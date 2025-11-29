@@ -10,6 +10,7 @@ import com.sms.student.enums.EnrollmentReason;
 import com.sms.student.enums.StudentStatus;
 import com.sms.student.exception.*;
 import com.sms.student.repository.*;
+import com.sms.student.repository.specification.StudentSpecification;
 import com.sms.student.service.interfaces.IParentContactService;
 import com.sms.student.service.interfaces.IPhotoStorageService;
 import com.sms.student.service.interfaces.IStudentService;
@@ -388,10 +389,10 @@ public class StudentService implements IStudentService {
         // Note: @Where annotation on Student entity handles soft-delete filtering
         org.springframework.data.jpa.domain.Specification<Student> spec =
                 org.springframework.data.jpa.domain.Specification
-                        .where(com.sms.student.repository.specification.StudentSpecification.hasStatus(status))
-                        .and(com.sms.student.repository.specification.StudentSpecification.hasGender(gender))
-                        .and(com.sms.student.repository.specification.StudentSpecification.hasClassId(classId))
-                        .and(com.sms.student.repository.specification.StudentSpecification.searchByNameOrCode(search));
+                        .where(StudentSpecification.hasStatus(status))
+                        .and(StudentSpecification.hasGender(gender))
+                        .and(StudentSpecification.hasClassId(classId))
+                        .and(StudentSpecification.searchByNameOrCode(search));
 
         // Fetch from database with specification
         Page<Student> studentPage = studentRepository.findAll(spec, pageable);

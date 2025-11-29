@@ -169,9 +169,11 @@ export const createStudentColumns = (
     cell: ({ row }) => {
       const status = row.getValue('status') as StudentStatus
       return (
-        <Badge variant={statusVariantMap[status]}>
-          {t.students.status[status] || status}
-        </Badge>
+        <div className='text-center'>
+          <Badge variant={statusVariantMap[status]}>
+            {t.students.status[status] || status}
+          </Badge>
+        </div>
       )
     },
     filterFn: (row, id, value) => {
@@ -186,36 +188,38 @@ export const createStudentColumns = (
       const student = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Open menu</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>{t.students.columns.actions}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {onView && (
-              <DropdownMenuItem onClick={() => onView(student)}>
-                {t.students.actions.view}
-              </DropdownMenuItem>
-            )}
-            {onEdit && (
-              <DropdownMenuItem onClick={() => onEdit(student)}>
-                {t.students.actions.edit}
-              </DropdownMenuItem>
-            )}
-            {onDelete && (
-              <DropdownMenuItem
-                onClick={() => onDelete(student)}
-                className='text-destructive'
-              >
-                {t.students.actions.delete}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className='text-center'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='h-8 w-8 p-0'>
+                <span className='sr-only'>Open menu</span>
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>{t.students.columns.actions}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {onView && (
+                <DropdownMenuItem onClick={() => onView(student)}>
+                  {t.students.actions.view}
+                </DropdownMenuItem>
+              )}
+              {onEdit && (
+                <DropdownMenuItem onClick={() => onEdit(student)}>
+                  {t.students.actions.edit}
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem
+                  onClick={() => onDelete(student)}
+                  className='text-destructive'
+                >
+                  {t.students.actions.delete}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
     size: 70,
