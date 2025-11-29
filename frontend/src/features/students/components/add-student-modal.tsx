@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -46,34 +46,29 @@ import { studentService } from '@/services/student.service'
 import { classService } from '@/services/class.service'
 import type { Gender, Relationship, CreateStudentRequest } from '@/types/student.types'
 
-// Validation schema
-const parentContactSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
-  phoneNumber: z
-    .string()
-    .min(1, 'Phone number is required')
-    .regex(/^\+855\d{8,9}$/, 'Invalid Cambodia phone format. Must be +855XXXXXXXX'),
+// Schema type for type inference
+const baseParentContactSchema = z.object({
+  fullName: z.string(),
+  phoneNumber: z.string(),
   relationship: z.enum(['MOTHER', 'FATHER', 'GUARDIAN', 'OTHER'] as const),
   isPrimary: z.boolean(),
 })
 
-const createStudentSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(100),
-  lastName: z.string().min(1, 'Last name is required').max(100),
-  firstNameKhmer: z.string().max(100).optional(),
-  lastNameKhmer: z.string().max(100).optional(),
-  dateOfBirth: z.date({ required_error: 'Date of birth is required' }),
+const baseStudentSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  firstNameKhmer: z.string().optional(),
+  lastNameKhmer: z.string().optional(),
+  dateOfBirth: z.date(),
   gender: z.enum(['M', 'F'] as const),
-  classId: z.string().min(1, 'Class is required'),
-  enrollmentDate: z.date({ required_error: 'Enrollment date is required' }),
-  address: z.string().max(500).optional(),
-  emergencyContact: z.string().max(20).optional(),
-  parentContacts: z
-    .array(parentContactSchema)
-    .min(1, 'At least one parent contact is required'),
+  classId: z.string(),
+  enrollmentDate: z.date(),
+  address: z.string().optional(),
+  emergencyContact: z.string().optional(),
+  parentContacts: z.array(baseParentContactSchema),
 })
 
-type FormData = z.infer<typeof createStudentSchema>
+type FormData = z.infer<typeof baseStudentSchema>
 
 interface AddStudentModalProps {
   open: boolean
@@ -84,6 +79,35 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('student-info')
+
+  // Create schema with translated messages
+  const createStudentSchema = useMemo(() => {
+    const parentContactSchema = z.object({
+      fullName: z.string().min(1, t.validation.required),
+      phoneNumber: z
+        .string()
+        .min(1, t.validation.required)
+        .regex(/^\+855\d{8,9}$/, t.validation.invalidPhone),
+      relationship: z.enum(['MOTHER', 'FATHER', 'GUARDIAN', 'OTHER'] as const),
+      isPrimary: z.boolean(),
+    })
+
+    return z.object({
+      firstName: z.string().min(1, t.validation.required).max(100),
+      lastName: z.string().min(1, t.validation.required).max(100),
+      firstNameKhmer: z.string().max(100).optional(),
+      lastNameKhmer: z.string().max(100).optional(),
+      dateOfBirth: z.date({ required_error: t.validation.required }),
+      gender: z.enum(['M', 'F'] as const, { required_error: t.validation.required }),
+      classId: z.string().min(1, t.validation.required),
+      enrollmentDate: z.date({ required_error: t.validation.required }),
+      address: z.string().max(500).optional(),
+      emergencyContact: z.string().max(20).optional(),
+      parentContacts: z
+        .array(parentContactSchema)
+        .min(1, t.students.modal.parentContact.atLeastOne),
+    })
+  }, [t])
 
   // Fetch classes for dropdown
   const { data: classesData } = useQuery({
@@ -185,6 +209,24 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
     { value: 'F', label: t.students.gender.F },
   ]
 
+  // Check for errors in each tab
+  const { errors } = form.formState
+  const hasStudentInfoErrors = !!(
+    errors.firstName ||
+    errors.lastName ||
+    errors.firstNameKhmer ||
+    errors.lastNameKhmer ||
+    errors.dateOfBirth ||
+    errors.gender ||
+    errors.address
+  )
+  const hasEnrollmentErrors = !!(
+    errors.classId ||
+    errors.enrollmentDate ||
+    errors.emergencyContact
+  )
+  const hasParentContactErrors = !!errors.parentContacts
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className='sm:max-w-[900px] h-[70vh] flex flex-col p-0'>
@@ -196,13 +238,22 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col flex-1 overflow-hidden px-6 pt-4'>
             <Tabs value={activeTab} onValueChange={setActiveTab} className='flex flex-col flex-1 overflow-hidden'>
               <TabsList className='grid w-full grid-cols-3 shrink-0'>
-                <TabsTrigger value='student-info'>
+                <TabsTrigger
+                  value='student-info'
+                  className={cn(hasStudentInfoErrors && 'text-destructive data-[state=active]:text-destructive')}
+                >
                   {t.students.modal.tabs.studentInfo}
                 </TabsTrigger>
-                <TabsTrigger value='enrollment'>
+                <TabsTrigger
+                  value='enrollment'
+                  className={cn(hasEnrollmentErrors && 'text-destructive data-[state=active]:text-destructive')}
+                >
                   {t.students.modal.tabs.enrollment}
                 </TabsTrigger>
-                <TabsTrigger value='parent-contact'>
+                <TabsTrigger
+                  value='parent-contact'
+                  className={cn(hasParentContactErrors && 'text-destructive data-[state=active]:text-destructive')}
+                >
                   {t.students.modal.tabs.parentContact}
                 </TabsTrigger>
               </TabsList>
@@ -308,12 +359,13 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           <PopoverContent className='w-auto p-0' align='start'>
                             <Calendar
                               mode='single'
+                              captionLayout='dropdown'
+                              startMonth={new Date(1950, 0)}
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date: Date) =>
                                 date > new Date() || date < new Date('1900-01-01')
                               }
-                              initialFocus
                             />
                           </PopoverContent>
                         </Popover>
@@ -347,6 +399,26 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className='grid grid-cols-1 gap-4'>
+                  <FormField
+                  control={form.control}
+                  name='address'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.students.modal.fields.address}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t.students.modal.fields.addressPlaceholder}
+                          className='resize-none h-24'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 </div>
               </TabsContent>
 
@@ -407,9 +479,11 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           <PopoverContent className='w-auto p-0' align='start'>
                             <Calendar
                               mode='single'
+                              captionLayout='dropdown'
+                              startMonth={new Date(2020, 0)}
+                              endMonth={new Date(new Date().getFullYear() + 1, 11)}
                               selected={field.value}
                               onSelect={field.onChange}
-                              initialFocus
                             />
                           </PopoverContent>
                         </Popover>
@@ -418,24 +492,6 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     )}
                   />
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name='address'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t.students.modal.fields.address}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t.students.modal.fields.addressPlaceholder}
-                          className='resize-none'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
@@ -486,7 +542,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     >
                       <div className='flex items-center justify-between bg-muted/50 px-4 py-2 rounded-md'>
                         <span className='text-sm font-medium'>
-                          Contact {index + 1}
+                          {t.students.modal.parentContact.contact} {index + 1}
                         </span>
                         {fields.length > 1 && (
                           <Button

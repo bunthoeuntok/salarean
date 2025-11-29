@@ -245,6 +245,7 @@ export const uiKm: UITranslations = {
         relationship: 'ទំនាក់ទំនង',
         relationshipPlaceholder: 'ជ្រើសរើសទំនាក់ទំនង',
         isPrimary: 'ទំនាក់ទំនងចម្បង',
+        contact: 'ទំនាក់ទំនង',
         relationships: {
           MOTHER: 'ម្ដាយ',
           FATHER: 'ឪពុក',

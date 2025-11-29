@@ -245,6 +245,7 @@ export const uiEn: UITranslations = {
         relationship: 'Relationship',
         relationshipPlaceholder: 'Select relationship',
         isPrimary: 'Primary Contact',
+        contact: 'Contact',
         relationships: {
           MOTHER: 'Mother',
           FATHER: 'Father',

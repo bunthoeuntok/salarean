@@ -258,7 +258,7 @@ export interface UITranslations {
         address: string
         addressPlaceholder: string
         emergencyContact: string
-        emergencyContactPlaceholder: string
+        emergencyContactPlaceholder: string,
       }
       parentContact: {
         title: string
@@ -270,6 +270,7 @@ export interface UITranslations {
         relationship: string
         relationshipPlaceholder: string
         isPrimary: string
+        contact: string
         relationships: {
           MOTHER: string
           FATHER: string
