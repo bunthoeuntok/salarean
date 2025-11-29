@@ -86,6 +86,19 @@ public interface IStudentService {
     StudentListResponse listActiveStudents(Pageable pageable);
 
     /**
+     * List students with pagination and filtering.
+     *
+     * @param search   search term for name or student code (optional)
+     * @param status   filter by status, comma-separated (optional)
+     * @param gender   filter by gender, comma-separated (optional)
+     * @param classId  filter by class ID (optional)
+     * @param pageable pagination parameters
+     * @return Paginated list of student summaries
+     */
+    StudentListResponse listStudentsWithFilters(String search, String status, String gender,
+                                                 UUID classId, Pageable pageable);
+
+    /**
      * Upload student photo.
      *
      * @param id Student UUID

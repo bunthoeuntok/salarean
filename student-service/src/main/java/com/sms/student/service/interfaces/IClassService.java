@@ -46,6 +46,20 @@ public interface IClassService {
     ClassListResponse listTeacherClassesPaginated(UUID teacherId, boolean includeArchived, Pageable pageable);
 
     /**
+     * List all classes for a specific teacher with pagination and filtering.
+     *
+     * @param teacherId    UUID of the teacher
+     * @param search       search term for class name (optional)
+     * @param status       filter by status, comma-separated (optional)
+     * @param academicYear filter by academic year (optional)
+     * @param grade        filter by grade (optional)
+     * @param pageable     pagination parameters
+     * @return paginated list of class summaries
+     */
+    ClassListResponse listClassesWithFilters(UUID teacherId, String search, String status,
+                                              String academicYear, String grade, Pageable pageable);
+
+    /**
      * Get detailed information about a specific class.
      *
      * <p>Verifies that the class belongs to the specified teacher before returning data.

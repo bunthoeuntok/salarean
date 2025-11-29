@@ -144,20 +144,35 @@ public class StudentController {
     }
 
     /**
-     * List all active students with pagination.
+     * List students with pagination and filtering.
      * GET /api/students
      * Requires TEACHER role.
+     *
+     * @param page    page number (0-indexed)
+     * @param size    page size
+     * @param sort    sort field and direction (e.g., "lastName,asc")
+     * @param search  search by name or student code
+     * @param status  filter by status (comma-separated: ACTIVE,INACTIVE)
+     * @param gender  filter by gender (comma-separated: M,F)
+     * @param classId filter by class ID
+     * @return paginated list of students
      */
     @GetMapping
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<StudentListResponse>> listActiveStudents(
+    public ResponseEntity<ApiResponse<StudentListResponse>> listStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "lastName,asc") String sort) {
-        log.info("Received request to list active students, page: {}, size: {}", page, size);
+            @RequestParam(defaultValue = "lastName,asc") String sort,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) UUID classId) {
+        log.info("Received request to list students, page: {}, size: {}, search: {}, status: {}, gender: {}, classId: {}",
+                 page, size, search, status, gender, classId);
 
         Pageable pageable = createPageable(page, size, sort);
-        StudentListResponse response = studentService.listActiveStudents(pageable);
+        StudentListResponse response = studentService.listStudentsWithFilters(
+                search, status, gender, classId, pageable);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

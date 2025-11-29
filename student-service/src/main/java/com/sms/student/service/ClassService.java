@@ -14,12 +14,14 @@ import com.sms.student.model.StudentClassEnrollment;
 import com.sms.student.repository.ClassRepository;
 import com.sms.student.repository.StudentClassEnrollmentRepository;
 import com.sms.student.repository.StudentRepository;
+import com.sms.student.repository.specification.ClassSpecification;
 import com.sms.student.service.interfaces.IClassService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,6 +115,41 @@ public class ClassService implements IClassService {
         } else {
             classPage = classRepository.findByTeacherIdAndStatus(teacherId, ClassStatus.ACTIVE, pageable);
         }
+
+        log.debug("Found {} classes for teacher: {} (page {} of {})",
+                 classPage.getNumberOfElements(), teacherId,
+                 classPage.getNumber() + 1, classPage.getTotalPages());
+
+        // Map to DTOs
+        List<ClassSummaryDto> classSummaries = classPage.getContent().stream()
+            .map(this::mapToSummaryDto)
+            .collect(Collectors.toList());
+
+        return ClassListResponse.builder()
+            .content(classSummaries)
+            .page(classPage.getNumber())
+            .size(classPage.getSize())
+            .totalElements(classPage.getTotalElements())
+            .totalPages(classPage.getTotalPages())
+            .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ClassListResponse listClassesWithFilters(UUID teacherId, String search, String status,
+                                                     String academicYear, String grade, Pageable pageable) {
+        log.info("Fetching classes with filters for teacher: {} (search: {}, status: {}, academicYear: {}, grade: {})",
+                 teacherId, search, status, academicYear, grade);
+
+        // Build specification with all filters
+        Specification<SchoolClass> spec = Specification.where(ClassSpecification.hasTeacherId(teacherId))
+                .and(ClassSpecification.hasStatus(status))
+                .and(ClassSpecification.hasAcademicYear(academicYear))
+                .and(ClassSpecification.hasGrade(grade))
+                .and(ClassSpecification.searchBySection(search));
+
+        // Fetch from database with specification
+        Page<SchoolClass> classPage = classRepository.findAll(spec, pageable);
 
         log.debug("Found {} classes for teacher: {} (page {} of {})",
                  classPage.getNumberOfElements(), teacherId,

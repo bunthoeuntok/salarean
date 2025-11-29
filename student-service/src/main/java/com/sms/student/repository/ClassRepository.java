@@ -5,6 +5,7 @@ import com.sms.student.model.SchoolClass;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.UUID;
  * <ul>
  *   <li>Finding classes by teacher (with optional status filter)</li>
  *   <li>Verifying teacher ownership of classes</li>
+ *   <li>Dynamic filtering with JpaSpecificationExecutor</li>
  * </ul>
  * </p>
  *
@@ -25,7 +27,7 @@ import java.util.UUID;
  * @since 1.0.0
  */
 @Repository
-public interface ClassRepository extends JpaRepository<SchoolClass, UUID> {
+public interface ClassRepository extends JpaRepository<SchoolClass, UUID>, JpaSpecificationExecutor<SchoolClass> {
 
     /**
      * Find all classes for a specific teacher with status filter.

@@ -378,6 +378,43 @@ public class StudentService implements IStudentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public StudentListResponse listStudentsWithFilters(String search, String status, String gender,
+                                                        UUID classId, Pageable pageable) {
+        log.info("Listing students with filters: search={}, status={}, gender={}, classId={}",
+                 search, status, gender, classId);
+
+        // Build specification with all filters
+        org.springframework.data.jpa.domain.Specification<Student> spec =
+                org.springframework.data.jpa.domain.Specification
+                        .where(com.sms.student.repository.specification.StudentSpecification.notDeleted())
+                        .and(com.sms.student.repository.specification.StudentSpecification.hasStatus(status))
+                        .and(com.sms.student.repository.specification.StudentSpecification.hasGender(gender))
+                        .and(com.sms.student.repository.specification.StudentSpecification.hasClassId(classId))
+                        .and(com.sms.student.repository.specification.StudentSpecification.searchByNameOrCode(search));
+
+        // Fetch from database with specification
+        Page<Student> studentPage = studentRepository.findAll(spec, pageable);
+
+        log.debug("Found {} students (page {} of {})",
+                 studentPage.getNumberOfElements(),
+                 studentPage.getNumber() + 1,
+                 studentPage.getTotalPages());
+
+        List<StudentSummary> summaries = studentPage.getContent().stream()
+                .map(this::mapToStudentSummary)
+                .collect(Collectors.toList());
+
+        return StudentListResponse.builder()
+                .content(summaries)
+                .page(studentPage.getNumber())
+                .size(studentPage.getSize())
+                .totalElements(studentPage.getTotalElements())
+                .totalPages(studentPage.getTotalPages())
+                .build();
+    }
+
+    @Override
     @Transactional
     public PhotoUploadResponse uploadStudentPhoto(UUID id, byte[] photoData, String contentType) {
         log.info("Uploading photo for student: {}, size: {} bytes", id, photoData.length);

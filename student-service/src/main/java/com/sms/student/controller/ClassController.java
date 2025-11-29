@@ -48,7 +48,7 @@ public class ClassController {
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
-     * List all classes for the authenticated teacher with pagination.
+     * List all classes for the authenticated teacher with pagination and filtering.
      *
      * <p>GET /api/classes</p>
      *
@@ -57,26 +57,30 @@ public class ClassController {
      *   <li>page (optional, default: 0) - Page number (0-indexed)</li>
      *   <li>size (optional, default: 20) - Page size</li>
      *   <li>sort (optional, default: "grade,asc") - Sort field and direction</li>
-     *   <li>includeArchived (optional, default: false) - Include archived classes in results</li>
+     *   <li>search (optional) - Search by class name</li>
+     *   <li>status (optional) - Filter by status (comma-separated: ACTIVE,INACTIVE,COMPLETED)</li>
+     *   <li>academicYear (optional) - Filter by academic year</li>
+     *   <li>grade (optional) - Filter by grade</li>
      * </ul>
      * </p>
      *
      * <p>Returns paginated list of class summaries with current enrollment counts.</p>
      *
-     * @param page            page number (0-indexed)
-     * @param size            page size
-     * @param sort            sort field and direction (e.g., "grade,asc")
-     * @param includeArchived whether to include archived classes (default: false)
-     * @param request         HTTP request to extract JWT token
+     * @param page         page number (0-indexed)
+     * @param size         page size
+     * @param sort         sort field and direction (e.g., "grade,asc")
+     * @param search       search term for class name
+     * @param status       filter by status (comma-separated)
+     * @param academicYear filter by academic year
+     * @param grade        filter by grade
+     * @param request      HTTP request to extract JWT token
      * @return paginated list of class summaries
      */
     @GetMapping
     @PreAuthorize("hasRole('TEACHER')")
     @Operation(
         summary = "List teacher's classes",
-        description = "Retrieve all classes assigned to the authenticated teacher with pagination. " +
-                      "By default, only active classes are returned. " +
-                      "Set includeArchived=true to see archived classes."
+        description = "Retrieve all classes assigned to the authenticated teacher with pagination and filtering."
     )
     public ResponseEntity<ApiResponse<ClassListResponse>> listClasses(
             @Parameter(description = "Page number (0-indexed)", example = "0")
@@ -85,18 +89,25 @@ public class ClassController {
             @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "Sort field and direction", example = "grade,asc")
             @RequestParam(defaultValue = "grade,asc") String sort,
-            @Parameter(description = "Include archived classes in results", example = "false")
-            @RequestParam(defaultValue = "false") boolean includeArchived,
+            @Parameter(description = "Search by class name")
+            @RequestParam(required = false) String search,
+            @Parameter(description = "Filter by status (comma-separated: ACTIVE,INACTIVE,COMPLETED)")
+            @RequestParam(required = false) String status,
+            @Parameter(description = "Filter by academic year", example = "2024-2025")
+            @RequestParam(required = false) String academicYear,
+            @Parameter(description = "Filter by grade", example = "10")
+            @RequestParam(required = false) String grade,
             HttpServletRequest request) {
 
         // Extract teacher ID from JWT token
         UUID teacherId = extractTeacherIdFromRequest(request);
 
-        log.info("Fetching classes for teacher: {} (page: {}, size: {}, includeArchived: {})",
-                 teacherId, page, size, includeArchived);
+        log.info("Fetching classes for teacher: {} (page: {}, size: {}, search: {}, status: {}, academicYear: {}, grade: {})",
+                 teacherId, page, size, search, status, academicYear, grade);
 
         Pageable pageable = createPageable(page, size, sort);
-        ClassListResponse response = classService.listTeacherClassesPaginated(teacherId, includeArchived, pageable);
+        ClassListResponse response = classService.listClassesWithFilters(
+                teacherId, search, status, academicYear, grade, pageable);
 
         log.info("Found {} classes for teacher: {} (page {} of {})",
                  response.getContent().size(), teacherId, page + 1, response.getTotalPages());
