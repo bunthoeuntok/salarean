@@ -43,9 +43,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/context/language-provider'
 import { studentService } from '@/services/student.service'
-import { classService } from '@/services/class.service'
 import type { Student, Gender, Relationship, UpdateStudentRequest } from '@/types/student.types'
-import type { Class } from '@/types/class.types'
 
 // Schema type for type inference
 const baseParentContactSchema = z.object({
@@ -62,10 +60,7 @@ const baseStudentSchema = z.object({
   lastNameKhmer: z.string().optional(),
   dateOfBirth: z.date(),
   gender: z.enum(['M', 'F'] as const),
-  classId: z.string(),
-  enrollmentDate: z.date(),
   address: z.string().optional(),
-  emergencyContact: z.string().optional(),
   parentContacts: z.array(baseParentContactSchema),
 })
 
@@ -79,13 +74,12 @@ interface EditStudentModalProps {
 
 interface EditStudentFormProps {
   studentData: Student
-  classesData: Class[] | undefined
   onClose: () => void
   studentId: string
 }
 
 // Inner form component - only mounts when studentData is available
-function EditStudentForm({ studentData, classesData, onClose, studentId }: EditStudentFormProps) {
+function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormProps) {
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('student-info')
@@ -109,10 +103,7 @@ function EditStudentForm({ studentData, classesData, onClose, studentId }: EditS
       lastNameKhmer: z.string().max(100).optional(),
       dateOfBirth: z.date({ required_error: t.validation.required }),
       gender: z.enum(['M', 'F'] as const, { required_error: t.validation.required }),
-      classId: z.string().min(1, t.validation.required),
-      enrollmentDate: z.date({ required_error: t.validation.required }),
       address: z.string().max(500).optional(),
-      emergencyContact: z.string().max(20).optional(),
       parentContacts: z
         .array(parentContactSchema)
         .min(1, t.students.modal.parentContact.atLeastOne),
@@ -129,10 +120,7 @@ function EditStudentForm({ studentData, classesData, onClose, studentId }: EditS
       lastNameKhmer: studentData.lastNameKhmer || '',
       dateOfBirth: parseISO(studentData.dateOfBirth),
       gender: studentData.gender,
-      classId: studentData.enrolledClassId || '',
-      enrollmentDate: studentData.enrollmentDate ? parseISO(studentData.enrollmentDate) : new Date(),
       address: studentData.address || '',
-      emergencyContact: studentData.emergencyContact || '',
       parentContacts: studentData.parentContacts?.length
         ? studentData.parentContacts.map((pc) => ({
             fullName: pc.fullName,
@@ -173,11 +161,9 @@ function EditStudentForm({ studentData, classesData, onClose, studentId }: EditS
     const request: UpdateStudentRequest = {
       ...data,
       dateOfBirth: format(data.dateOfBirth, 'yyyy-MM-dd'),
-      enrollmentDate: format(data.enrollmentDate, 'yyyy-MM-dd'),
       firstNameKhmer: data.firstNameKhmer || undefined,
       lastNameKhmer: data.lastNameKhmer || undefined,
       address: data.address || undefined,
-      emergencyContact: data.emergencyContact || undefined,
     }
     updateMutation.mutate(request)
   }
@@ -224,29 +210,18 @@ function EditStudentForm({ studentData, classesData, onClose, studentId }: EditS
     errors.gender ||
     errors.address
   )
-  const hasEnrollmentErrors = !!(
-    errors.classId ||
-    errors.enrollmentDate ||
-    errors.emergencyContact
-  )
   const hasParentContactErrors = !!errors.parentContacts
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col flex-1 overflow-hidden px-6 pt-4'>
         <Tabs value={activeTab} onValueChange={setActiveTab} className='flex flex-col flex-1 overflow-hidden'>
-          <TabsList className='grid w-full grid-cols-3 shrink-0'>
+          <TabsList className='grid w-full grid-cols-2 shrink-0'>
             <TabsTrigger
               value='student-info'
               className={cn(hasStudentInfoErrors && 'text-destructive data-[state=active]:text-destructive')}
             >
               {t.students.modal.tabs.studentInfo}
-            </TabsTrigger>
-            <TabsTrigger
-              value='enrollment'
-              className={cn(hasEnrollmentErrors && 'text-destructive data-[state=active]:text-destructive')}
-            >
-              {t.students.modal.tabs.enrollment}
             </TabsTrigger>
             <TabsTrigger
               value='parent-contact'
@@ -418,95 +393,6 @@ function EditStudentForm({ studentData, classesData, onClose, studentId }: EditS
                 )}
               />
             </div>
-          </TabsContent>
-
-          {/* Enrollment Tab */}
-          <TabsContent value='enrollment' className='flex-1 overflow-y-auto space-y-4 mt-4 pr-1'>
-            <div className='grid grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='classId'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.students.modal.fields.class}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue
-                            placeholder={t.students.modal.fields.classPlaceholder}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {classesData?.map((cls) => (
-                          <SelectItem key={cls.id} value={cls.id}>
-                            {cls.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='enrollmentDate'
-                render={({ field }) => (
-                  <FormItem className='flex flex-col'>
-                    <FormLabel>{t.students.modal.fields.enrollmentDate}</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant='outline'
-                            className={cn(
-                              'w-full justify-start text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            <CalendarIcon className='mr-2 h-4 w-4' />
-                            {field.value ? (
-                              format(field.value, 'PPP')
-                            ) : (
-                              <span>{t.students.modal.fields.enrollmentDatePlaceholder}</span>
-                            )}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className='w-auto p-0' align='start'>
-                        <Calendar
-                          mode='single'
-                          captionLayout='dropdown'
-                          startMonth={new Date(2020, 0)}
-                          endMonth={new Date(new Date().getFullYear() + 1, 11)}
-                          selected={field.value}
-                          onSelect={field.onChange}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name='emergencyContact'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t.students.modal.fields.emergencyContact}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t.students.modal.fields.emergencyContactPlaceholder}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </TabsContent>
 
           {/* Parent Contact Tab */}
@@ -692,13 +578,6 @@ export function EditStudentModal({ open, onOpenChange, studentId }: EditStudentM
     enabled: !!studentId && open,
   })
 
-  // Fetch classes for dropdown
-  const { data: classesData } = useQuery({
-    queryKey: ['classes-for-dropdown'],
-    queryFn: () => classService.getClasses({ size: 100, status: 'ACTIVE' }),
-    staleTime: 5 * 60 * 1000,
-  })
-
   const handleClose = () => {
     onOpenChange(false)
   }
@@ -718,7 +597,6 @@ export function EditStudentModal({ open, onOpenChange, studentId }: EditStudentM
           <EditStudentForm
             key={studentData.id}
             studentData={studentData}
-            classesData={classesData?.content}
             onClose={handleClose}
             studentId={studentId!}
           />

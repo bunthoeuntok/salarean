@@ -173,7 +173,7 @@ public class StudentService implements IStudentService {
 
     @Override
     @Transactional
-    public StudentResponse updateStudent(UUID id, StudentRequest request) {
+    public StudentResponse updateStudent(UUID id, StudentUpdateRequest request) {
         log.info("Updating student: {}", id);
 
         // Fetch student with retry logic for optimistic locking
@@ -198,7 +198,8 @@ public class StudentService implements IStudentService {
             throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
         }
 
-        // Update basic fields (student code and enrollment date are immutable)
+        // Update basic fields (student code, enrollment date, and class are immutable via this endpoint)
+        // Use EnrollmentController to change class enrollment
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setFirstNameKhmer(request.getFirstNameKhmer());
@@ -206,7 +207,6 @@ public class StudentService implements IStudentService {
         student.setDateOfBirth(request.getDateOfBirth());
         student.setGender(request.getGender());
         student.setAddress(request.getAddress());
-        student.setEmergencyContact(request.getEmergencyContact());
         student.setUpdatedAt(LocalDateTime.now());
 
         // Update parent contacts: delete all existing and create new ones

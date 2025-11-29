@@ -47,6 +47,7 @@ class StudentControllerTest {
     private IStudentService studentService;
 
     private StudentRequest validRequest;
+    private StudentUpdateRequest validUpdateRequest;
     private StudentResponse mockResponse;
 
     @BeforeEach
@@ -59,7 +60,7 @@ class StudentControllerTest {
                 .isPrimary(true)
                 .build();
 
-        // Create valid student request
+        // Create valid student request (for create)
         validRequest = StudentRequest.builder()
                 .firstName("Jane")
                 .lastName("Doe")
@@ -71,6 +72,18 @@ class StudentControllerTest {
                 .emergencyContact("+85512345678")
                 .enrollmentDate(LocalDate.now())
                 .classId(UUID.randomUUID())
+                .parentContacts(List.of(parentContact))
+                .build();
+
+        // Create valid update request (for update - no enrollment fields)
+        validUpdateRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .firstNameKhmer("ជេន")
+                .lastNameKhmer("ដូ")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .address("Phnom Penh, Cambodia")
                 .parentContacts(List.of(parentContact))
                 .build();
 
@@ -285,13 +298,13 @@ class StudentControllerTest {
     void updateStudent_WithValidData_ShouldReturn200Ok() throws Exception {
         // Arrange
         UUID studentId = mockResponse.getId();
-        when(studentService.updateStudent(any(UUID.class), any(StudentRequest.class)))
+        when(studentService.updateStudent(any(UUID.class), any(StudentUpdateRequest.class)))
                 .thenReturn(mockResponse);
 
         // Act & Assert
         mockMvc.perform(put("/api/students/{id}", studentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(validUpdateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errorCode").value("SUCCESS"))
                 .andExpect(jsonPath("$.data.id").value(studentId.toString()))
@@ -499,12 +512,18 @@ class StudentControllerTest {
     void updateStudent_WithNoParentContacts_ShouldReturn400BadRequest() throws Exception {
         // Arrange
         UUID studentId = UUID.randomUUID();
-        validRequest.setParentContacts(List.of());
+        StudentUpdateRequest emptyContactsRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of())
+                .build();
 
         // Act & Assert - validation catches this before service layer
         mockMvc.perform(put("/api/students/{id}", studentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(emptyContactsRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
     }
@@ -519,15 +538,21 @@ class StudentControllerTest {
                 .relationship(Relationship.FATHER)
                 .isPrimary(false)
                 .build();
-        validRequest.setParentContacts(List.of(contact));
+        StudentUpdateRequest noPrimaryRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of(contact))
+                .build();
 
-        when(studentService.updateStudent(eq(studentId), any(StudentRequest.class)))
+        when(studentService.updateStudent(eq(studentId), any(StudentUpdateRequest.class)))
                 .thenThrow(new InvalidStudentDataException("Only one parent contact can be marked as primary"));
 
         // Act & Assert
         mockMvc.perform(put("/api/students/{id}", studentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(noPrimaryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value("INVALID_STUDENT_DATA"));
     }
@@ -548,15 +573,21 @@ class StudentControllerTest {
                 .relationship(Relationship.MOTHER)
                 .isPrimary(true)
                 .build();
-        validRequest.setParentContacts(List.of(contact1, contact2));
+        StudentUpdateRequest multiplePrimaryRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of(contact1, contact2))
+                .build();
 
-        when(studentService.updateStudent(eq(studentId), any(StudentRequest.class)))
+        when(studentService.updateStudent(eq(studentId), any(StudentUpdateRequest.class)))
                 .thenThrow(new InvalidStudentDataException("Only one parent contact can be marked as primary"));
 
         // Act & Assert
         mockMvc.perform(put("/api/students/{id}", studentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(multiplePrimaryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value("INVALID_STUDENT_DATA"));
     }
@@ -565,13 +596,13 @@ class StudentControllerTest {
     void updateStudent_WithNonExistentStudent_ShouldReturn404NotFound() throws Exception {
         // Arrange
         UUID studentId = UUID.randomUUID();
-        when(studentService.updateStudent(eq(studentId), any(StudentRequest.class)))
+        when(studentService.updateStudent(eq(studentId), any(StudentUpdateRequest.class)))
                 .thenThrow(new StudentNotFoundException("Student with ID " + studentId + " not found"));
 
         // Act & Assert
         mockMvc.perform(put("/api/students/{id}", studentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(validUpdateRequest)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value("STUDENT_NOT_FOUND"));
     }
@@ -580,13 +611,13 @@ class StudentControllerTest {
     void updateStudent_WithOptimisticLockingFailure_ShouldReturn400BadRequest() throws Exception {
         // Arrange
         UUID studentId = UUID.randomUUID();
-        when(studentService.updateStudent(eq(studentId), any(StudentRequest.class)))
+        when(studentService.updateStudent(eq(studentId), any(StudentUpdateRequest.class)))
                 .thenThrow(new InvalidStudentDataException("Update conflict: Another user has modified this student. Please refresh and try again."));
 
         // Act & Assert
         mockMvc.perform(put("/api/students/{id}", studentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(validUpdateRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value("INVALID_STUDENT_DATA"));
     }

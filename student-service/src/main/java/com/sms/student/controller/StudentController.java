@@ -56,12 +56,13 @@ public class StudentController {
      * Update existing student information.
      * PUT /api/students/{id}
      * Requires TEACHER role.
+     * Note: Does not update enrollment info - use EnrollmentController for that.
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> updateStudent(
             @PathVariable UUID id,
-            @Valid @RequestBody StudentRequest request) {
+            @Valid @RequestBody StudentUpdateRequest request) {
         log.info("Received request to update student: {}", id);
 
         StudentResponse response = studentService.updateStudent(id, request);

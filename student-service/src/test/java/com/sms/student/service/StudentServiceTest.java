@@ -2,6 +2,7 @@ package com.sms.student.service;
 
 import com.sms.student.dto.ParentContactRequest;
 import com.sms.student.dto.StudentRequest;
+import com.sms.student.dto.StudentUpdateRequest;
 import com.sms.student.dto.StudentResponse;
 import com.sms.student.model.ParentContact;
 import com.sms.student.model.SchoolClass;
@@ -62,6 +63,7 @@ class StudentServiceTest {
     private StudentService studentService;
 
     private StudentRequest validRequest;
+    private StudentUpdateRequest validUpdateRequest;
     private SchoolClass mockClass;
     private Student mockStudent;
 
@@ -75,7 +77,7 @@ class StudentServiceTest {
                 .isPrimary(true)
                 .build();
 
-        // Create valid student request
+        // Create valid student request (for create)
         validRequest = StudentRequest.builder()
                 .firstName("Jane")
                 .lastName("Doe")
@@ -87,6 +89,18 @@ class StudentServiceTest {
                 .emergencyContact("+85512345678")
                 .enrollmentDate(LocalDate.now())
                 .classId(UUID.randomUUID())
+                .parentContacts(List.of(parentContact))
+                .build();
+
+        // Create valid update request (for update - no enrollment fields)
+        validUpdateRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .firstNameKhmer("ជេន")
+                .lastNameKhmer("ដូ")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .address("Phnom Penh, Cambodia")
                 .parentContacts(List.of(parentContact))
                 .build();
 
@@ -487,7 +501,7 @@ class StudentServiceTest {
                 .isPrimary(true)
                 .build();
 
-        validRequest.setParentContacts(List.of(newContactReq));
+        validUpdateRequest.setParentContacts(List.of(newContactReq));
 
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(mockStudent));
         when(parentContactRepository.findByStudentId(studentId))
@@ -498,7 +512,7 @@ class StudentServiceTest {
         when(enrollmentRepository.findCurrentClassIdByStudentId(studentId)).thenReturn(Optional.empty());
 
         // Act
-        StudentResponse response = studentService.updateStudent(studentId, validRequest);
+        StudentResponse response = studentService.updateStudent(studentId, validUpdateRequest);
 
         // Assert
         assertThat(response).isNotNull();
@@ -514,12 +528,18 @@ class StudentServiceTest {
     void updateStudent_WithoutParentContacts_ShouldThrowException() {
         // Arrange
         UUID studentId = mockStudent.getId();
-        validRequest.setParentContacts(List.of());
+        StudentUpdateRequest emptyContactsRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of())
+                .build();
 
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(mockStudent));
 
         // Act & Assert
-        assertThatThrownBy(() -> studentService.updateStudent(studentId, validRequest))
+        assertThatThrownBy(() -> studentService.updateStudent(studentId, emptyContactsRequest))
                 .isInstanceOf(InvalidStudentDataException.class)
                 .hasMessageContaining("At least one parent contact is required");
 
@@ -537,12 +557,18 @@ class StudentServiceTest {
                 .relationship(Relationship.FATHER)
                 .isPrimary(false)
                 .build();
-        validRequest.setParentContacts(List.of(contact));
+        StudentUpdateRequest noPrimaryRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of(contact))
+                .build();
 
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(mockStudent));
 
         // Act & Assert
-        assertThatThrownBy(() -> studentService.updateStudent(studentId, validRequest))
+        assertThatThrownBy(() -> studentService.updateStudent(studentId, noPrimaryRequest))
                 .isInstanceOf(InvalidStudentDataException.class)
                 .hasMessageContaining("primary");
 
@@ -566,12 +592,18 @@ class StudentServiceTest {
                 .relationship(Relationship.MOTHER)
                 .isPrimary(true)
                 .build();
-        validRequest.setParentContacts(List.of(contact1, contact2));
+        StudentUpdateRequest multiplePrimaryRequest = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of(contact1, contact2))
+                .build();
 
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(mockStudent));
 
         // Act & Assert
-        assertThatThrownBy(() -> studentService.updateStudent(studentId, validRequest))
+        assertThatThrownBy(() -> studentService.updateStudent(studentId, multiplePrimaryRequest))
                 .isInstanceOf(InvalidStudentDataException.class)
                 .hasMessageContaining("Only one parent contact can be marked as primary");
 
@@ -586,7 +618,7 @@ class StudentServiceTest {
         when(studentRepository.findById(nonExistentId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> studentService.updateStudent(nonExistentId, validRequest))
+        assertThatThrownBy(() -> studentService.updateStudent(nonExistentId, validUpdateRequest))
                 .isInstanceOf(StudentNotFoundException.class)
                 .hasMessageContaining("not found");
 
@@ -609,7 +641,13 @@ class StudentServiceTest {
                 .relationship(Relationship.GUARDIAN)
                 .isPrimary(true)
                 .build();
-        validRequest.setParentContacts(List.of(newContact));
+        StudentUpdateRequest updateWithNewContact = StudentUpdateRequest.builder()
+                .firstName("Jane")
+                .lastName("Doe")
+                .dateOfBirth(LocalDate.of(2010, 1, 15))
+                .gender(Gender.F)
+                .parentContacts(List.of(newContact))
+                .build();
 
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(mockStudent));
         when(parentContactRepository.findByStudentId(studentId)).thenReturn(existingContacts);
@@ -618,7 +656,7 @@ class StudentServiceTest {
         when(enrollmentRepository.findCurrentClassIdByStudentId(studentId)).thenReturn(Optional.empty());
 
         // Act
-        studentService.updateStudent(studentId, validRequest);
+        studentService.updateStudent(studentId, updateWithNewContact);
 
         // Assert
         verify(parentContactRepository, times(1)).deleteAll(existingContacts);

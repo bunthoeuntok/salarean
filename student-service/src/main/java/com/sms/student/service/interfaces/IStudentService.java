@@ -29,14 +29,15 @@ public interface IStudentService {
     /**
      * Update existing student information.
      * Cannot change student code or creation date.
+     * Does not update enrollment info - use EnrollmentService for that.
      *
      * @param id Student UUID
-     * @param request Updated student data
+     * @param request Updated student data (without enrollment fields)
      * @return Updated student response
      * @throws com.sms.student.exception.StudentNotFoundException if student not found
      * @throws com.sms.student.exception.InvalidStudentDataException if validation fails
      */
-    StudentResponse updateStudent(UUID id, StudentRequest request);
+    StudentResponse updateStudent(UUID id, StudentUpdateRequest request);
 
     /**
      * Soft delete a student (set status to INACTIVE).

@@ -68,6 +68,17 @@ export interface CreateStudentRequest {
   parentContacts: ParentContactRequest[]
 }
 
-export interface UpdateStudentRequest extends Partial<CreateStudentRequest> {
-  status?: StudentStatus
+/**
+ * Request for updating student info (without enrollment fields).
+ * Use enrollment endpoints to change class enrollment.
+ */
+export interface UpdateStudentRequest {
+  firstName: string
+  lastName: string
+  firstNameKhmer?: string
+  lastNameKhmer?: string
+  dateOfBirth: string
+  gender: Gender
+  address?: string
+  parentContacts: ParentContactRequest[]
 }
