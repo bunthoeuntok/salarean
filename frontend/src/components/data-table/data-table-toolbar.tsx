@@ -12,6 +12,7 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = 'Search...',
   filterableColumns = [],
   toolbarActions,
+  columnLabels,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
 
@@ -53,7 +54,7 @@ export function DataTableToolbar<TData>({
       </div>
       <div className='flex items-center gap-2'>
         {toolbarActions}
-        <DataTableViewOptions table={table} />
+        <DataTableViewOptions table={table} columnLabels={columnLabels} />
       </div>
     </div>
   )

@@ -129,6 +129,10 @@ export const uiKm: UITranslations = {
     submit: 'ស្វែងរក',
     reset: 'កំណត់ឡើងវិញ',
   },
+  table: {
+    view: 'មើល',
+    toggleColumns: 'បើក / បិទជួរឈរ',
+  },
   settings: {
     title: 'ការកំណត់',
     description: 'គ្រប់គ្រងការកំណត់គណនី និងចំណូលចិត្តរបស់អ្នក។',

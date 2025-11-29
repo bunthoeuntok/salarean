@@ -151,6 +151,11 @@ export interface UITranslations {
     submit: string
     reset: string
   }
+  // Table
+  table: {
+    view: string
+    toggleColumns: string
+  }
   // Settings
   settings: {
     title: string

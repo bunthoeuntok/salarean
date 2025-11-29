@@ -129,6 +129,10 @@ export const uiEn: UITranslations = {
     submit: 'Search',
     reset: 'Reset',
   },
+  table: {
+    view: 'View',
+    toggleColumns: 'Toggle columns',
+  },
   settings: {
     title: 'Settings',
     description: 'Manage your account settings and preferences.',

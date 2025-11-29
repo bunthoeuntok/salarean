@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Plus, CheckCircle, XCircle, Clock, GraduationCap } from 'lucide-react'
+import type { Table } from '@tanstack/react-table'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -8,12 +9,13 @@ import { Button } from '@/components/ui/button'
 import {
   DataTable,
   DataTableFilterToolbar,
+  DataTableViewOptions,
   useTableUrlParams,
   getStoredPageSize,
 } from '@/components/data-table'
 import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
-import type { ClassStatus } from '@/types/class.types'
+import type { Class, ClassStatus } from '@/types/class.types'
 
 // Grade options (1-12)
 const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
@@ -24,6 +26,21 @@ const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
 
 export function ClassesPage() {
   const { t } = useLanguage()
+  const [tableInstance, setTableInstance] = useState<Table<Class> | null>(null)
+
+  // Column labels for view options
+  const columnLabels = useMemo(
+    () => ({
+      name: t.classes.columns.name,
+      grade: t.classes.columns.grade,
+      academicYear: t.classes.columns.academicYear,
+      teacherName: t.classes.columns.teacher,
+      enrollment: t.classes.columns.enrollment,
+      status: t.classes.columns.status,
+      actions: t.classes.columns.actions,
+    }),
+    [t]
+  )
 
   // Use URL params for table state
   const {
@@ -122,6 +139,14 @@ export function ClassesPage() {
           searchPlaceholder={t.classes.searchPlaceholder}
           submitLabel={t.filter.submit}
           resetLabel={t.filter.reset}
+          toolbarActions={
+            tableInstance && (
+              <DataTableViewOptions
+                table={tableInstance}
+                columnLabels={columnLabels}
+              />
+            )
+          }
         />
 
         <div className='mt-4'>
@@ -139,6 +164,8 @@ export function ClassesPage() {
             enableRowSelection
             enableColumnReordering
             enableColumnResizing
+            showToolbar={false}
+            onTableReady={setTableInstance}
           />
         </div>
       </Main>

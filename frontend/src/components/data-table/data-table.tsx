@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -68,8 +68,15 @@ export function DataTable<TData, TValue>({
   // Column features
   enableColumnResizing = false,
   enableColumnReordering = false,
+  // Toolbar
+  showToolbar = true,
+  columnLabels,
   // Toolbar actions
   toolbarActions,
+  // Render prop for external toolbar integration
+  renderViewOptions,
+  // Callback to get table instance
+  onTableReady,
 }: DataTableProps<TData, TValue>) {
   // Get default column order from columns
   const defaultColumnOrder = useMemo(
@@ -214,6 +221,11 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
+  // Call onTableReady when table is ready
+  useEffect(() => {
+    onTableReady?.(table)
+  }, [table, onTableReady])
+
   // DnD sensors
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -237,16 +249,27 @@ export function DataTable<TData, TValue>({
 
   const headerGroups = table.getHeaderGroups()
 
+  // Expose table to render prop for external toolbar integration
+  const viewOptionsElement = renderViewOptions?.(table)
+
   return (
     <div className='space-y-4'>
-      <DataTableToolbar
-        table={table}
-        searchValue={searchValue}
-        onSearchChange={onSearchChange}
-        searchPlaceholder={searchPlaceholder}
-        filterableColumns={filterableColumns}
-        toolbarActions={toolbarActions}
-      />
+      {showToolbar && (
+        <DataTableToolbar
+          table={table}
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          searchPlaceholder={searchPlaceholder}
+          filterableColumns={filterableColumns}
+          toolbarActions={
+            <>
+              {toolbarActions}
+              {viewOptionsElement}
+            </>
+          }
+          columnLabels={columnLabels}
+        />
+      )}
       <div className='rounded-md border overflow-auto'>
         <DndContext
           sensors={sensors}

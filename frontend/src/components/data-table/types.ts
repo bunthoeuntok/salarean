@@ -30,8 +30,15 @@ export interface DataTableProps<TData, TValue> {
   // Column features
   enableColumnResizing?: boolean
   enableColumnReordering?: boolean
+  // Toolbar
+  showToolbar?: boolean
+  columnLabels?: Record<string, string>
   // Toolbar actions
   toolbarActions?: React.ReactNode
+  // Render prop for external toolbar integration
+  renderViewOptions?: (table: Table<TData>) => React.ReactNode
+  // Callback to get table instance for external use
+  onTableReady?: (table: Table<TData>) => void
 }
 
 export interface DataTableColumnHeaderProps<TData, TValue> {
@@ -58,6 +65,7 @@ export interface DataTableToolbarProps<TData> {
   searchPlaceholder?: string
   filterableColumns?: FilterableColumn[]
   toolbarActions?: React.ReactNode
+  columnLabels?: Record<string, string>
 }
 
 export interface DataTableFilterToolbarProps {
