@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Plus, UserCheck, UserX, GraduationCap, ArrowRightLeft } from 'lucide-react'
+import { Plus, UserCheck, UserX, GraduationCap } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -12,6 +12,7 @@ import {
   getStoredPageSize,
 } from '@/components/data-table'
 import { studentService } from '@/services/student.service'
+import { classService } from '@/services/class.service'
 import { createStudentColumns } from './columns'
 import type { StudentStatus, Gender } from '@/types/student.types'
 
@@ -34,6 +35,13 @@ export function StudentsPage() {
     defaultPageSize: getStoredPageSize('students-table'),
   })
 
+  // Fetch classes for filter dropdown
+  const { data: classesData } = useQuery({
+    queryKey: ['classes-for-filter'],
+    queryFn: () => classService.getClasses({ size: 100 }),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  })
+
   // Fetch students data
   const { data, isLoading } = useQuery({
     queryKey: ['students', pageIndex, pageSize, searchValue, sorting, filters],
@@ -45,6 +53,7 @@ export function StudentsPage() {
         sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
         status: filters.status?.join(',') || undefined,
         gender: filters.gender?.join(',') || undefined,
+        classId: filters.classId?.[0] || undefined,
       }),
   })
 
@@ -60,7 +69,18 @@ export function StudentsPage() {
     [t]
   )
 
-  // Filter options for status and gender
+  // Build class filter options from fetched data
+  const classFilterOptions = useMemo(
+    () =>
+      classesData?.content?.map((c) => ({
+        label: c.name,
+        value: c.id,
+        icon: GraduationCap,
+      })) ?? [],
+    [classesData]
+  )
+
+  // Filter options for status, gender, and class
   const filterableColumns = useMemo(
     () => [
       {
@@ -79,8 +99,13 @@ export function StudentsPage() {
           { label: t.students.gender.F, value: 'F' as Gender },
         ],
       },
+      {
+        id: 'classId',
+        title: t.students.columns.class,
+        options: classFilterOptions,
+      },
     ],
-    [t]
+    [t, classFilterOptions]
   )
 
   const handlePaginationChange = (newPageIndex: number, newPageSize: number) => {

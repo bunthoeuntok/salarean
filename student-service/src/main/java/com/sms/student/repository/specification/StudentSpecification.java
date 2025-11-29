@@ -3,6 +3,9 @@ package com.sms.student.repository.specification;
 import com.sms.student.enums.Gender;
 import com.sms.student.enums.StudentStatus;
 import com.sms.student.model.Student;
+import com.sms.student.model.StudentClassEnrollment;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Arrays;
@@ -55,14 +58,23 @@ public class StudentSpecification {
     }
 
     /**
-     * Filter by current class ID.
+     * Filter by current class ID (uses subquery on enrollment table).
+     * A student is currently enrolled if endDate is null.
      */
     public static Specification<Student> hasClassId(UUID classId) {
         return (root, query, cb) -> {
             if (classId == null) {
                 return cb.conjunction();
             }
-            return cb.equal(root.get("currentClassId"), classId);
+            // Subquery to find students currently enrolled in the specified class
+            Subquery<UUID> subquery = query.subquery(UUID.class);
+            Root<StudentClassEnrollment> enrollment = subquery.from(StudentClassEnrollment.class);
+            subquery.select(enrollment.get("studentId"))
+                    .where(
+                            cb.equal(enrollment.get("classId"), classId),
+                            cb.isNull(enrollment.get("endDate")) // Current enrollment
+                    );
+            return cb.in(root.get("id")).value(subquery);
         };
     }
 

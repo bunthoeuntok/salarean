@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Plus, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Plus, CheckCircle, XCircle, Clock, GraduationCap } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -14,6 +14,13 @@ import {
 import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
 import type { ClassStatus } from '@/types/class.types'
+
+// Grade options (1-12)
+const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
+  label: `Grade ${i + 1}`,
+  value: String(i + 1),
+  icon: GraduationCap,
+}))
 
 export function ClassesPage() {
   const { t } = useLanguage()
@@ -44,6 +51,7 @@ export function ClassesPage() {
         search: searchValue || undefined,
         sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
         status: filters.status?.join(',') || undefined,
+        grade: filters.grade?.[0] || undefined,
       }),
   })
 
@@ -60,7 +68,7 @@ export function ClassesPage() {
     [t]
   )
 
-  // Filter options for status
+  // Filter options for status and grade
   const filterableColumns = useMemo(
     () => [
       {
@@ -71,6 +79,11 @@ export function ClassesPage() {
           { label: t.classes.status.INACTIVE, value: 'INACTIVE' as ClassStatus, icon: XCircle },
           { label: t.classes.status.COMPLETED, value: 'COMPLETED' as ClassStatus, icon: Clock },
         ],
+      },
+      {
+        id: 'grade',
+        title: t.classes.columns.grade,
+        options: GRADE_OPTIONS,
       },
     ],
     [t]
