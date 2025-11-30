@@ -108,7 +108,7 @@ export function StudentsPage() {
   const classFilterOptions = useMemo(
     () =>
       classesData?.content?.map((c) => ({
-        label: c.name,
+        label: `Grade ${c.grade}${c.section ? ` - ${c.section}` : ''}`,
         value: c.id,
       })) ?? [],
     [classesData]

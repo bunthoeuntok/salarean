@@ -51,7 +51,6 @@ export function ClassesPage() {
       name: t.classes.columns.name,
       grade: t.classes.columns.grade,
       academicYear: t.classes.columns.academicYear,
-      teacherName: t.classes.columns.teacher,
       enrollment: t.classes.columns.enrollment,
       status: t.classes.columns.status,
       actions: t.classes.columns.actions,
@@ -85,7 +84,7 @@ export function ClassesPage() {
         search: searchValue || undefined,
         sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
         status: filters.status?.join(',') || undefined,
-        grade: filters.grade?.[0] || undefined,
+        grade: filters.grade?.[0] ? Number(filters.grade[0]) : undefined,
       }),
   })
 

@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
 import type { Class, ClassStatus, UpdateClassRequest } from '@/types/class.types'
@@ -55,12 +54,10 @@ const generateAcademicYearOptions = () => {
 }
 
 const baseClassSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
   academicYear: z.string(),
   grade: z.string(),
   section: z.string().optional(),
-  capacity: z.number(),
+  maxCapacity: z.number(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'COMPLETED'] as const),
 })
 
@@ -88,12 +85,10 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   // Create schema with translated messages
   const updateClassSchema = useMemo(() => {
     return z.object({
-      name: z.string().min(1, t.validation.required).max(100),
-      description: z.string().max(500).optional(),
       academicYear: z.string().min(1, t.validation.required),
       grade: z.string().min(1, t.validation.required),
       section: z.string().max(10).optional(),
-      capacity: z.coerce.number().min(1, t.validation.required).max(100),
+      maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
       status: z.enum(['ACTIVE', 'INACTIVE', 'COMPLETED'] as const),
     })
   }, [t])
@@ -107,12 +102,10 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(updateClassSchema),
     defaultValues: {
-      name: classData.name,
-      description: classData.description || '',
       academicYear: classData.academicYear,
-      grade: classData.grade,
+      grade: String(classData.grade),
       section: classData.section || '',
-      capacity: classData.capacity,
+      maxCapacity: classData.maxCapacity,
       status: classData.status,
     },
   })
@@ -132,9 +125,11 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
   const onSubmit = (data: FormData) => {
     const request: UpdateClassRequest = {
-      ...data,
-      description: data.description || undefined,
+      academicYear: data.academicYear,
+      grade: Number(data.grade),
       section: data.section || undefined,
+      maxCapacity: data.maxCapacity,
+      status: data.status,
     }
     updateMutation.mutate(request)
   }
@@ -142,23 +137,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t.classes.modal.fields.name}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={t.classes.modal.fields.namePlaceholder}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
@@ -166,7 +144,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t.classes.modal.fields.academicYear}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='w-full'>
                       <SelectValue
@@ -192,7 +170,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t.classes.modal.fields.grade}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='w-full'>
                       <SelectValue
@@ -233,7 +211,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
           />
           <FormField
             control={form.control}
-            name='capacity'
+            name='maxCapacity'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t.classes.modal.fields.capacity}</FormLabel>
@@ -258,7 +236,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t.classes.modal.fields.status}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className='w-full'>
                     <SelectValue
@@ -274,24 +252,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='description'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t.classes.modal.fields.description}</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={t.classes.modal.fields.descriptionPlaceholder}
-                  className='resize-none h-20'
-                  {...field}
-                />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -334,7 +294,7 @@ export function EditClassModal({ open, onOpenChange, classId }: EditClassModalPr
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[600px]'>
+      <DialogContent className='sm:max-w-[900px] top-[25%] translate-y-[-25%]'>
         <DialogHeader>
           <DialogTitle>{t.classes.modal.editTitle}</DialogTitle>
         </DialogHeader>

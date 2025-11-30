@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
 import type { CreateClassRequest } from '@/types/class.types'
@@ -55,12 +54,10 @@ const generateAcademicYearOptions = () => {
 }
 
 const baseClassSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
   academicYear: z.string(),
   grade: z.string(),
   section: z.string().optional(),
-  capacity: z.number(),
+  maxCapacity: z.number(),
 })
 
 type FormData = z.infer<typeof baseClassSchema>
@@ -79,24 +76,20 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
   // Create schema with translated messages
   const createClassSchema = useMemo(() => {
     return z.object({
-      name: z.string().min(1, t.validation.required).max(100),
-      description: z.string().max(500).optional(),
       academicYear: z.string().min(1, t.validation.required),
       grade: z.string().min(1, t.validation.required),
       section: z.string().max(10).optional(),
-      capacity: z.coerce.number().min(1, t.validation.required).max(100),
+      maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
     })
   }, [t])
 
   const form = useForm<FormData>({
     resolver: zodResolver(createClassSchema),
     defaultValues: {
-      name: '',
-      description: '',
       academicYear: '',
       grade: '',
       section: '',
-      capacity: 30,
+      maxCapacity: 30,
     },
   })
 
@@ -115,9 +108,10 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
 
   const onSubmit = (data: FormData) => {
     const request: CreateClassRequest = {
-      ...data,
-      description: data.description || undefined,
+      academicYear: data.academicYear,
+      grade: Number(data.grade),
       section: data.section || undefined,
+      maxCapacity: data.maxCapacity,
     }
     createMutation.mutate(request)
   }
@@ -129,30 +123,13 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[900px]'>
+      <DialogContent className='sm:max-w-[900px] top-[25%] translate-y-[-25%]'>
         <DialogHeader>
           <DialogTitle>{t.classes.modal.addTitle}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t.classes.modal.fields.name}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t.classes.modal.fields.namePlaceholder}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
@@ -227,7 +204,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
               />
               <FormField
                 control={form.control}
-                name='capacity'
+                name='maxCapacity'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t.classes.modal.fields.capacity}</FormLabel>
@@ -245,24 +222,6 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                 )}
               />
             </div>
-
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t.classes.modal.fields.description}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={t.classes.modal.fields.descriptionPlaceholder}
-                      className='resize-none h-20'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <DialogFooter className='gap-2'>
               <Button type='button' variant='outline' onClick={handleClose}>

@@ -257,7 +257,7 @@ public class ClassService implements IClassService {
     private ClassSummaryDto mapToSummaryDto(SchoolClass entity) {
         // Build display name: "Grade X - Section Y" or just "Grade X" if no section
         String displayName = entity.getSection() != null && !entity.getSection().isEmpty()
-            ? String.format("Grade %d - Section %s", entity.getGrade(), entity.getSection())
+            ? String.format("%d%s", entity.getGrade(), entity.getSection())
             : String.format("Grade %d", entity.getGrade());
 
         return ClassSummaryDto.builder()

@@ -23,7 +23,7 @@ export const classService = {
     if (params.search) queryParams.append('search', params.search)
     if (params.status) queryParams.append('status', params.status)
     if (params.academicYear) queryParams.append('academicYear', params.academicYear)
-    if (params.grade) queryParams.append('grade', params.grade)
+    if (params.grade !== undefined) queryParams.append('grade', String(params.grade))
 
     const queryString = queryParams.toString()
     const url = `/api/classes${queryString ? `?${queryString}` : ''}`

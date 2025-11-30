@@ -442,7 +442,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           <SelectContent>
                             {classesData?.content?.map((cls) => (
                               <SelectItem key={cls.id} value={cls.id}>
-                                {cls.name}
+                                Grade {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
                               </SelectItem>
                             ))}
                           </SelectContent>

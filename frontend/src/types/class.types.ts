@@ -6,17 +6,14 @@ export type ClassStatus = 'ACTIVE' | 'INACTIVE' | 'COMPLETED'
 
 export interface Class {
   id: string
-  name: string
-  description?: string
-  academicYear: string
-  grade: string
-  section?: string
-  capacity: number
-  currentEnrollment: number
-  status: ClassStatus
+  schoolId: string
   teacherId: string
-  teacherName?: string
-  scheduleInfo?: string
+  grade: number
+  section?: string
+  academicYear: string
+  maxCapacity: number
+  studentCount: number
+  status: ClassStatus
   createdAt: string
   updatedAt: string
 }
@@ -26,20 +23,22 @@ export interface ClassListParams {
   size?: number
   sort?: string
   search?: string
-  status?: string  // Can be comma-separated values for multiple filters
+  status?: string
   academicYear?: string
-  grade?: string
+  grade?: number
 }
 
 export interface CreateClassRequest {
-  name: string
-  description?: string
-  academicYear: string
-  grade: string
+  grade: number
   section?: string
-  capacity: number
+  academicYear: string
+  maxCapacity: number
 }
 
-export interface UpdateClassRequest extends Partial<CreateClassRequest> {
+export interface UpdateClassRequest {
+  grade?: number
+  section?: string
+  academicYear?: string
+  maxCapacity?: number
   status?: ClassStatus
 }
