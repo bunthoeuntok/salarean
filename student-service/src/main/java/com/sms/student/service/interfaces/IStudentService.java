@@ -92,12 +92,12 @@ public interface IStudentService {
      * @param search   search term for name or student code (optional)
      * @param status   filter by status, comma-separated (optional)
      * @param gender   filter by gender, comma-separated (optional)
-     * @param classId  filter by class ID (optional)
+     * @param classId  filter by class ID (optional, use "NONE" for students without class)
      * @param pageable pagination parameters
      * @return Paginated list of student summaries
      */
     StudentListResponse listStudentsWithFilters(String search, String status, String gender,
-                                                 UUID classId, Pageable pageable);
+                                                 String classId, Pageable pageable);
 
     /**
      * Upload student photo.

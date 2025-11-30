@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, Phone, Eye, Pencil, UserPlus, ArrowRightLeft, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Phone, Eye, Pencil, UserPlus, ArrowRightLeft, Trash2, CheckCircle, XCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,11 @@ import type { Student, StudentStatus, Gender } from '@/types/student.types'
 const statusVariantMap: Record<StudentStatus, 'default' | 'secondary'> = {
   ACTIVE: 'default',
   INACTIVE: 'secondary'
+}
+
+const statusIconMap: Record<StudentStatus, React.ComponentType<{ className?: string }>> = {
+  ACTIVE: CheckCircle,
+  INACTIVE: XCircle
 }
 
 const genderLabels: Record<Gender, string> = {
@@ -166,9 +171,11 @@ export const createStudentColumns = (
     ),
     cell: ({ row }) => {
       const status = row.getValue('status') as StudentStatus
+      const StatusIcon = statusIconMap[status]
       return (
         <div className='text-center'>
           <Badge variant={statusVariantMap[status]}>
+            <StatusIcon className='h-3 w-3' />
             {t.students.status[status] || status}
           </Badge>
         </div>

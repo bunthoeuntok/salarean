@@ -68,7 +68,7 @@ export function ViewStudentModal({ open, onOpenChange, student }: ViewStudentMod
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='h-[90vh] w-full flex flex-col p-0'>
+      <DialogContent className='sm:max-w-7xl h-[80vh] flex flex-col p-0'>
         {/* Header */}
         <DialogHeader className='shrink-0 bg-muted/50 border-b px-6 py-4'>
           <div className='flex items-center justify-between'>

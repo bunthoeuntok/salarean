@@ -182,6 +182,7 @@ export const uiKm: UITranslations = {
     description: 'គ្រប់គ្រងសិស្ស និងព័ត៌មានរបស់ពួកគេ។',
     addStudent: 'បន្ថែមសិស្ស',
     searchPlaceholder: 'ស្វែងរកសិស្ស...',
+    noClass: 'គ្មានថ្នាក់រៀន',
     columns: {
       code: 'លេខកូដ',
       name: 'ឈ្មោះ',

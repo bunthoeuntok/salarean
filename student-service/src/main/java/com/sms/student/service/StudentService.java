@@ -381,7 +381,7 @@ public class StudentService implements IStudentService {
     @Override
     @Transactional(readOnly = true)
     public StudentListResponse listStudentsWithFilters(String search, String status, String gender,
-                                                        UUID classId, Pageable pageable) {
+                                                        String classId, Pageable pageable) {
         log.info("Listing students with filters: search={}, status={}, gender={}, classId={}",
                  search, status, gender, classId);
 

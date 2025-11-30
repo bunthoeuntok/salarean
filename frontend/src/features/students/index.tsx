@@ -153,12 +153,14 @@ export function StudentsPage() {
 
   // Build class filter options from fetched data
   const classFilterOptions = useMemo(
-    () =>
-      classesData?.content?.map((c) => ({
+    () => [
+      { label: t.students.noClass, value: 'NONE' },
+      ...(classesData?.content?.map((c) => ({
         label: `Grade ${c.grade}${c.section ? ` - ${c.section}` : ''}`,
         value: c.id,
-      })) ?? [],
-    [classesData]
+      })) ?? []),
+    ],
+    [classesData, t]
   )
 
   // Filter options for status, gender, and class

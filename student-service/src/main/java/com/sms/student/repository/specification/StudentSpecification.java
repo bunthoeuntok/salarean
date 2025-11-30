@@ -60,12 +60,27 @@ public class StudentSpecification {
     /**
      * Filter by current class ID (uses subquery on enrollment table).
      * A student is currently enrolled if endDate is null.
+     * Pass "NONE" to filter students without any current class enrollment.
      */
-    public static Specification<Student> hasClassId(UUID classId) {
+    public static Specification<Student> hasClassId(String classIdFilter) {
         return (root, query, cb) -> {
-            if (classId == null) {
+            if (classIdFilter == null || classIdFilter.isBlank()) {
                 return cb.conjunction();
             }
+
+            // Special case: filter students without any class
+            if ("NONE".equalsIgnoreCase(classIdFilter)) {
+                // Subquery to find students with ANY active enrollment
+                Subquery<UUID> subquery = query.subquery(UUID.class);
+                Root<StudentClassEnrollment> enrollment = subquery.from(StudentClassEnrollment.class);
+                subquery.select(enrollment.get("studentId"))
+                        .where(cb.isNull(enrollment.get("endDate"))); // Current enrollment
+                // Return students NOT in the subquery (no active enrollment)
+                return cb.not(cb.in(root.get("id")).value(subquery));
+            }
+
+            // Parse as UUID and filter by specific class
+            UUID classId = UUID.fromString(classIdFilter);
             // Subquery to find students currently enrolled in the specified class
             Subquery<UUID> subquery = query.subquery(UUID.class);
             Root<StudentClassEnrollment> enrollment = subquery.from(StudentClassEnrollment.class);

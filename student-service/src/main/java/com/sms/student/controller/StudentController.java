@@ -155,7 +155,7 @@ public class StudentController {
      * @param search  search by name or student code
      * @param status  filter by status (comma-separated: ACTIVE,INACTIVE)
      * @param gender  filter by gender (comma-separated: M,F)
-     * @param classId filter by class ID
+     * @param classId filter by class ID (use "NONE" for students without class)
      * @return paginated list of students
      */
     @GetMapping
@@ -167,7 +167,7 @@ public class StudentController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String gender,
-            @RequestParam(required = false) UUID classId) {
+            @RequestParam(required = false) String classId) {
         log.info("Received request to list students, page: {}, size: {}, search: {}, status: {}, gender: {}, classId: {}",
                  page, size, search, status, gender, classId);
 

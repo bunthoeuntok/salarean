@@ -182,6 +182,7 @@ export const uiEn: UITranslations = {
     description: 'Manage your students and their information.',
     addStudent: 'Add Student',
     searchPlaceholder: 'Search students...',
+    noClass: 'No Class',
     columns: {
       code: 'Code',
       name: 'Name',

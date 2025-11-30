@@ -207,6 +207,7 @@ export interface UITranslations {
     description: string
     addStudent: string
     searchPlaceholder: string
+    noClass: string
     columns: {
       code: string
       name: string
