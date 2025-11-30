@@ -127,3 +127,14 @@ export interface TransferStudentRequest {
   transferDate: string
   reason: string
 }
+
+/**
+ * Response for enrollment history
+ */
+export interface EnrollmentHistoryResponse {
+  enrollments: EnrollmentResponse[]
+  totalCount: number
+  activeCount: number
+  completedCount: number
+  transferredCount: number
+}

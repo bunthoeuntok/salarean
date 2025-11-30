@@ -20,6 +20,7 @@ import { AddStudentModal } from './components/add-student-modal'
 import { EditStudentModal } from './components/edit-student-modal'
 import { EnrollStudentModal } from './components/enroll-student-modal'
 import { TransferStudentModal } from './components/transfer-student-modal'
+import { ViewStudentModal } from './components/view-student-modal'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 
 export function StudentsPage() {
@@ -32,6 +33,8 @@ export function StudentsPage() {
   const [enrollStudent, setEnrollStudent] = useState<Student | null>(null)
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
   const [transferStudent, setTransferStudent] = useState<Student | null>(null)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [viewStudent, setViewStudent] = useState<Student | null>(null)
 
   const handleEditStudent = (student: Student) => {
     setEditStudentId(student.id)
@@ -66,6 +69,18 @@ export function StudentsPage() {
     setIsTransferModalOpen(open)
     if (!open) {
       setTransferStudent(null)
+    }
+  }
+
+  const handleViewStudent = (student: Student) => {
+    setViewStudent(student)
+    setIsViewModalOpen(true)
+  }
+
+  const handleViewModalClose = (open: boolean) => {
+    setIsViewModalOpen(open)
+    if (!open) {
+      setViewStudent(null)
     }
   }
 
@@ -129,7 +144,7 @@ export function StudentsPage() {
         t,
         handleEditStudent,
         (student) => console.log('Delete student:', student),
-        (student) => console.log('View student:', student),
+        handleViewStudent,
         handleEnrollStudent,
         handleTransferStudent
       ),
@@ -219,6 +234,12 @@ export function StudentsPage() {
           open={isTransferModalOpen}
           onOpenChange={handleTransferModalClose}
           student={transferStudent}
+        />
+
+        <ViewStudentModal
+          open={isViewModalOpen}
+          onOpenChange={handleViewModalClose}
+          student={viewStudent}
         />
 
         {/* Filter toolbar with submit button */}

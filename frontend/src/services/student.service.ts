@@ -8,6 +8,7 @@ import type {
   EnrollStudentRequest,
   EnrollmentResponse,
   TransferStudentRequest,
+  EnrollmentHistoryResponse,
 } from '@/types/student.types'
 
 /**
@@ -74,5 +75,12 @@ export const studentService = {
    */
   async transferStudent(studentId: string, data: TransferStudentRequest): Promise<EnrollmentResponse> {
     return apiRequest<EnrollmentResponse>(api.post(`/api/students/${studentId}/transfer`, data))
+  },
+
+  /**
+   * Get enrollment history for a student
+   */
+  async getEnrollmentHistory(studentId: string): Promise<EnrollmentHistoryResponse> {
+    return apiRequest<EnrollmentHistoryResponse>(api.get(`/api/students/${studentId}/enrollment-history`))
   },
 }

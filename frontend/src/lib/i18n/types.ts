@@ -260,6 +260,51 @@ export interface UITranslations {
       transferring: string
       success: string
     }
+    view: {
+      tabs: {
+        information: string
+        contacts: string
+        enrollment: string
+        attendance: string
+        grades: string
+      }
+      personalInfo: string
+      contactInfo: string
+      enrollmentInfo: string
+      noContactInfo: string
+      noContacts: string
+      noEnrollmentHistory: string
+      primaryContact: string
+      comingSoon: string
+      fields: {
+        firstName: string
+        lastName: string
+        firstNameKhmer: string
+        lastNameKhmer: string
+        gender: string
+        dateOfBirth: string
+        age: string
+        address: string
+        emergencyContact: string
+        currentClass: string
+        enrollmentDate: string
+        endDate: string
+        transferDate: string
+        status: string
+      }
+      enrollmentStatus: {
+        ACTIVE: string
+        COMPLETED: string
+        TRANSFERRED: string
+        WITHDRAWN: string
+      }
+      enrollmentReason: {
+        NEW: string
+        TRANSFER: string
+        PROMOTION: string
+        REPEAT: string
+      }
+    }
     modal: {
       addTitle: string
       editTitle: string
