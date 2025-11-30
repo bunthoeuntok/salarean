@@ -240,21 +240,21 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
               <TabsList className='grid w-full grid-cols-3 shrink-0'>
                 <TabsTrigger
                   value='student-info'
-                  className={cn(hasStudentInfoErrors && 'text-destructive data-[state=active]:text-destructive')}
                 >
                   {t.students.modal.tabs.studentInfo}
+                  {hasStudentInfoErrors && <span className='text-destructive'>*</span>}
                 </TabsTrigger>
                 <TabsTrigger
                   value='enrollment'
-                  className={cn(hasEnrollmentErrors && 'text-destructive data-[state=active]:text-destructive')}
                 >
                   {t.students.modal.tabs.enrollment}
+                  {hasEnrollmentErrors && <span className='text-destructive'>*</span>}
                 </TabsTrigger>
                 <TabsTrigger
                   value='parent-contact'
-                  className={cn(hasParentContactErrors && 'text-destructive data-[state=active]:text-destructive')}
                 >
                   {t.students.modal.tabs.parentContact}
+                  {hasParentContactErrors && <span className='text-destructive'>*</span>}
                 </TabsTrigger>
               </TabsList>
 

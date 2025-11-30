@@ -219,15 +219,15 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
           <TabsList className='grid w-full grid-cols-2 shrink-0'>
             <TabsTrigger
               value='student-info'
-              className={cn(hasStudentInfoErrors && 'text-destructive data-[state=active]:text-destructive')}
             >
               {t.students.modal.tabs.studentInfo}
+              {hasStudentInfoErrors && <span className='text-destructive'>*</span>}
             </TabsTrigger>
             <TabsTrigger
               value='parent-contact'
-              className={cn(hasParentContactErrors && 'text-destructive data-[state=active]:text-destructive')}
             >
               {t.students.modal.tabs.parentContact}
+              {hasParentContactErrors && <span className='text-destructive'>*</span>}
             </TabsTrigger>
           </TabsList>
 
