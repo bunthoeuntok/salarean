@@ -136,14 +136,14 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col flex-1 overflow-hidden px-6 pt-4'>
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='academicYear'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t.classes.modal.fields.academicYear}</FormLabel>
+                <FormLabel>{t.classes.modal.fields.academicYear} <span className='text-destructive'>*</span></FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='w-full'>
@@ -169,7 +169,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
             name='grade'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t.classes.modal.fields.grade}</FormLabel>
+                <FormLabel>{t.classes.modal.fields.grade} <span className='text-destructive'>*</span></FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='w-full'>
@@ -214,7 +214,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
             name='maxCapacity'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t.classes.modal.fields.capacity}</FormLabel>
+                <FormLabel>{t.classes.modal.fields.capacity} <span className='text-destructive'>*</span></FormLabel>
                 <FormControl>
                   <Input
                     type='number'
@@ -235,7 +235,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
           name='status'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t.classes.modal.fields.status}</FormLabel>
+              <FormLabel>{t.classes.modal.fields.status} <span className='text-destructive'>*</span></FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className='w-full'>
@@ -257,7 +257,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
           )}
         />
 
-        <DialogFooter className='gap-2'>
+        <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6'>
           <Button type='button' variant='outline' onClick={onClose}>
             {t.classes.modal.buttons.cancel}
           </Button>
@@ -294,8 +294,8 @@ export function EditClassModal({ open, onOpenChange, classId }: EditClassModalPr
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[900px] top-[25%] translate-y-[-25%]'>
-        <DialogHeader>
+      <DialogContent className='sm:max-w-[900px] top-[25%] translate-y-[-25%] p-0 flex flex-col'>
+        <DialogHeader className='shrink-0 bg-muted/50 border-b px-6 py-6'>
           <DialogTitle>{t.classes.modal.editTitle}</DialogTitle>
         </DialogHeader>
 

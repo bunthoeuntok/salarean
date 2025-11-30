@@ -266,7 +266,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='firstName'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t.students.modal.fields.firstName}</FormLabel>
+                        <FormLabel>{t.students.modal.fields.firstName} <span className='text-destructive'>*</span></FormLabel>
                         <FormControl>
                           <Input
                             placeholder={t.students.modal.fields.firstNamePlaceholder}
@@ -282,7 +282,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='lastName'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t.students.modal.fields.lastName}</FormLabel>
+                        <FormLabel>{t.students.modal.fields.lastName} <span className='text-destructive'>*</span></FormLabel>
                         <FormControl>
                           <Input
                             placeholder={t.students.modal.fields.lastNamePlaceholder}
@@ -336,7 +336,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='dateOfBirth'
                     render={({ field }) => (
                       <FormItem className='flex flex-col'>
-                        <FormLabel>{t.students.modal.fields.dateOfBirth}</FormLabel>
+                        <FormLabel>{t.students.modal.fields.dateOfBirth} <span className='text-destructive'>*</span></FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -378,7 +378,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='gender'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t.students.modal.fields.gender}</FormLabel>
+                        <FormLabel>{t.students.modal.fields.gender} <span className='text-destructive'>*</span></FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className='w-full'>
@@ -430,7 +430,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='classId'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t.students.modal.fields.class}</FormLabel>
+                        <FormLabel>{t.students.modal.fields.class} <span className='text-destructive'>*</span></FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className='w-full'>
@@ -456,7 +456,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='enrollmentDate'
                     render={({ field }) => (
                       <FormItem className='flex flex-col'>
-                        <FormLabel>{t.students.modal.fields.enrollmentDate}</FormLabel>
+                        <FormLabel>{t.students.modal.fields.enrollmentDate} <span className='text-destructive'>*</span></FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -563,7 +563,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>
-                                {t.students.modal.parentContact.fullName}
+                                {t.students.modal.parentContact.fullName} <span className='text-destructive'>*</span>
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -583,7 +583,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>
-                                {t.students.modal.parentContact.phoneNumber}
+                                {t.students.modal.parentContact.phoneNumber} <span className='text-destructive'>*</span>
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -606,7 +606,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>
-                                {t.students.modal.parentContact.relationship}
+                                {t.students.modal.parentContact.relationship} <span className='text-destructive'>*</span>
                               </FormLabel>
                               <Select
                                 onValueChange={field.onChange}

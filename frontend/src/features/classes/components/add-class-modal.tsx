@@ -123,20 +123,20 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[900px] top-[25%] translate-y-[-25%]'>
-        <DialogHeader>
+      <DialogContent className='sm:max-w-[900px] top-[25%] translate-y-[-25%]  flex flex-col p-0'>
+        <DialogHeader className='shrink-0 bg-muted/50 border-b px-6 py-6'>
           <DialogTitle>{t.classes.modal.addTitle}</DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+        <Form {...form} >
+          <form onSubmit={form.handleSubmit(onSubmit)}  className='flex flex-col flex-1 overflow-hidden px-6 pt-4'>
             <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='academicYear'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.classes.modal.fields.academicYear}</FormLabel>
+                    <FormLabel>{t.classes.modal.fields.academicYear} <span className='text-destructive'>*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
@@ -162,7 +162,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                 name='grade'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.classes.modal.fields.grade}</FormLabel>
+                    <FormLabel>{t.classes.modal.fields.grade} <span className='text-destructive'>*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
@@ -207,7 +207,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                 name='maxCapacity'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.classes.modal.fields.capacity}</FormLabel>
+                    <FormLabel>{t.classes.modal.fields.capacity} <span className='text-destructive'>*</span></FormLabel>
                     <FormControl>
                       <Input
                         type='number'
@@ -223,7 +223,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
               />
             </div>
 
-            <DialogFooter className='gap-2'>
+            <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6'>
               <Button type='button' variant='outline' onClick={handleClose}>
                 {t.classes.modal.buttons.cancel}
               </Button>

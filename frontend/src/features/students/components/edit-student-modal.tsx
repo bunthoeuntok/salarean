@@ -239,7 +239,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                 name='firstName'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.students.modal.fields.firstName}</FormLabel>
+                    <FormLabel>{t.students.modal.fields.firstName} <span className='text-destructive'>*</span></FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t.students.modal.fields.firstNamePlaceholder}
@@ -255,7 +255,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                 name='lastName'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.students.modal.fields.lastName}</FormLabel>
+                    <FormLabel>{t.students.modal.fields.lastName} <span className='text-destructive'>*</span></FormLabel>
                     <FormControl>
                       <Input
                         placeholder={t.students.modal.fields.lastNamePlaceholder}
@@ -309,7 +309,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                 name='dateOfBirth'
                 render={({ field }) => (
                   <FormItem className='flex flex-col'>
-                    <FormLabel>{t.students.modal.fields.dateOfBirth}</FormLabel>
+                    <FormLabel>{t.students.modal.fields.dateOfBirth} <span className='text-destructive'>*</span></FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -351,7 +351,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                 name='gender'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.students.modal.fields.gender}</FormLabel>
+                    <FormLabel>{t.students.modal.fields.gender} <span className='text-destructive'>*</span></FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
@@ -447,7 +447,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t.students.modal.parentContact.fullName}
+                            {t.students.modal.parentContact.fullName} <span className='text-destructive'>*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -467,7 +467,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t.students.modal.parentContact.phoneNumber}
+                            {t.students.modal.parentContact.phoneNumber} <span className='text-destructive'>*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -490,7 +490,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t.students.modal.parentContact.relationship}
+                            {t.students.modal.parentContact.relationship} <span className='text-destructive'>*</span>
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
