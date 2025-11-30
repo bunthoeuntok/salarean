@@ -207,12 +207,12 @@ export const createStudentColumns = (
                   {t.students.actions.edit}
                 </DropdownMenuItem>
               )}
-              {onEnroll && (
+              {onEnroll && !student.currentClassId && (
                 <DropdownMenuItem onClick={() => onEnroll(student)}>
                   {t.students.actions.enroll}
                 </DropdownMenuItem>
               )}
-              {onTransfer && (
+              {onTransfer && student.currentClassId && (
                 <DropdownMenuItem onClick={() => onTransfer(student)}>
                   {t.students.actions.transfer}
                 </DropdownMenuItem>
