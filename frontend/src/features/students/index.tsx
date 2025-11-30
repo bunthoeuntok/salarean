@@ -18,6 +18,7 @@ import { classService } from '@/services/class.service'
 import { createStudentColumns } from './columns'
 import { AddStudentModal } from './components/add-student-modal'
 import { EditStudentModal } from './components/edit-student-modal'
+import { EnrollStudentModal } from './components/enroll-student-modal'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 
 export function StudentsPage() {
@@ -26,6 +27,8 @@ export function StudentsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editStudentId, setEditStudentId] = useState<string | null>(null)
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false)
+  const [enrollStudent, setEnrollStudent] = useState<Student | null>(null)
 
   const handleEditStudent = (student: Student) => {
     setEditStudentId(student.id)
@@ -36,6 +39,18 @@ export function StudentsPage() {
     setIsEditModalOpen(open)
     if (!open) {
       setEditStudentId(null)
+    }
+  }
+
+  const handleEnrollStudent = (student: Student) => {
+    setEnrollStudent(student)
+    setIsEnrollModalOpen(true)
+  }
+
+  const handleEnrollModalClose = (open: boolean) => {
+    setIsEnrollModalOpen(open)
+    if (!open) {
+      setEnrollStudent(null)
     }
   }
 
@@ -99,7 +114,8 @@ export function StudentsPage() {
         t,
         handleEditStudent,
         (student) => console.log('Delete student:', student),
-        (student) => console.log('View student:', student)
+        (student) => console.log('View student:', student),
+        handleEnrollStudent
       ),
     [t]
   )
@@ -175,6 +191,12 @@ export function StudentsPage() {
           open={isEditModalOpen}
           onOpenChange={handleEditModalClose}
           studentId={editStudentId}
+        />
+
+        <EnrollStudentModal
+          open={isEnrollModalOpen}
+          onOpenChange={handleEnrollModalClose}
+          student={enrollStudent}
         />
 
         {/* Filter toolbar with submit button */}

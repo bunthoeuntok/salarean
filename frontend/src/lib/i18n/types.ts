@@ -221,6 +221,7 @@ export interface UITranslations {
       view: string
       edit: string
       delete: string
+      enroll: string
     }
     status: {
       ACTIVE: string
@@ -229,6 +230,19 @@ export interface UITranslations {
     gender: {
       M: string
       F: string
+    }
+    enroll: {
+      title: string
+      class: string
+      classPlaceholder: string
+      enrollmentDate: string
+      enrollmentDatePlaceholder: string
+      notes: string
+      notesPlaceholder: string
+      cancel: string
+      submit: string
+      enrolling: string
+      success: string
     }
     modal: {
       addTitle: string

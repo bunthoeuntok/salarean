@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -17,6 +18,9 @@ public class EnrollmentRequest {
 
     @NotNull(message = "Class ID is required")
     private UUID classId;
+
+    @NotNull(message = "Enrollment date is required")
+    private LocalDate enrollmentDate;
 
     @Size(max = 500, message = "Notes cannot exceed 500 characters")
     private String notes;

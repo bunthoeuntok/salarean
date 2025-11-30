@@ -196,6 +196,7 @@ export const uiEn: UITranslations = {
       view: 'View Details',
       edit: 'Edit',
       delete: 'Delete',
+      enroll: 'Enroll in Class',
     },
     status: {
       ACTIVE: 'Active',
@@ -204,6 +205,19 @@ export const uiEn: UITranslations = {
     gender: {
       M: 'Male',
       F: 'Female',
+    },
+    enroll: {
+      title: 'Enroll Student',
+      class: 'Class',
+      classPlaceholder: 'Select a class',
+      enrollmentDate: 'Enrollment Date',
+      enrollmentDatePlaceholder: 'Select enrollment date',
+      notes: 'Notes',
+      notesPlaceholder: 'Enter any notes about this enrollment',
+      cancel: 'Cancel',
+      submit: 'Enroll',
+      enrolling: 'Enrolling...',
+      success: 'Student enrolled successfully',
     },
     modal: {
       addTitle: 'Add New Student',

@@ -89,3 +89,32 @@ export interface UpdateStudentRequest {
   address?: string
   parentContacts: ParentContactRequest[]
 }
+
+/**
+ * Request for enrolling a student in a class
+ */
+export interface EnrollStudentRequest {
+  classId: string
+  enrollmentDate: string
+  notes?: string
+}
+
+export type EnrollmentReason = 'NEW' | 'TRANSFER' | 'PROMOTION' | 'REPEAT'
+export type EnrollmentStatus = 'ACTIVE' | 'COMPLETED' | 'TRANSFERRED' | 'WITHDRAWN'
+
+export interface EnrollmentResponse {
+  id: string
+  studentId: string
+  classId: string
+  className: string
+  schoolName: string
+  enrollmentDate: string
+  endDate?: string
+  reason: EnrollmentReason
+  status: EnrollmentStatus
+  transferDate?: string
+  transferReason?: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}

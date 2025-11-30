@@ -196,6 +196,7 @@ export const uiKm: UITranslations = {
       view: 'មើលលម្អិត',
       edit: 'កែប្រែ',
       delete: 'លុប',
+      enroll: 'ចុះឈ្មោះក្នុងថ្នាក់',
     },
     status: {
       ACTIVE: 'សកម្ម',
@@ -204,6 +205,19 @@ export const uiKm: UITranslations = {
     gender: {
       M: 'ប្រុស',
       F: 'ស្រី',
+    },
+    enroll: {
+      title: 'ចុះឈ្មោះសិស្ស',
+      class: 'ថ្នាក់រៀន',
+      classPlaceholder: 'ជ្រើសរើសថ្នាក់រៀន',
+      enrollmentDate: 'កាលបរិច្ឆេទចុះឈ្មោះ',
+      enrollmentDatePlaceholder: 'ជ្រើសរើសកាលបរិច្ឆេទចុះឈ្មោះ',
+      notes: 'កំណត់ចំណាំ',
+      notesPlaceholder: 'បញ្ចូលកំណត់ចំណាំអំពីការចុះឈ្មោះនេះ',
+      cancel: 'បោះបង់',
+      submit: 'ចុះឈ្មោះ',
+      enrolling: 'កំពុងចុះឈ្មោះ...',
+      success: 'សិស្សបានចុះឈ្មោះដោយជោគជ័យ',
     },
     modal: {
       addTitle: 'បន្ថែមសិស្សថ្មី',

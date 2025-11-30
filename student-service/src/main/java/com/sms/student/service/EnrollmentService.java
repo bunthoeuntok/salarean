@@ -129,7 +129,7 @@ public class EnrollmentService implements IEnrollmentService {
         Enrollment enrollment = Enrollment.builder()
                 .student(student)
                 .schoolClass(schoolClass)
-                .enrollmentDate(LocalDate.now())
+                .enrollmentDate(request.getEnrollmentDate())
                 .reason(EnrollmentReason.NEW)
                 .status(EnrollmentStatus.ACTIVE)
                 .notes(request.getNotes())

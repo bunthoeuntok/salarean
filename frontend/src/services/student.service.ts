@@ -5,6 +5,8 @@ import type {
   StudentListParams,
   CreateStudentRequest,
   UpdateStudentRequest,
+  EnrollStudentRequest,
+  EnrollmentResponse,
 } from '@/types/student.types'
 
 /**
@@ -57,5 +59,12 @@ export const studentService = {
    */
   async deleteStudent(id: string): Promise<void> {
     await api.delete(`/api/students/${id}`)
+  },
+
+  /**
+   * Enroll a student in a class
+   */
+  async enrollStudent(studentId: string, data: EnrollStudentRequest): Promise<EnrollmentResponse> {
+    return apiRequest<EnrollmentResponse>(api.post(`/api/students/${studentId}/enroll`, data))
   },
 }
