@@ -1,5 +1,6 @@
+import { useState, useCallback } from 'react'
 import { Columns3 } from 'lucide-react'
-import type { Table } from '@tanstack/react-table'
+import type { Table, VisibilityState } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -21,6 +22,12 @@ export function DataTableViewOptions<TData>({
   columnLabels = {},
 }: DataTableViewOptionsProps<TData>) {
   const { t } = useLanguage()
+
+  // Local visibility state that syncs with table but allows immediate UI updates
+  const [localVisibility, setLocalVisibility] = useState<VisibilityState>(
+    () => table.getState().columnVisibility
+  )
+
   const columns = table
     .getAllColumns()
     .filter(
@@ -28,7 +35,25 @@ export function DataTableViewOptions<TData>({
         typeof column.accessorFn !== 'undefined' && column.getCanHide()
     )
 
-  const visibleCount = columns.filter((col) => col.getIsVisible()).length
+  const handleVisibilityChange = useCallback((columnId: string, checked: boolean) => {
+    // Update local state immediately for responsive UI
+    setLocalVisibility(prev => ({
+      ...prev,
+      [columnId]: checked
+    }))
+    // Update table state
+    table.setColumnVisibility(prev => ({
+      ...prev,
+      [columnId]: checked
+    }))
+  }, [table])
+
+  // Check visibility using local state (falls back to true if not set)
+  const isColumnVisible = (columnId: string) => {
+    return localVisibility[columnId] !== false
+  }
+
+  const visibleCount = columns.filter((col) => isColumnVisible(col.id)).length
 
   return (
     <Popover>
@@ -57,9 +82,9 @@ export function DataTableViewOptions<TData>({
             >
               <Checkbox
                 id={`column-${column.id}`}
-                checked={column.getIsVisible()}
+                checked={isColumnVisible(column.id)}
                 onCheckedChange={(checked) =>
-                  column.toggleVisibility(!!checked)
+                  handleVisibilityChange(column.id, !!checked)
                 }
               />
               <Label
