@@ -266,8 +266,8 @@ public class ClassService implements IClassService {
             .grade(String.valueOf(entity.getGrade()))
             .section(entity.getSection())
             .academicYear(entity.getAcademicYear())
-            .capacity(entity.getMaxCapacity())
-            .currentEnrollment(entity.getStudentCount())
+            .maxCapacity(entity.getMaxCapacity())
+            .studentCount(entity.getStudentCount())
             .status(entity.getStatus())
             .teacherId(entity.getTeacherId())
             .teacherName(null) // TODO: Fetch from auth-service if needed

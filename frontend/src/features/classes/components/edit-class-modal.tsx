@@ -136,7 +136,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col flex-1 overflow-hidden px-6 pt-4'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col flex-1 overflow-hidden px-6 pt-4 space-y-4'>
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
@@ -230,7 +230,8 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
           />
         </div>
 
-        <FormField
+        <div className='grid grid-cols-2 gap-4'>
+          <FormField
           control={form.control}
           name='status'
           render={({ field }) => (
@@ -256,8 +257,9 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
             </FormItem>
           )}
         />
+        </div>
 
-        <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6'>
+        <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6 border-t'>
           <Button type='button' variant='outline' onClick={onClose}>
             {t.classes.modal.buttons.cancel}
           </Button>

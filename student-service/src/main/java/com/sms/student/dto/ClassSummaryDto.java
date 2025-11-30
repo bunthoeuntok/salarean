@@ -52,12 +52,12 @@ public class ClassSummaryDto {
     /**
      * Maximum number of students allowed.
      */
-    private Integer capacity;
+    private Integer maxCapacity;
 
     /**
      * Current number of enrolled students.
      */
-    private Integer currentEnrollment;
+    private Integer studentCount;
 
     /**
      * Class status (ACTIVE, INACTIVE, or COMPLETED).

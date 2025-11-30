@@ -129,7 +129,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
         </DialogHeader>
 
         <Form {...form} >
-          <form onSubmit={form.handleSubmit(onSubmit)}  className='flex flex-col flex-1 overflow-hidden px-6 pt-4'>
+          <form onSubmit={form.handleSubmit(onSubmit)}  className='flex flex-col flex-1 overflow-hidden px-6 space-y-2'>
             <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
@@ -185,7 +185,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
               />
             </div>
 
-            <div className='grid grid-cols-2 gap-4'>
+            <div className='grid grid-cols-2 gap-4 pb-4'>
               <FormField
                 control={form.control}
                 name='section'
@@ -223,7 +223,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
               />
             </div>
 
-            <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6'>
+            <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6 border-t'>
               <Button type='button' variant='outline' onClick={handleClose}>
                 {t.classes.modal.buttons.cancel}
               </Button>
