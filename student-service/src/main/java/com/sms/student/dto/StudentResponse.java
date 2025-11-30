@@ -22,8 +22,10 @@ public class StudentResponse {
     private String studentCode;
     private String firstName;
     private String lastName;
+    private String fullName;
     private String firstNameKhmer;
     private String lastNameKhmer;
+    private String fullNameKhmer;
     private LocalDate dateOfBirth;
     private Integer age;
     private Gender gender;

@@ -68,26 +68,25 @@ export const createStudentColumns = (
     size: 120,
   },
   {
-    accessorKey: 'firstName',
+    accessorKey: 'fullName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={t.students.columns.name} />
     ),
     cell: ({ row }) => {
       const student = row.original
-      const fullName = `${student.firstName} ${student.lastName}`
       const initials = `${student.firstName[0]}${student.lastName[0]}`
 
       return (
         <div className='flex items-center gap-3'>
-          <Avatar className='h-8 w-8'>
-            <AvatarImage src={student.photoUrl} alt={fullName} />
+          <Avatar className='h-10 w-10'>
+            <AvatarImage src={student.photoUrl} alt={student.fullName} />
             <AvatarFallback className='text-xs'>{initials}</AvatarFallback>
           </Avatar>
           <div className='flex flex-col'>
-            <span className='font-medium'>{fullName}</span>
-            {student.firstNameKhmer && (
+            <span className='font-medium'>{student.fullNameKhmer}</span>
+            {student.fullName && (
               <span className='text-xs text-muted-foreground'>
-                {student.firstNameKhmer} {student.lastNameKhmer}
+                {student.fullName}
               </span>
             )}
           </div>

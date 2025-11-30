@@ -18,6 +18,8 @@ public class StudentSummary {
     private String studentCode;
     private String firstName;
     private String lastName;
+    private String fullName;
+    private String fullNameKhmer;
     private String photoUrl;
     private LocalDate dateOfBirth;
     private Integer age;

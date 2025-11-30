@@ -24,8 +24,10 @@ export interface Student {
   studentCode: string
   firstName: string
   lastName: string
+  fullName: string
   firstNameKhmer?: string
   lastNameKhmer?: string
+  fullNameKhmer?: string
   dateOfBirth: string
   age?: number
   gender: Gender

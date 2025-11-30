@@ -468,13 +468,26 @@ public class StudentService implements IStudentService {
                         .build())
                 .collect(Collectors.toList());
 
+        // Build full names
+        String fullName = student.getFirstName() + " " + student.getLastName();
+        String fullNameKhmer = null;
+        if (student.getFirstNameKhmer() != null && student.getLastNameKhmer() != null) {
+            fullNameKhmer = student.getFirstNameKhmer() + " " + student.getLastNameKhmer();
+        } else if (student.getFirstNameKhmer() != null) {
+            fullNameKhmer = student.getFirstNameKhmer();
+        } else if (student.getLastNameKhmer() != null) {
+            fullNameKhmer = student.getLastNameKhmer();
+        }
+
         return StudentResponse.builder()
                 .id(student.getId())
                 .studentCode(student.getStudentCode())
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
+                .fullName(fullName)
                 .firstNameKhmer(student.getFirstNameKhmer())
                 .lastNameKhmer(student.getLastNameKhmer())
+                .fullNameKhmer(fullNameKhmer)
                 .dateOfBirth(student.getDateOfBirth())
                 .age(student.getAge())
                 .gender(student.getGender())
@@ -512,11 +525,24 @@ public class StudentService implements IStudentService {
             primaryContactInfo = primaryContact.getFullName() + " (" + primaryContact.getPhoneNumber() + ")";
         }
 
+        // Build full names
+        String fullName = student.getFirstName() + " " + student.getLastName();
+        String fullNameKhmer = null;
+        if (student.getFirstNameKhmer() != null && student.getLastNameKhmer() != null) {
+            fullNameKhmer = student.getFirstNameKhmer() + " " + student.getLastNameKhmer();
+        } else if (student.getFirstNameKhmer() != null) {
+            fullNameKhmer = student.getFirstNameKhmer();
+        } else if (student.getLastNameKhmer() != null) {
+            fullNameKhmer = student.getLastNameKhmer();
+        }
+
         return StudentSummary.builder()
                 .id(student.getId())
                 .studentCode(student.getStudentCode())
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
+                .fullName(fullName)
+                .fullNameKhmer(fullNameKhmer)
                 .dateOfBirth(student.getDateOfBirth())
                 .age(student.getAge())
                 .currentClassId(currentClassId)
