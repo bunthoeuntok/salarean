@@ -14,6 +14,11 @@ export interface ParentContact {
   isPrimary: boolean
 }
 
+/**
+ * Student type that combines fields from both:
+ * - StudentSummary (list view): includes currentClassName, primaryParentContact
+ * - StudentResponse (single view): includes detailed fields
+ */
 export interface Student {
   id: string
   studentCode: string
@@ -22,19 +27,19 @@ export interface Student {
   firstNameKhmer?: string
   lastNameKhmer?: string
   dateOfBirth: string
+  age?: number
   gender: Gender
-  email?: string
-  primaryParentContact?: string
+  photoUrl?: string
   address?: string
   emergencyContact?: string
-  status: StudentStatus
-  enrolledClassId?: string
-  currentClassName?: string
   enrollmentDate?: string
+  status: StudentStatus
+  currentClassId?: string
+  currentClassName?: string      // From StudentSummary (list view)
+  primaryParentContact?: string  // From StudentSummary (list view)
   parentContacts?: ParentContact[]
-  photoUrl?: string
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface StudentListParams {

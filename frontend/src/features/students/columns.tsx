@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, Mail, Phone } from 'lucide-react'
+import { MoreHorizontal, Phone } from 'lucide-react'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -128,19 +128,14 @@ export const createStudentColumns = (
       const student = row.original
       return (
         <div className='flex flex-col gap-1'>
-          {student.email && (
-            <div className='flex items-center gap-1 text-xs text-muted-foreground'>
-              <Mail className='h-3 w-3' />
-              <span className='truncate max-w-[150px]'>{student.email}</span>
-            </div>
-          )}
-          {student.primaryParentContact && (
+          {student.primaryParentContact ? (
             <div className='flex items-center gap-1 text-xs text-muted-foreground'>
               <Phone className='h-3 w-3' />
               <span>{student.primaryParentContact}</span>
             </div>
+          ) : (
+            <span className='text-muted-foreground'>-</span>
           )}
-          {!student.email && !student.primaryParentContact && '-'}
         </div>
       )
     },
