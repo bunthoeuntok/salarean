@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, Phone } from 'lucide-react'
+import { MoreHorizontal, Phone, Eye, Pencil, UserPlus, ArrowRightLeft, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -199,21 +199,25 @@ export const createStudentColumns = (
               <DropdownMenuSeparator />
               {onView && (
                 <DropdownMenuItem onClick={() => onView(student)}>
+                  <Eye className='mr-2 h-4 w-4' />
                   {t.students.actions.view}
                 </DropdownMenuItem>
               )}
               {onEdit && (
                 <DropdownMenuItem onClick={() => onEdit(student)}>
+                  <Pencil className='mr-2 h-4 w-4' />
                   {t.students.actions.edit}
                 </DropdownMenuItem>
               )}
               {onEnroll && !student.currentClassId && (
                 <DropdownMenuItem onClick={() => onEnroll(student)}>
+                  <UserPlus className='mr-2 h-4 w-4' />
                   {t.students.actions.enroll}
                 </DropdownMenuItem>
               )}
               {onTransfer && student.currentClassId && (
                 <DropdownMenuItem onClick={() => onTransfer(student)}>
+                  <ArrowRightLeft className='mr-2 h-4 w-4' />
                   {t.students.actions.transfer}
                 </DropdownMenuItem>
               )}
@@ -222,6 +226,7 @@ export const createStudentColumns = (
                   onClick={() => onDelete(student)}
                   className='text-destructive'
                 >
+                  <Trash2 className='mr-2 h-4 w-4' />
                   {t.students.actions.delete}
                 </DropdownMenuItem>
               )}
