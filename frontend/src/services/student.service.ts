@@ -7,6 +7,7 @@ import type {
   UpdateStudentRequest,
   EnrollStudentRequest,
   EnrollmentResponse,
+  TransferStudentRequest,
 } from '@/types/student.types'
 
 /**
@@ -66,5 +67,12 @@ export const studentService = {
    */
   async enrollStudent(studentId: string, data: EnrollStudentRequest): Promise<EnrollmentResponse> {
     return apiRequest<EnrollmentResponse>(api.post(`/api/students/${studentId}/enroll`, data))
+  },
+
+  /**
+   * Transfer a student to a new class
+   */
+  async transferStudent(studentId: string, data: TransferStudentRequest): Promise<EnrollmentResponse> {
+    return apiRequest<EnrollmentResponse>(api.post(`/api/students/${studentId}/transfer`, data))
   },
 }

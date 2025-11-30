@@ -186,10 +186,10 @@ public class EnrollmentService implements IEnrollmentService {
         }
 
         // 5. Mark old enrollment as TRANSFERRED
-        LocalDate today = LocalDate.now();
+        LocalDate transferDate = request.getTransferDate();
         currentEnrollment.setStatus(EnrollmentStatus.TRANSFERRED);
-        currentEnrollment.setEndDate(today);
-        currentEnrollment.setTransferDate(today);
+        currentEnrollment.setEndDate(transferDate);
+        currentEnrollment.setTransferDate(transferDate);
         currentEnrollment.setTransferReason(request.getReason());
         enrollmentRepository.save(currentEnrollment);
 
@@ -208,7 +208,7 @@ public class EnrollmentService implements IEnrollmentService {
         Enrollment newEnrollment = Enrollment.builder()
                 .student(currentEnrollment.getStudent())
                 .schoolClass(newClass)
-                .enrollmentDate(today)
+                .enrollmentDate(transferDate)
                 .reason(EnrollmentReason.TRANSFER)
                 .status(EnrollmentStatus.ACTIVE)
                 .notes(request.getReason())

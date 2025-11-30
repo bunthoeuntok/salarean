@@ -43,6 +43,7 @@ export const createStudentColumns = (
         edit: string
         delete: string
         enroll: string
+        transfer: string
       }
       status: {
         ACTIVE: string
@@ -57,7 +58,8 @@ export const createStudentColumns = (
   onEdit?: (student: Student) => void,
   onDelete?: (student: Student) => void,
   onView?: (student: Student) => void,
-  onEnroll?: (student: Student) => void
+  onEnroll?: (student: Student) => void,
+  onTransfer?: (student: Student) => void
 ): ColumnDef<Student>[] => [
   {
     accessorKey: 'studentCode',
@@ -208,6 +210,11 @@ export const createStudentColumns = (
               {onEnroll && (
                 <DropdownMenuItem onClick={() => onEnroll(student)}>
                   {t.students.actions.enroll}
+                </DropdownMenuItem>
+              )}
+              {onTransfer && (
+                <DropdownMenuItem onClick={() => onTransfer(student)}>
+                  {t.students.actions.transfer}
                 </DropdownMenuItem>
               )}
               {onDelete && (

@@ -118,3 +118,12 @@ export interface EnrollmentResponse {
   createdAt: string
   updatedAt: string
 }
+
+/**
+ * Request for transferring a student to a new class
+ */
+export interface TransferStudentRequest {
+  targetClassId: string
+  transferDate: string
+  reason: string
+}

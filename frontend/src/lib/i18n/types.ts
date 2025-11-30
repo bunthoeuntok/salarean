@@ -222,6 +222,7 @@ export interface UITranslations {
       edit: string
       delete: string
       enroll: string
+      transfer: string
     }
     status: {
       ACTIVE: string
@@ -242,6 +243,21 @@ export interface UITranslations {
       cancel: string
       submit: string
       enrolling: string
+      success: string
+    }
+    transfer: {
+      title: string
+      currentClass: string
+      noCurrentClass: string
+      targetClass: string
+      targetClassPlaceholder: string
+      transferDate: string
+      transferDatePlaceholder: string
+      reason: string
+      reasonPlaceholder: string
+      cancel: string
+      submit: string
+      transferring: string
       success: string
     }
     modal: {

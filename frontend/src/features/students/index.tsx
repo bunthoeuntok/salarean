@@ -19,6 +19,7 @@ import { createStudentColumns } from './columns'
 import { AddStudentModal } from './components/add-student-modal'
 import { EditStudentModal } from './components/edit-student-modal'
 import { EnrollStudentModal } from './components/enroll-student-modal'
+import { TransferStudentModal } from './components/transfer-student-modal'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 
 export function StudentsPage() {
@@ -29,6 +30,8 @@ export function StudentsPage() {
   const [editStudentId, setEditStudentId] = useState<string | null>(null)
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false)
   const [enrollStudent, setEnrollStudent] = useState<Student | null>(null)
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
+  const [transferStudent, setTransferStudent] = useState<Student | null>(null)
 
   const handleEditStudent = (student: Student) => {
     setEditStudentId(student.id)
@@ -51,6 +54,18 @@ export function StudentsPage() {
     setIsEnrollModalOpen(open)
     if (!open) {
       setEnrollStudent(null)
+    }
+  }
+
+  const handleTransferStudent = (student: Student) => {
+    setTransferStudent(student)
+    setIsTransferModalOpen(true)
+  }
+
+  const handleTransferModalClose = (open: boolean) => {
+    setIsTransferModalOpen(open)
+    if (!open) {
+      setTransferStudent(null)
     }
   }
 
@@ -115,7 +130,8 @@ export function StudentsPage() {
         handleEditStudent,
         (student) => console.log('Delete student:', student),
         (student) => console.log('View student:', student),
-        handleEnrollStudent
+        handleEnrollStudent,
+        handleTransferStudent
       ),
     [t]
   )
@@ -197,6 +213,12 @@ export function StudentsPage() {
           open={isEnrollModalOpen}
           onOpenChange={handleEnrollModalClose}
           student={enrollStudent}
+        />
+
+        <TransferStudentModal
+          open={isTransferModalOpen}
+          onOpenChange={handleTransferModalClose}
+          student={transferStudent}
         />
 
         {/* Filter toolbar with submit button */}

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -18,6 +19,9 @@ public class TransferRequest {
 
     @NotNull(message = "Target class ID is required")
     private UUID targetClassId;
+
+    @NotNull(message = "Transfer date is required")
+    private LocalDate transferDate;
 
     @NotBlank(message = "Transfer reason is required")
     @Size(max = 500, message = "Transfer reason cannot exceed 500 characters")
