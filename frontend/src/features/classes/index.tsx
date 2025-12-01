@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Plus, CheckCircle, XCircle, Clock, GraduationCap } from 'lucide-react'
+import { Plus, CheckCircle, XCircle, Clock } from 'lucide-react'
 import type { Table } from '@tanstack/react-table'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
@@ -17,14 +17,8 @@ import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
 import { AddClassModal } from './components/add-class-modal'
 import { EditClassModal } from './components/edit-class-modal'
+import { useClassFiltering } from '@/hooks/useClassFiltering'
 import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.types'
-
-// Grade options (1-12)
-const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
-  label: `Grade ${i + 1}`,
-  value: String(i + 1),
-  icon: GraduationCap,
-}))
 
 export function ClassesPage() {
   const { t } = useLanguage()
@@ -32,9 +26,6 @@ export function ClassesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editClassId, setEditClassId] = useState<string | null>(null)
-
-  // Track current level selection for dynamic grade filtering
-  const [currentLevelSelection, setCurrentLevelSelection] = useState<ClassLevel | undefined>(undefined)
 
   const handleEditClass = (classItem: Class) => {
     setEditClassId(classItem.id)
@@ -79,6 +70,11 @@ export function ClassesPage() {
     defaultPageSize: getStoredPageSize('classes-table'),
   })
 
+  // Use class filtering hook for level → grade filtering
+  const { filteredGradeOptions, handleLevelChange } = useClassFiltering({
+    initialLevel: filters.level?.[0] as ClassLevel | undefined,
+  })
+
   // Fetch classes data
   const { data, isLoading } = useQuery({
     queryKey: ['classes', pageIndex, pageSize, searchValue, sorting, filters],
@@ -107,37 +103,6 @@ export function ClassesPage() {
       ),
     [t]
   )
-
-  // Sync currentLevelSelection with URL params on mount/change
-  useEffect(() => {
-    setCurrentLevelSelection(filters.level?.[0] as ClassLevel | undefined)
-  }, [filters.level])
-
-  // Filter grade options based on current level selection
-  const filteredGradeOptions = useMemo(() => {
-    if (!currentLevelSelection) {
-      return GRADE_OPTIONS
-    }
-
-    // PRIMARY: grades 1-6, SECONDARY: grades 7-9, HIGH_SCHOOL: grades 10-12
-    const gradeRanges: Record<ClassLevel, { min: number; max: number }> = {
-      PRIMARY: { min: 1, max: 6 },
-      SECONDARY: { min: 7, max: 9 },
-      HIGH_SCHOOL: { min: 10, max: 12 },
-    }
-
-    const range = gradeRanges[currentLevelSelection]
-    return GRADE_OPTIONS.filter((option) => {
-      const grade = Number(option.value)
-      return grade >= range.min && grade <= range.max
-    })
-  }, [currentLevelSelection])
-
-  // Custom handler for level filter to update grade options in real-time
-  const handleLevelChange = useCallback((values: string[]) => {
-    const newLevel = values.length > 0 ? (values[0] as ClassLevel) : undefined
-    setCurrentLevelSelection(newLevel)
-  }, [])
 
   // Filter options for status, grade, level, and type
   const filterableColumns = useMemo(

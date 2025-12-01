@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -32,13 +32,8 @@ import {
 } from '@/components/ui/select'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
+import { useClassFiltering } from '@/hooks/useClassFiltering'
 import type { Class, ClassStatus, ClassLevel, ClassType, UpdateClassRequest } from '@/types/class.types'
-
-// Grade options (1-12)
-const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
-  label: `Grade ${i + 1}`,
-  value: String(i + 1),
-}))
 
 // Generate academic year options (current year and next 2 years)
 const generateAcademicYearOptions = () => {
@@ -84,21 +79,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
   const academicYearOptions = useMemo(() => generateAcademicYearOptions(), [])
 
-  // Filter grade options based on selected level
-  const getFilteredGradeOptions = (level: ClassLevel) => {
-    const gradeRanges: Record<ClassLevel, { min: number; max: number }> = {
-      PRIMARY: { min: 1, max: 6 },
-      SECONDARY: { min: 7, max: 9 },
-      HIGH_SCHOOL: { min: 10, max: 12 },
-    }
-
-    const range = gradeRanges[level]
-    return GRADE_OPTIONS.filter((option) => {
-      const grade = Number(option.value)
-      return grade >= range.min && grade <= range.max
-    })
-  }
-
   // Create schema with translated messages
   const updateClassSchema = useMemo(() => {
     return z.object({
@@ -143,22 +123,11 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
     },
   })
 
-  // Watch level field to filter grade options
-  const selectedLevel = form.watch('level')
-  const filteredGradeOptions = useMemo(() => {
-    return getFilteredGradeOptions(selectedLevel)
-  }, [selectedLevel])
-
-  // Clear grade field if current grade is outside the new level's range
-  useEffect(() => {
-    const currentGrade = form.getValues('grade')
-    if (currentGrade) {
-      const isGradeValid = filteredGradeOptions.some(option => option.value === currentGrade)
-      if (!isGradeValid) {
-        form.setValue('grade', '')
-      }
-    }
-  }, [selectedLevel, filteredGradeOptions, form])
+  // Use class filtering hook for level → grade filtering with form integration
+  const { filteredGradeOptions } = useClassFiltering({
+    initialLevel: form.watch('level'),
+    onGradeCleared: () => form.setValue('grade', ''),
+  })
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateClassRequest) => classService.updateClass(classId, data),
