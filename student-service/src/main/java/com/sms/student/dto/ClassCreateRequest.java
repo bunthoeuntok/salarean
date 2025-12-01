@@ -1,5 +1,7 @@
 package com.sms.student.dto;
 
+import com.sms.student.enums.ClassLevel;
+import com.sms.student.enums.ClassType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -92,4 +94,26 @@ public class ClassCreateRequest {
         minimum = "1"
     )
     private Integer maxCapacity;
+
+    /**
+     * Class level (required).
+     * Defines the education level: PRIMARY (1-6), SECONDARY (7-9), HIGH_SCHOOL (10-12).
+     */
+    @NotNull(message = "Level is required")
+    @Schema(
+        description = "Class level: PRIMARY (grades 1-6), SECONDARY (grades 7-9), HIGH_SCHOOL (grades 10-12)",
+        example = "SECONDARY"
+    )
+    private ClassLevel level;
+
+    /**
+     * Class type (required).
+     * Defines the specialization: NORMAL, SCIENCE, or SOCIAL_SCIENCE.
+     */
+    @NotNull(message = "Type is required")
+    @Schema(
+        description = "Class type: NORMAL, SCIENCE, or SOCIAL_SCIENCE",
+        example = "NORMAL"
+    )
+    private ClassType type;
 }

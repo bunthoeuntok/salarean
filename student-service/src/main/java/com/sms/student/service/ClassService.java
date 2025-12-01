@@ -268,6 +268,8 @@ public class ClassService implements IClassService {
             .academicYear(entity.getAcademicYear())
             .maxCapacity(entity.getMaxCapacity())
             .studentCount(entity.getStudentCount())
+            .level(entity.getLevel())
+            .type(entity.getType())
             .status(entity.getStatus())
             .teacherId(entity.getTeacherId())
             .teacherName(null) // TODO: Fetch from auth-service if needed
@@ -293,6 +295,8 @@ public class ClassService implements IClassService {
             .academicYear(entity.getAcademicYear())
             .maxCapacity(entity.getMaxCapacity())
             .studentCount(entity.getStudentCount())
+            .level(entity.getLevel())
+            .type(entity.getType())
             .status(entity.getStatus())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
@@ -415,6 +419,8 @@ public class ClassService implements IClassService {
             .section(request.getSection())
             .academicYear(request.getAcademicYear())
             .maxCapacity(request.getMaxCapacity())
+            .level(request.getLevel())
+            .type(request.getType())
             .studentCount(0)
             .status(ClassStatus.ACTIVE)
             .build();
@@ -549,6 +555,18 @@ public class ClassService implements IClassService {
         if (request.getMaxCapacity() != null) {
             log.debug("Updating max capacity from {} to {}", schoolClass.getMaxCapacity(), request.getMaxCapacity());
             schoolClass.setMaxCapacity(request.getMaxCapacity());
+        }
+
+        // Update level if provided
+        if (request.getLevel() != null && !request.getLevel().equals(schoolClass.getLevel())) {
+            log.debug("Updating level from {} to {}", schoolClass.getLevel(), request.getLevel());
+            schoolClass.setLevel(request.getLevel());
+        }
+
+        // Update type if provided
+        if (request.getType() != null && !request.getType().equals(schoolClass.getType())) {
+            log.debug("Updating type from {} to {}", schoolClass.getType(), request.getType());
+            schoolClass.setType(request.getType());
         }
 
         // Save updated class

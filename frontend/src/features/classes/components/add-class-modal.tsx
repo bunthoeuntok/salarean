@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
-import type { CreateClassRequest } from '@/types/class.types'
+import type { CreateClassRequest, ClassLevel, ClassType } from '@/types/class.types'
 
 // Grade options (1-12)
 const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
@@ -58,6 +58,8 @@ const baseClassSchema = z.object({
   grade: z.string(),
   section: z.string().optional(),
   maxCapacity: z.number(),
+  level: z.enum(['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL'] as const),
+  type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const),
 })
 
 type FormData = z.infer<typeof baseClassSchema>
@@ -80,8 +82,26 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
       grade: z.string().min(1, t.validation.required),
       section: z.string().max(10).optional(),
       maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
+      level: z.enum(['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL'] as const, {
+        required_error: t.validation.required,
+      }),
+      type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const, {
+        required_error: t.validation.required,
+      }),
     })
   }, [t])
+
+  const levelOptions: { value: ClassLevel; label: string }[] = [
+    { value: 'PRIMARY', label: t.classes.level.PRIMARY },
+    { value: 'SECONDARY', label: t.classes.level.SECONDARY },
+    { value: 'HIGH_SCHOOL', label: t.classes.level.HIGH_SCHOOL },
+  ]
+
+  const typeOptions: { value: ClassType; label: string }[] = [
+    { value: 'NORMAL', label: t.classes.type.NORMAL },
+    { value: 'SCIENCE', label: t.classes.type.SCIENCE },
+    { value: 'SOCIAL_SCIENCE', label: t.classes.type.SOCIAL_SCIENCE },
+  ]
 
   const form = useForm<FormData>({
     resolver: zodResolver(createClassSchema),
@@ -90,6 +110,8 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
       grade: '',
       section: '',
       maxCapacity: 30,
+      level: 'PRIMARY',
+      type: 'NORMAL',
     },
   })
 
@@ -112,6 +134,8 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
       grade: Number(data.grade),
       section: data.section || undefined,
       maxCapacity: data.maxCapacity,
+      level: data.level,
+      type: data.type,
     }
     createMutation.mutate(request)
   }
@@ -185,7 +209,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
               />
             </div>
 
-            <div className='grid grid-cols-2 gap-4 pb-4'>
+            <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='section'
@@ -217,6 +241,61 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4 pb-4'>
+              <FormField
+                control={form.control}
+                name='level'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className='w-full'>
+                          <SelectValue
+                            placeholder={t.classes.modal.fields.levelPlaceholder}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {levelOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='type'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.classes.modal.fields.type} <span className='text-destructive'>*</span></FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className='w-full'>
+                          <SelectValue
+                            placeholder={t.classes.modal.fields.typePlaceholder}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {typeOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -1,6 +1,8 @@
 package com.sms.student.model;
 
+import com.sms.student.enums.ClassLevel;
 import com.sms.student.enums.ClassStatus;
+import com.sms.student.enums.ClassType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -49,6 +51,16 @@ public class SchoolClass {
     @Column(name = "student_count", nullable = false)
     @Builder.Default
     private Integer studentCount = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private ClassLevel level = ClassLevel.PRIMARY;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private ClassType type = ClassType.NORMAL;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

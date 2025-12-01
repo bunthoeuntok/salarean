@@ -381,6 +381,8 @@ export interface UITranslations {
       academicYear: string
       teacher: string
       enrollment: string
+      level: string
+      type: string
       status: string
       actions: string
     }
@@ -394,6 +396,16 @@ export interface UITranslations {
       ACTIVE: string
       INACTIVE: string
       COMPLETED: string
+    }
+    level: {
+      PRIMARY: string
+      SECONDARY: string
+      HIGH_SCHOOL: string
+    }
+    type: {
+      NORMAL: string
+      SCIENCE: string
+      SOCIAL_SCIENCE: string
     }
     modal: {
       addTitle: string
@@ -411,6 +423,10 @@ export interface UITranslations {
         sectionPlaceholder: string
         capacity: string
         capacityPlaceholder: string
+        level: string
+        levelPlaceholder: string
+        type: string
+        typePlaceholder: string
         status: string
         statusPlaceholder: string
       }

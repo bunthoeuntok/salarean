@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
-import type { Class, ClassStatus, UpdateClassRequest } from '@/types/class.types'
+import type { Class, ClassStatus, ClassLevel, ClassType, UpdateClassRequest } from '@/types/class.types'
 
 // Grade options (1-12)
 const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
@@ -58,6 +58,8 @@ const baseClassSchema = z.object({
   grade: z.string(),
   section: z.string().optional(),
   maxCapacity: z.number(),
+  level: z.enum(['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL'] as const),
+  type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const),
   status: z.enum(['ACTIVE', 'INACTIVE', 'COMPLETED'] as const),
 })
 
@@ -89,9 +91,23 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       grade: z.string().min(1, t.validation.required),
       section: z.string().max(10).optional(),
       maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
+      level: z.enum(['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL'] as const),
+      type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const),
       status: z.enum(['ACTIVE', 'INACTIVE', 'COMPLETED'] as const),
     })
   }, [t])
+
+  const levelOptions: { value: ClassLevel; label: string }[] = [
+    { value: 'PRIMARY', label: t.classes.level.PRIMARY },
+    { value: 'SECONDARY', label: t.classes.level.SECONDARY },
+    { value: 'HIGH_SCHOOL', label: t.classes.level.HIGH_SCHOOL },
+  ]
+
+  const typeOptions: { value: ClassType; label: string }[] = [
+    { value: 'NORMAL', label: t.classes.type.NORMAL },
+    { value: 'SCIENCE', label: t.classes.type.SCIENCE },
+    { value: 'SOCIAL_SCIENCE', label: t.classes.type.SOCIAL_SCIENCE },
+  ]
 
   const statusOptions: { value: ClassStatus; label: string }[] = [
     { value: 'ACTIVE', label: t.classes.status.ACTIVE },
@@ -106,6 +122,8 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       grade: String(classData.grade),
       section: classData.section || '',
       maxCapacity: classData.maxCapacity,
+      level: classData.level,
+      type: classData.type,
       status: classData.status,
     },
   })
@@ -129,6 +147,8 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       grade: Number(data.grade),
       section: data.section || undefined,
       maxCapacity: data.maxCapacity,
+      level: data.level,
+      type: data.type,
       status: data.status,
     }
     updateMutation.mutate(request)
@@ -232,31 +252,86 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
         <div className='grid grid-cols-2 gap-4'>
           <FormField
-          control={form.control}
-          name='status'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t.classes.modal.fields.status} <span className='text-destructive'>*</span></FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger className='w-full'>
-                    <SelectValue
-                      placeholder={t.classes.modal.fields.statusPlaceholder}
-                    />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {statusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            control={form.control}
+            name='level'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue
+                        placeholder={t.classes.modal.fields.levelPlaceholder}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {levelOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='type'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t.classes.modal.fields.type} <span className='text-destructive'>*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue
+                        placeholder={t.classes.modal.fields.typePlaceholder}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {typeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className='grid grid-cols-2 gap-4'>
+          <FormField
+            control={form.control}
+            name='status'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t.classes.modal.fields.status} <span className='text-destructive'>*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue
+                        placeholder={t.classes.modal.fields.statusPlaceholder}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <DialogFooter className='shrink-0 gap-2 px-6 py-4 -mx-6 border-t'>

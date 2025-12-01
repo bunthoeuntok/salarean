@@ -1,6 +1,8 @@
 package com.sms.student.dto;
 
+import com.sms.student.enums.ClassLevel;
 import com.sms.student.enums.ClassStatus;
+import com.sms.student.enums.ClassType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,6 +60,16 @@ public class ClassSummaryDto {
      * Current number of enrolled students.
      */
     private Integer studentCount;
+
+    /**
+     * Class level (PRIMARY, SECONDARY, or HIGH_SCHOOL).
+     */
+    private ClassLevel level;
+
+    /**
+     * Class type (NORMAL, SCIENCE, or SOCIAL_SCIENCE).
+     */
+    private ClassType type;
 
     /**
      * Class status (ACTIVE, INACTIVE, or COMPLETED).

@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Progress } from '@/components/ui/progress'
 import { DataTableColumnHeader } from '@/components/data-table'
-import type { Class, ClassStatus } from '@/types/class.types'
+import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.types'
 
 const statusVariantMap: Record<ClassStatus, 'default' | 'secondary' | 'destructive'> = {
   ACTIVE: 'default',
@@ -35,6 +35,8 @@ export const createClassColumns = (
         academicYear: string
         teacher: string
         enrollment: string
+        level: string
+        type: string
         status: string
         actions: string
       }
@@ -48,6 +50,16 @@ export const createClassColumns = (
         ACTIVE: string
         INACTIVE: string
         COMPLETED: string
+      }
+      level: {
+        PRIMARY: string
+        SECONDARY: string
+        HIGH_SCHOOL: string
+      }
+      type: {
+        NORMAL: string
+        SCIENCE: string
+        SOCIAL_SCIENCE: string
       }
     }
   },
@@ -105,6 +117,42 @@ export const createClassColumns = (
       return value.includes(row.getValue(id))
     },
     size: 120,
+  },
+  {
+    accessorKey: 'level',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.classes.columns.level} />
+    ),
+    cell: ({ row }) => {
+      const level = row.getValue('level') as ClassLevel
+      return (
+        <Badge variant='outline'>
+          {t.classes.level[level] || level}
+        </Badge>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    size: 120,
+  },
+  {
+    accessorKey: 'type',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.classes.columns.type} />
+    ),
+    cell: ({ row }) => {
+      const type = row.getValue('type') as ClassType
+      return (
+        <Badge variant='secondary'>
+          {t.classes.type[type] || type}
+        </Badge>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    size: 130,
   },
   {
     id: 'enrollment',

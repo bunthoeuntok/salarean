@@ -3,6 +3,8 @@
  */
 
 export type ClassStatus = 'ACTIVE' | 'INACTIVE' | 'COMPLETED'
+export type ClassLevel = 'PRIMARY' | 'SECONDARY' | 'HIGH_SCHOOL'
+export type ClassType = 'NORMAL' | 'SCIENCE' | 'SOCIAL_SCIENCE'
 
 export interface Class {
   id: string
@@ -13,6 +15,8 @@ export interface Class {
   academicYear: string
   maxCapacity: number
   studentCount: number
+  level: ClassLevel
+  type: ClassType
   status: ClassStatus
   createdAt: string
   updatedAt: string
@@ -33,6 +37,8 @@ export interface CreateClassRequest {
   section?: string
   academicYear: string
   maxCapacity: number
+  level: ClassLevel
+  type: ClassType
 }
 
 export interface UpdateClassRequest {
@@ -40,5 +46,7 @@ export interface UpdateClassRequest {
   section?: string
   academicYear?: string
   maxCapacity?: number
+  level?: ClassLevel
+  type?: ClassType
   status?: ClassStatus
 }
