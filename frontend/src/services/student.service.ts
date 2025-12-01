@@ -27,6 +27,8 @@ export const studentService = {
     if (params.search) queryParams.append('search', params.search)
     if (params.status) queryParams.append('status', params.status)
     if (params.gender) queryParams.append('gender', params.gender)
+    if (params.level) queryParams.append('level', params.level)
+    if (params.grade !== undefined) queryParams.append('grade', params.grade.toString())
     if (params.classId) queryParams.append('classId', params.classId)
 
     const queryString = queryParams.toString()

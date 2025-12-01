@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -75,6 +75,21 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
 
   const academicYearOptions = useMemo(() => generateAcademicYearOptions(), [])
 
+  // Filter grade options based on selected level
+  const getFilteredGradeOptions = (level: ClassLevel) => {
+    const gradeRanges: Record<ClassLevel, { min: number; max: number }> = {
+      PRIMARY: { min: 1, max: 6 },
+      SECONDARY: { min: 7, max: 9 },
+      HIGH_SCHOOL: { min: 10, max: 12 },
+    }
+
+    const range = gradeRanges[level]
+    return GRADE_OPTIONS.filter((option) => {
+      const grade = Number(option.value)
+      return grade >= range.min && grade <= range.max
+    })
+  }
+
   // Create schema with translated messages
   const createClassSchema = useMemo(() => {
     return z.object({
@@ -114,6 +129,23 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
       type: 'NORMAL',
     },
   })
+
+  // Watch level field to filter grade options
+  const selectedLevel = form.watch('level')
+  const filteredGradeOptions = useMemo(() => {
+    return getFilteredGradeOptions(selectedLevel)
+  }, [selectedLevel])
+
+  // Clear grade field if current grade is outside the new level's range
+  useEffect(() => {
+    const currentGrade = form.getValues('grade')
+    if (currentGrade) {
+      const isGradeValid = filteredGradeOptions.some(option => option.value === currentGrade)
+      if (!isGradeValid) {
+        form.setValue('grade', '')
+      }
+    }
+  }, [selectedLevel, filteredGradeOptions, form])
 
   const createMutation = useMutation({
     mutationFn: (data: CreateClassRequest) => classService.createClass(data),
@@ -183,20 +215,20 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
               />
               <FormField
                 control={form.control}
-                name='grade'
+                name='level'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.classes.modal.fields.grade} <span className='text-destructive'>*</span></FormLabel>
+                    <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
                           <SelectValue
-                            placeholder={t.classes.modal.fields.gradePlaceholder}
+                            placeholder={t.classes.modal.fields.levelPlaceholder}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {GRADE_OPTIONS.map((option) => (
+                        {levelOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -212,58 +244,20 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
             <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
-                name='section'
+                name='grade'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.classes.modal.fields.section}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t.classes.modal.fields.sectionPlaceholder}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='maxCapacity'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.classes.modal.fields.capacity} <span className='text-destructive'>*</span></FormLabel>
-                    <FormControl>
-                      <Input
-                        type='number'
-                        min={1}
-                        max={100}
-                        placeholder={t.classes.modal.fields.capacityPlaceholder}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='grid grid-cols-2 gap-4 pb-4'>
-              <FormField
-                control={form.control}
-                name='level'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
+                    <FormLabel>{t.classes.modal.fields.grade} <span className='text-destructive'>*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
                           <SelectValue
-                            placeholder={t.classes.modal.fields.levelPlaceholder}
+                            placeholder={t.classes.modal.fields.gradePlaceholder}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {levelOptions.map((option) => (
+                        {filteredGradeOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -296,6 +290,44 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4 pb-4'>
+              <FormField
+                control={form.control}
+                name='section'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.classes.modal.fields.section}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t.classes.modal.fields.sectionPlaceholder}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='maxCapacity'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.classes.modal.fields.capacity} <span className='text-destructive'>*</span></FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        min={1}
+                        max={100}
+                        placeholder={t.classes.modal.fields.capacityPlaceholder}
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

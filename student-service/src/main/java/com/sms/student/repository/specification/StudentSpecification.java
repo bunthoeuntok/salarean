@@ -1,7 +1,9 @@
 package com.sms.student.repository.specification;
 
+import com.sms.student.enums.ClassLevel;
 import com.sms.student.enums.Gender;
 import com.sms.student.enums.StudentStatus;
+import com.sms.student.model.SchoolClass;
 import com.sms.student.model.Student;
 import com.sms.student.model.StudentClassEnrollment;
 import jakarta.persistence.criteria.Root;
@@ -109,6 +111,66 @@ public class StudentSpecification {
                     cb.like(cb.lower(root.get("lastNameKhmer")), pattern),
                     cb.like(cb.lower(root.get("studentCode")), pattern)
             );
+        };
+    }
+
+    /**
+     * Filter by class level (uses subquery to join with class table through enrollment).
+     * A student is filtered if their current class matches the specified level.
+     */
+    public static Specification<Student> hasLevel(String levelFilter) {
+        return (root, query, cb) -> {
+            if (levelFilter == null || levelFilter.isBlank()) {
+                return cb.conjunction();
+            }
+
+            ClassLevel level = ClassLevel.valueOf(levelFilter);
+
+            // Subquery to find class IDs with the specified level
+            Subquery<UUID> classSubquery = query.subquery(UUID.class);
+            Root<SchoolClass> classRoot = classSubquery.from(SchoolClass.class);
+            classSubquery.select(classRoot.get("id"))
+                    .where(cb.equal(classRoot.get("level"), level));
+
+            // Subquery to find students currently enrolled in those classes
+            Subquery<UUID> enrollmentSubquery = query.subquery(UUID.class);
+            Root<StudentClassEnrollment> enrollment = enrollmentSubquery.from(StudentClassEnrollment.class);
+            enrollmentSubquery.select(enrollment.get("studentId"))
+                    .where(
+                            cb.in(enrollment.get("classId")).value(classSubquery),
+                            cb.isNull(enrollment.get("endDate")) // Current enrollment only
+                    );
+
+            return cb.in(root.get("id")).value(enrollmentSubquery);
+        };
+    }
+
+    /**
+     * Filter by grade (uses subquery to join with class table through enrollment).
+     * A student is filtered if their current class matches the specified grade.
+     */
+    public static Specification<Student> hasGrade(Integer gradeFilter) {
+        return (root, query, cb) -> {
+            if (gradeFilter == null) {
+                return cb.conjunction();
+            }
+
+            // Subquery to find class IDs with the specified grade
+            Subquery<UUID> classSubquery = query.subquery(UUID.class);
+            Root<SchoolClass> classRoot = classSubquery.from(SchoolClass.class);
+            classSubquery.select(classRoot.get("id"))
+                    .where(cb.equal(classRoot.get("grade"), gradeFilter));
+
+            // Subquery to find students currently enrolled in those classes
+            Subquery<UUID> enrollmentSubquery = query.subquery(UUID.class);
+            Root<StudentClassEnrollment> enrollment = enrollmentSubquery.from(StudentClassEnrollment.class);
+            enrollmentSubquery.select(enrollment.get("studentId"))
+                    .where(
+                            cb.in(enrollment.get("classId")).value(classSubquery),
+                            cb.isNull(enrollment.get("endDate")) // Current enrollment only
+                    );
+
+            return cb.in(root.get("id")).value(enrollmentSubquery);
         };
     }
 }

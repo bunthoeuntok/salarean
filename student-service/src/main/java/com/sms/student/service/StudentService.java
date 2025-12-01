@@ -381,9 +381,10 @@ public class StudentService implements IStudentService {
     @Override
     @Transactional(readOnly = true)
     public StudentListResponse listStudentsWithFilters(String search, String status, String gender,
-                                                        String classId, Pageable pageable) {
-        log.info("Listing students with filters: search={}, status={}, gender={}, classId={}",
-                 search, status, gender, classId);
+                                                        String level, Integer grade, String classId,
+                                                        Pageable pageable) {
+        log.info("Listing students with filters: search={}, status={}, gender={}, level={}, grade={}, classId={}",
+                 search, status, gender, level, grade, classId);
 
         // Build specification with all filters
         // Note: @Where annotation on Student entity handles soft-delete filtering
@@ -391,6 +392,8 @@ public class StudentService implements IStudentService {
                 org.springframework.data.jpa.domain.Specification
                         .where(StudentSpecification.hasStatus(status))
                         .and(StudentSpecification.hasGender(gender))
+                        .and(StudentSpecification.hasLevel(level))
+                        .and(StudentSpecification.hasGrade(grade))
                         .and(StudentSpecification.hasClassId(classId))
                         .and(StudentSpecification.searchByNameOrCode(search));
 
@@ -469,10 +472,10 @@ public class StudentService implements IStudentService {
                 .collect(Collectors.toList());
 
         // Build full names
-        String fullName = student.getFirstName() + " " + student.getLastName();
+        String fullName = student.getLastName() + " " + student.getFirstName();
         String fullNameKhmer = null;
         if (student.getFirstNameKhmer() != null && student.getLastNameKhmer() != null) {
-            fullNameKhmer = student.getFirstNameKhmer() + " " + student.getLastNameKhmer();
+            fullNameKhmer = student.getLastNameKhmer() + " " + student.getFirstNameKhmer();
         } else if (student.getFirstNameKhmer() != null) {
             fullNameKhmer = student.getFirstNameKhmer();
         } else if (student.getLastNameKhmer() != null) {
@@ -566,38 +569,5 @@ public class StudentService implements IStudentService {
     public ParentContactResponse updateParentContact(UUID contactId, ParentContactRequest request) {
         log.info("Updating parent contact via StudentService: {}", contactId);
         return parentContactService.updateParentContact(contactId, request);
-    }
-
-    /**
-     * Convert entity field names to database column names for native query sorting.
-     * This is necessary because native SQL queries use database column names (snake_case)
-     * while entity field names use Java naming conventions (camelCase).
-     */
-    private Pageable convertToNativeQueryPageable(Pageable pageable) {
-        if (pageable.getSort().isUnsorted()) {
-            return pageable;
-        }
-
-        org.springframework.data.domain.Sort newSort = org.springframework.data.domain.Sort.unsorted();
-        for (org.springframework.data.domain.Sort.Order order : pageable.getSort()) {
-            String property = order.getProperty();
-            // Convert camelCase to snake_case
-            String columnName = camelCaseToSnakeCase(property);
-            newSort = newSort.and(org.springframework.data.domain.Sort.by(order.getDirection(), columnName));
-        }
-
-        return org.springframework.data.domain.PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                newSort
-        );
-    }
-
-    /**
-     * Convert camelCase string to snake_case.
-     * Example: lastName -> last_name, firstNameKhmer -> first_name_khmer
-     */
-    private String camelCaseToSnakeCase(String camelCase) {
-        return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }
 }

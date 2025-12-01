@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -84,6 +84,21 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
   const academicYearOptions = useMemo(() => generateAcademicYearOptions(), [])
 
+  // Filter grade options based on selected level
+  const getFilteredGradeOptions = (level: ClassLevel) => {
+    const gradeRanges: Record<ClassLevel, { min: number; max: number }> = {
+      PRIMARY: { min: 1, max: 6 },
+      SECONDARY: { min: 7, max: 9 },
+      HIGH_SCHOOL: { min: 10, max: 12 },
+    }
+
+    const range = gradeRanges[level]
+    return GRADE_OPTIONS.filter((option) => {
+      const grade = Number(option.value)
+      return grade >= range.min && grade <= range.max
+    })
+  }
+
   // Create schema with translated messages
   const updateClassSchema = useMemo(() => {
     return z.object({
@@ -127,6 +142,23 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       status: classData.status,
     },
   })
+
+  // Watch level field to filter grade options
+  const selectedLevel = form.watch('level')
+  const filteredGradeOptions = useMemo(() => {
+    return getFilteredGradeOptions(selectedLevel)
+  }, [selectedLevel])
+
+  // Clear grade field if current grade is outside the new level's range
+  useEffect(() => {
+    const currentGrade = form.getValues('grade')
+    if (currentGrade) {
+      const isGradeValid = filteredGradeOptions.some(option => option.value === currentGrade)
+      if (!isGradeValid) {
+        form.setValue('grade', '')
+      }
+    }
+  }, [selectedLevel, filteredGradeOptions, form])
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateClassRequest) => classService.updateClass(classId, data),
@@ -186,6 +218,35 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
           />
           <FormField
             control={form.control}
+            name='level'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue
+                        placeholder={t.classes.modal.fields.levelPlaceholder}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {levelOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className='grid grid-cols-2 gap-4'>
+          <FormField
+            control={form.control}
             name='grade'
             render={({ field }) => (
               <FormItem>
@@ -199,7 +260,33 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {GRADE_OPTIONS.map((option) => (
+                    {filteredGradeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='type'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t.classes.modal.fields.type} <span className='text-destructive'>*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue
+                        placeholder={t.classes.modal.fields.typePlaceholder}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {typeOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -244,61 +331,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='level'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue
-                        placeholder={t.classes.modal.fields.levelPlaceholder}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {levelOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='type'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t.classes.modal.fields.type} <span className='text-destructive'>*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue
-                        placeholder={t.classes.modal.fields.typePlaceholder}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {typeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}

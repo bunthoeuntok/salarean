@@ -51,6 +51,8 @@ export interface StudentListParams {
   search?: string
   status?: string  // Can be comma-separated values for multiple filters
   gender?: string  // Can be comma-separated values for multiple filters
+  level?: string   // ClassLevel filter
+  grade?: number   // Grade filter
   classId?: string
 }
 

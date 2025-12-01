@@ -155,6 +155,8 @@ public class StudentController {
      * @param search  search by name or student code
      * @param status  filter by status (comma-separated: ACTIVE,INACTIVE)
      * @param gender  filter by gender (comma-separated: M,F)
+     * @param level   filter by class level (PRIMARY, SECONDARY, HIGH_SCHOOL)
+     * @param grade   filter by grade (1-12)
      * @param classId filter by class ID (use "NONE" for students without class)
      * @return paginated list of students
      */
@@ -167,13 +169,15 @@ public class StudentController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String level,
+            @RequestParam(required = false) Integer grade,
             @RequestParam(required = false) String classId) {
-        log.info("Received request to list students, page: {}, size: {}, search: {}, status: {}, gender: {}, classId: {}",
-                 page, size, search, status, gender, classId);
+        log.info("Received request to list students, page: {}, size: {}, search: {}, status: {}, gender: {}, level: {}, grade: {}, classId: {}",
+                 page, size, search, status, gender, level, grade, classId);
 
         Pageable pageable = createPageable(page, size, sort);
         StudentListResponse response = studentService.listStudentsWithFilters(
-                search, status, gender, classId, pageable);
+                search, status, gender, level, grade, classId, pageable);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
