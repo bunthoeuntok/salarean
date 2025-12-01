@@ -41,7 +41,13 @@ export function DataTableFilterToolbar({
       ...prev,
       [columnId]: values,
     }))
-  }, [])
+
+    // Call the column's onFilterChange callback if provided
+    const column = filterableColumns.find((col) => col.id === columnId)
+    if (column?.onFilterChange) {
+      column.onFilterChange(values)
+    }
+  }, [filterableColumns])
 
   const handleSubmit = useCallback(() => {
     onSubmit({ search, filters })

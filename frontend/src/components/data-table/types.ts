@@ -57,6 +57,7 @@ export interface FilterableColumn {
   title: string
   options: { label: string; value: string; icon?: React.ComponentType<{ className?: string }> }[]
   singleSelect?: boolean
+  onFilterChange?: (values: string[]) => void
 }
 
 export interface DataTableToolbarProps<TData> {

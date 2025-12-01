@@ -30,6 +30,8 @@ export interface ClassListParams {
   status?: string
   academicYear?: string
   grade?: number
+  level?: ClassLevel
+  type?: ClassType
 }
 
 export interface CreateClassRequest {

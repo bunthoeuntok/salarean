@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Plus, CheckCircle, XCircle, Clock, GraduationCap } from 'lucide-react'
 import type { Table } from '@tanstack/react-table'
@@ -17,7 +17,7 @@ import { classService } from '@/services/class.service'
 import { createClassColumns } from './columns'
 import { AddClassModal } from './components/add-class-modal'
 import { EditClassModal } from './components/edit-class-modal'
-import type { Class, ClassStatus } from '@/types/class.types'
+import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.types'
 
 // Grade options (1-12)
 const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
@@ -32,6 +32,9 @@ export function ClassesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editClassId, setEditClassId] = useState<string | null>(null)
+
+  // Track current level selection for dynamic grade filtering
+  const [currentLevelSelection, setCurrentLevelSelection] = useState<ClassLevel | undefined>(undefined)
 
   const handleEditClass = (classItem: Class) => {
     setEditClassId(classItem.id)
@@ -51,6 +54,8 @@ export function ClassesPage() {
       name: t.classes.columns.name,
       grade: t.classes.columns.grade,
       academicYear: t.classes.columns.academicYear,
+      level: t.classes.columns.level,
+      type: t.classes.columns.type,
       enrollment: t.classes.columns.enrollment,
       status: t.classes.columns.status,
       actions: t.classes.columns.actions,
@@ -85,6 +90,8 @@ export function ClassesPage() {
         sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
         status: filters.status?.join(',') || undefined,
         grade: filters.grade?.[0] ? Number(filters.grade[0]) : undefined,
+        level: filters.level?.[0] as ClassLevel | undefined,
+        type: filters.type?.[0] as ClassType | undefined,
       }),
   })
 
@@ -101,7 +108,38 @@ export function ClassesPage() {
     [t]
   )
 
-  // Filter options for status and grade
+  // Sync currentLevelSelection with URL params on mount/change
+  useEffect(() => {
+    setCurrentLevelSelection(filters.level?.[0] as ClassLevel | undefined)
+  }, [filters.level])
+
+  // Filter grade options based on current level selection
+  const filteredGradeOptions = useMemo(() => {
+    if (!currentLevelSelection) {
+      return GRADE_OPTIONS
+    }
+
+    // PRIMARY: grades 1-6, SECONDARY: grades 7-9, HIGH_SCHOOL: grades 10-12
+    const gradeRanges: Record<ClassLevel, { min: number; max: number }> = {
+      PRIMARY: { min: 1, max: 6 },
+      SECONDARY: { min: 7, max: 9 },
+      HIGH_SCHOOL: { min: 10, max: 12 },
+    }
+
+    const range = gradeRanges[currentLevelSelection]
+    return GRADE_OPTIONS.filter((option) => {
+      const grade = Number(option.value)
+      return grade >= range.min && grade <= range.max
+    })
+  }, [currentLevelSelection])
+
+  // Custom handler for level filter to update grade options in real-time
+  const handleLevelChange = useCallback((values: string[]) => {
+    const newLevel = values.length > 0 ? (values[0] as ClassLevel) : undefined
+    setCurrentLevelSelection(newLevel)
+  }, [])
+
+  // Filter options for status, grade, level, and type
   const filterableColumns = useMemo(
     () => [
       {
@@ -114,12 +152,33 @@ export function ClassesPage() {
         ],
       },
       {
+        id: 'level',
+        title: t.classes.columns.level,
+        options: [
+          { label: t.classes.level.PRIMARY, value: 'PRIMARY' as ClassLevel },
+          { label: t.classes.level.SECONDARY, value: 'SECONDARY' as ClassLevel },
+          { label: t.classes.level.HIGH_SCHOOL, value: 'HIGH_SCHOOL' as ClassLevel },
+        ],
+        singleSelect: true,
+        onFilterChange: handleLevelChange,
+      },
+      {
         id: 'grade',
         title: t.classes.columns.grade,
-        options: GRADE_OPTIONS,
+        options: filteredGradeOptions,
+      },
+      {
+        id: 'type',
+        title: t.classes.columns.type,
+        options: [
+          { label: t.classes.type.NORMAL, value: 'NORMAL' as ClassType },
+          { label: t.classes.type.SCIENCE, value: 'SCIENCE' as ClassType },
+          { label: t.classes.type.SOCIAL_SCIENCE, value: 'SOCIAL_SCIENCE' as ClassType },
+        ],
+        singleSelect: true,
       },
     ],
-    [t]
+    [t, filteredGradeOptions, handleLevelChange]
   )
 
   const handlePaginationChange = (newPageIndex: number, newPageSize: number) => {
