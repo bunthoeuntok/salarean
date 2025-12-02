@@ -65,15 +65,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 Create route file frontend/src/routes/_authenticated/classes.$id.tsx with basic route definition
-- [ ] T016 Create class detail page component in frontend/src/features/classes/[id].tsx with basic structure
-- [ ] T017 [P] [US1] Create ClassHeader component in frontend/src/features/classes/components/class-header.tsx displaying class name, code, grade level, academic year
-- [ ] T018 [P] [US1] Create StudentListItem component in frontend/src/features/classes/components/student-list-item.tsx with photo, name, code, enrollment date, status badge
-- [ ] T019 [US1] Create StudentList component in frontend/src/features/classes/components/student-list.tsx using semantic HTML table with students from useClassStudents hook
-- [ ] T020 [US1] Create EmptyState component in frontend/src/features/classes/components/empty-state.tsx for "No students enrolled in this class" message
-- [ ] T021 [US1] Add back navigation (breadcrumb or back button) to class detail page in frontend/src/features/classes/[id].tsx
-- [ ] T022 [US1] Connect ClassHeader to class detail page, fetching class info (if separate endpoint needed)
-- [ ] T023 [US1] Integrate StudentList with useClassStudents hook, display loading skeleton while fetching
+- [x] T015 Create route file frontend/src/routes/_authenticated/classes.$id.tsx with basic route definition
+- [x] T016 Create class detail page component in frontend/src/features/classes/class-detail/index.tsx with basic structure
+- [x] T017 [P] [US1] Create ClassHeader component in frontend/src/features/classes/class-detail/components/class-header.tsx displaying class name, code, grade level, academic year
+- [x] T018 [P] [US1] Create StudentListItem component in frontend/src/features/classes/class-detail/components/student-list-item.tsx with photo, name, code, enrollment date, status badge
+- [x] T019 [US1] Create StudentList component in frontend/src/features/classes/class-detail/components/student-list.tsx using semantic HTML table with students from useClassStudents hook
+- [x] T020 [US1] Create EmptyState component in frontend/src/features/classes/class-detail/components/empty-state.tsx for "No students enrolled in this class" message
+- [x] T021 [US1] Add back navigation (breadcrumb or back button) to class detail page in frontend/src/features/classes/class-detail/index.tsx
+- [x] T022 [US1] Connect ClassHeader to class detail page, fetching class info (if separate endpoint needed)
+- [x] T023 [US1] Integrate StudentList with useClassStudents hook, display loading skeleton while fetching
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - teachers can view class roster from class list.
 

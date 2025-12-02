@@ -21,6 +21,7 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as AuthenticatedSettingsProfileRouteImport } from './routes/_authenticated/settings/profile'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedClassesIdRouteImport } from './routes/_authenticated/classes.$id'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -84,6 +85,11 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedClassesIdRoute = AuthenticatedClassesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedClassesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -92,9 +98,10 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/sign-up': typeof authSignUpRoute
-  '/classes': typeof AuthenticatedClassesRoute
+  '/classes': typeof AuthenticatedClassesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/students': typeof AuthenticatedStudentsRoute
+  '/classes/$id': typeof AuthenticatedClassesIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
 }
@@ -105,9 +112,10 @@ export interface FileRoutesByTo {
   '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/sign-up': typeof authSignUpRoute
-  '/classes': typeof AuthenticatedClassesRoute
+  '/classes': typeof AuthenticatedClassesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/students': typeof AuthenticatedStudentsRoute
+  '/classes/$id': typeof AuthenticatedClassesIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
 }
@@ -120,9 +128,10 @@ export interface FileRoutesById {
   '/(auth)/reset-password': typeof authResetPasswordRoute
   '/(auth)/sign-in': typeof authSignInRoute
   '/(auth)/sign-up': typeof authSignUpRoute
-  '/_authenticated/classes': typeof AuthenticatedClassesRoute
+  '/_authenticated/classes': typeof AuthenticatedClassesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRoute
+  '/_authenticated/classes/$id': typeof AuthenticatedClassesIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/profile': typeof AuthenticatedSettingsProfileRoute
 }
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/dashboard'
     | '/students'
+    | '/classes/$id'
     | '/settings/account'
     | '/settings/profile'
   fileRoutesByTo: FileRoutesByTo
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/dashboard'
     | '/students'
+    | '/classes/$id'
     | '/settings/account'
     | '/settings/profile'
   id:
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/classes'
     | '/_authenticated/dashboard'
     | '/_authenticated/students'
+    | '/_authenticated/classes/$id'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/profile'
   fileRoutesById: FileRoutesById
@@ -264,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/classes/$id': {
+      id: '/_authenticated/classes/$id'
+      path: '/$id'
+      fullPath: '/classes/$id'
+      preLoaderRoute: typeof AuthenticatedClassesIdRouteImport
+      parentRoute: typeof AuthenticatedClassesRoute
+    }
   }
 }
 
@@ -283,16 +302,27 @@ const AuthenticatedSettingsRouteRouteWithChildren =
     AuthenticatedSettingsRouteRouteChildren,
   )
 
+interface AuthenticatedClassesRouteChildren {
+  AuthenticatedClassesIdRoute: typeof AuthenticatedClassesIdRoute
+}
+
+const AuthenticatedClassesRouteChildren: AuthenticatedClassesRouteChildren = {
+  AuthenticatedClassesIdRoute: AuthenticatedClassesIdRoute,
+}
+
+const AuthenticatedClassesRouteWithChildren =
+  AuthenticatedClassesRoute._addFileChildren(AuthenticatedClassesRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
-  AuthenticatedClassesRoute: typeof AuthenticatedClassesRoute
+  AuthenticatedClassesRoute: typeof AuthenticatedClassesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
-  AuthenticatedClassesRoute: AuthenticatedClassesRoute,
+  AuthenticatedClassesRoute: AuthenticatedClassesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
 }
