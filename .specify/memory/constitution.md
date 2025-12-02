@@ -1,22 +1,22 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.2.0 (Minor - Frontend technology migration from Next.js to React+Vite)
+Version change: 1.3.0 → 1.4.0 (Minor - Frontend structure standardization)
 Modified principles:
   - None (existing principles unchanged)
 Modified sections:
-  - Technology Stack > Frontend: Next.js 14 → React 19 + Vite 7.x
-  - Project Structure > Frontend Structure: Updated from Next.js app router to React SPA structure
-  - Repository Layout: Updated frontend description
-Added sections: None
+  - Project Structure > Frontend Structure: Updated to reflect actual feature-based architecture
+  - Added Frontend Implementation Standards section (NEW)
+Added sections:
+  - Frontend Implementation Standards (comprehensive frontend architecture guidance)
 Removed sections: None
 Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ Compatible (no frontend-specific references)
+  - .specify/templates/plan-template.md ✅ Compatible (technology-agnostic)
   - .specify/templates/spec-template.md ✅ Compatible (technology-agnostic)
   - .specify/templates/tasks-template.md ✅ Compatible (technology-agnostic)
 External documents updated:
-  - README.md ✅ UPDATED: Tech stack, architecture, ports, commands
-  - CLAUDE.md ✅ UPDATED: Project structure, frontend commands
+  - README.md ⚠ No update needed (already reflects actual structure)
+  - CLAUDE.md ⚠ No update needed (already reflects actual structure)
 Follow-up TODOs: None
 ==================
 -->
@@ -156,23 +156,47 @@ salarean/
 frontend/
 ├── src/
 │   ├── routes/                  # TanStack Router route definitions
-│   │   ├── __root.tsx           # Root layout
-│   │   ├── index.tsx            # Home route
-│   │   ├── (auth)/              # Auth route group (login, register)
-│   │   └── (dashboard)/         # Protected route group
-│   ├── components/              # React components
-│   │   ├── ui/                  # shadcn/ui components
-│   │   ├── forms/               # Form components
-│   │   └── layout/              # Layout components
+│   │   ├── __root.tsx           # Root layout with providers
+│   │   ├── index.tsx            # Home/landing page
+│   │   ├── (auth)/              # Public auth routes (login, register)
+│   │   └── _authenticated/      # Protected routes (requires authentication)
+│   ├── features/                # Feature-based organization
+│   │   ├── auth/                # Authentication feature module
+│   │   ├── students/            # Student management feature module
+│   │   │   ├── components/      # Feature-specific components
+│   │   │   ├── columns.tsx      # Table column definitions
+│   │   │   └── index.tsx        # Feature entry point
+│   │   ├── classes/             # Class management feature module
+│   │   ├── dashboard/           # Dashboard feature module
+│   │   ├── settings/            # Settings feature module
+│   │   └── errors/              # Error pages (404, 500, etc.)
+│   ├── components/              # Shared React components
+│   │   ├── ui/                  # shadcn/ui base components
+│   │   ├── layout/              # Layout components (Header, Sidebar, etc.)
+│   │   └── data-table/          # Reusable data table components
+│   ├── context/                 # React context providers
+│   │   ├── theme-provider.tsx   # Theme (light/dark mode)
+│   │   ├── language-provider.tsx # i18n language context
+│   │   ├── direction-provider.tsx # RTL/LTR direction
+│   │   ├── layout-provider.tsx  # Layout state (sidebar, etc.)
+│   │   └── search-provider.tsx  # Global search context
 │   ├── hooks/                   # Custom React hooks
 │   ├── lib/                     # Utilities & helpers
-│   │   ├── api/                 # API client (Axios)
-│   │   ├── i18n/                # Internationalization (i18next)
-│   │   └── utils/               # General utilities
-│   ├── services/                # API service functions
-│   ├── store/                   # Zustand stores
-│   └── types/                   # TypeScript type definitions
-├── public/                      # Static assets
+│   │   ├── api.ts               # Axios client configuration
+│   │   ├── cookies.ts           # Cookie utilities
+│   │   ├── handle-server-error.ts # Error handling utilities
+│   │   ├── utils.ts             # General utility functions
+│   │   ├── i18n/                # Internationalization setup
+│   │   ├── utils/               # Additional utilities
+│   │   └── validations/         # Zod validation schemas
+│   ├── services/                # API service functions (domain-specific)
+│   ├── store/                   # Zustand stores (client state)
+│   ├── types/                   # TypeScript type definitions
+│   ├── assets/                  # Static assets
+│   │   └── icons/               # SVG icons and images
+│   ├── styles/                  # Global styles and CSS
+│   └── main.tsx                 # Application entry point
+├── public/                      # Static public assets
 ├── index.html                   # HTML entry point
 ├── vite.config.ts               # Vite configuration
 ├── tailwind.config.ts           # Tailwind CSS configuration
@@ -197,6 +221,8 @@ Each `*-service/` directory follows this standard layout:
 │   │   │   ├── repository/      # Spring Data repositories
 │   │   │   ├── security/        # Auth filters (if needed)
 │   │   │   ├── service/         # Business logic
+│   │   │   │   ├── interfaces/  # Service interfaces (I-prefixed)
+│   │   │   │   └── *.java       # Service implementations
 │   │   │   └── validation/      # Custom validators
 │   │   └── resources/
 │   │       ├── application.yml  # Service configuration
@@ -277,6 +303,130 @@ The following technologies are mandated for the SMS project:
 
 **Rationale**: Standardizing the stack ensures team consistency, reduces context switching, and enables shared tooling and knowledge.
 
+### Frontend Implementation Standards
+
+All React frontend applications MUST adhere to the following architectural patterns:
+
+**Feature-Based Architecture**:
+
+The frontend follows a feature-based (vertical slice) architecture where each feature module is self-contained:
+
+```text
+features/{feature-name}/
+├── components/          # Feature-specific components
+├── hooks/               # Feature-specific hooks (optional)
+├── types/               # Feature-specific types (optional)
+├── columns.tsx          # Table column definitions (if applicable)
+└── index.tsx            # Feature entry point/main page
+```
+
+**Rules**:
+- Each feature module MUST be independently understandable
+- Feature-specific components MUST NOT be imported by other features
+- Shared components MUST be placed in `components/`
+- Feature modules MAY have their own hooks, types, and utilities
+
+**Routing Conventions**:
+
+- **Public routes**: Place in `routes/(auth)/` for unauthenticated pages (login, register)
+- **Protected routes**: Place in `routes/_authenticated/` for authenticated-only pages
+- **Root layout**: `routes/__root.tsx` MUST include all context providers
+- **File naming**: Use kebab-case for route files (e.g., `student-list.tsx`)
+
+**Context Providers Pattern**:
+
+All global state providers MUST be organized in `context/` directory:
+
+- `theme-provider.tsx` - Light/dark mode theming
+- `language-provider.tsx` - i18n language selection (Khmer/English)
+- `direction-provider.tsx` - Text direction (LTR/RTL)
+- `layout-provider.tsx` - Layout state (sidebar collapse, etc.)
+- `search-provider.tsx` - Global search functionality
+
+**Provider composition** in `__root.tsx`:
+```tsx
+<ThemeProvider>
+  <DirectionProvider>
+    <LanguageProvider>
+      <LayoutProvider>
+        <SearchProvider>
+          <Outlet />
+        </SearchProvider>
+      </LayoutProvider>
+    </LanguageProvider>
+  </DirectionProvider>
+</ThemeProvider>
+```
+
+**Component Organization**:
+
+- `components/ui/` - shadcn/ui base components (Button, Input, Dialog, etc.)
+- `components/layout/` - Layout components (Header, Sidebar, Footer, etc.)
+- `components/data-table/` - Reusable data table components with pagination, sorting, filtering
+- Feature-specific components MUST stay in `features/{name}/components/`
+
+**State Management**:
+
+- **Server state**: Use TanStack Query for all API data fetching and caching
+- **Client state**: Use Zustand for local UI state (theme, sidebar, filters, etc.)
+- **Form state**: Use react-hook-form with Zod validation schemas
+- **Context**: Use React Context only for cross-cutting concerns (theme, language, layout)
+
+**API Integration**:
+
+- API client configuration in `lib/api.ts` (Axios instance with interceptors)
+- API service functions in `services/{domain}.ts` (e.g., `services/students.ts`)
+- Error handling in `lib/handle-server-error.ts`
+- Cookie utilities in `lib/cookies.ts`
+
+**Validation**:
+
+- All validation schemas MUST be defined in `lib/validations/`
+- Use Zod for runtime type validation
+- Integrate with react-hook-form via `@hookform/resolvers/zod`
+
+**Internationalization**:
+
+- i18n setup in `lib/i18n/`
+- Translation keys in `lib/i18n/locales/{en,km}.json`
+- Use `useTranslation()` hook from react-i18next
+- Backend error codes MUST be mapped to translated messages in frontend
+
+**TypeScript Standards**:
+
+- Strict mode MUST be enabled in `tsconfig.json`
+- All API responses MUST have typed interfaces in `types/`
+- Use `type` for object shapes, `interface` for extensible contracts
+- Avoid `any` - use `unknown` when type is truly unknown
+
+**Styling Standards**:
+
+- Use Tailwind CSS utility classes for styling
+- Component-specific styles in component files (no separate CSS modules)
+- Global styles in `styles/` directory
+- Follow shadcn/ui component patterns for consistency
+
+**Example Feature Module**:
+
+```text
+features/students/
+├── components/
+│   ├── add-student-modal.tsx
+│   ├── edit-student-modal.tsx
+│   ├── view-student-modal.tsx
+│   ├── enroll-student-modal.tsx
+│   └── transfer-student-modal.tsx
+├── columns.tsx              # TanStack Table column definitions
+└── index.tsx                # Student list page with data table
+```
+
+**Rationale**:
+- Feature-based architecture promotes modularity and independent development
+- Context providers centralize cross-cutting concerns (theme, i18n, layout)
+- TanStack Router + Query provide type-safe routing and data fetching
+- Zod validation ensures runtime type safety at API boundaries
+- Tailwind + shadcn/ui enable rapid, consistent UI development
+
 ### Backend Implementation Standards
 
 All Spring Boot services MUST adhere to the following architectural patterns:
@@ -292,8 +442,61 @@ com.sms.{service-name}/
 ├── repository/       # Spring Data JPA repositories
 ├── security/         # Authentication/authorization filters
 ├── service/          # Business logic layer (@Service)
+│   ├── interfaces/   # Service interface definitions (I-prefixed)
+│   │   ├── IStudentService.java
+│   │   ├── IEnrollmentService.java
+│   │   └── I{Domain}Service.java
+│   ├── StudentService.java       # Implementation (no "Impl" suffix)
+│   ├── EnrollmentService.java
+│   └── {Domain}Service.java
 └── validation/       # Custom validators (@Component)
 ```
+
+**Service Layer Architecture**:
+
+All services MUST follow this interface-implementation pattern:
+
+1. **Interface Definition** (in `service/interfaces/`):
+   - Prefix interface name with `I` (e.g., `IStudentService`, `IEnrollmentService`)
+   - Define all public service methods
+   - Include comprehensive JavaDoc with parameter descriptions, return types, and exceptions
+   - Located in `service/interfaces/` subdirectory
+
+2. **Implementation** (in `service/`):
+   - Implementation class name matches domain without suffix (e.g., `StudentService`, NOT `StudentServiceImpl`)
+   - Implements the corresponding interface (e.g., `StudentService implements IStudentService`)
+   - Annotated with `@Service`
+   - Located directly in `service/` directory (NOT in a separate `impl/` subdirectory)
+
+**Example**:
+```java
+// service/interfaces/IStudentService.java
+public interface IStudentService {
+    /**
+     * Create a new student profile.
+     * @param request Student creation request
+     * @return Created student response
+     * @throws InvalidStudentDataException if validation fails
+     */
+    StudentResponse createStudent(StudentRequest request);
+}
+
+// service/StudentService.java
+@Service
+@RequiredArgsConstructor
+public class StudentService implements IStudentService {
+    @Override
+    public StudentResponse createStudent(StudentRequest request) {
+        // Implementation
+    }
+}
+```
+
+**Rationale**:
+- I-prefix interfaces clearly distinguish contracts from implementations
+- Removing "Impl" suffix reduces verbosity while maintaining clarity
+- Flat structure in `service/` avoids unnecessary nesting
+- Interfaces in subdirectory keep contract definitions organized separately
 
 **Dependency Injection**:
 - Use constructor injection with `@RequiredArgsConstructor` (Lombok)
@@ -424,4 +627,4 @@ For runtime development guidance, refer to:
 - `.specify/` - Feature specifications and implementation plans
 - `CLAUDE.md` - Auto-generated development guidelines (updated per feature)
 
-**Version**: 1.2.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-11-27
+**Version**: 1.4.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-12-02

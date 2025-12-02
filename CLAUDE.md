@@ -79,7 +79,8 @@ docker-compose down           # Stop all services
 
 ### Backend (Java 21)
 - Follow standard Spring Boot conventions
-- Package structure: config/, controller/, dto/, exception/, model/, repository/, security/, service/, validation/
+- Package structure: config/, controller/, dto/, exception/, model/, repository/, security/, service/ (with interfaces/ subdirectory), validation/
+- Service layer: Interfaces in service/interfaces/ (I-prefixed), implementations in service/ (no "Impl" suffix)
 - Use `@RequiredArgsConstructor` for dependency injection
 - `ApiResponse<T>` wrapper for all API responses
 
