@@ -81,6 +81,7 @@ export const uiKm: UITranslations = {
     close: 'បិទ',
     or: 'ឬ',
     and: 'និង',
+    comingSoon: 'មកដល់ឆាប់ៗនេះ',
   },
   validation: {
     required: 'ត្រូវការបំពេញព័ត៌មាននេះ',
@@ -425,6 +426,13 @@ export const uiKm: UITranslations = {
         created: 'បង្កើតថ្នាក់រៀនបានជោគជ័យ',
         updated: 'ធ្វើបច្ចុប្បន្នភាពថ្នាក់រៀនបានជោគជ័យ',
       },
+    },
+    tabs: {
+      ariaLabel: 'ផ្ទាំងព័ត៌មានថ្នាក់រៀន',
+      students: 'សិស្ស',
+      schedule: 'កាលវិភាគ',
+      attendance: 'វត្តមាន',
+      grades: 'ពិន្ទុ',
     },
   },
 }

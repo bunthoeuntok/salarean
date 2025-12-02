@@ -96,6 +96,7 @@ export interface UITranslations {
     close: string
     or: string
     and: string
+    comingSoon: string
   }
   // Validation messages
   validation: {
@@ -451,6 +452,13 @@ export interface UITranslations {
         created: string
         updated: string
       }
+    }
+    tabs?: {
+      ariaLabel: string
+      students: string
+      schedule: string
+      attendance: string
+      grades: string
     }
   }
 }

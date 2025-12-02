@@ -81,6 +81,7 @@ export const uiEn: UITranslations = {
     close: 'Close',
     or: 'or',
     and: 'and',
+    comingSoon: 'Coming soon',
   },
   validation: {
     required: 'This field is required',
@@ -425,6 +426,13 @@ export const uiEn: UITranslations = {
         created: 'Class created successfully',
         updated: 'Class updated successfully',
       },
+    },
+    tabs: {
+      ariaLabel: 'Class information tabs',
+      students: 'Students',
+      schedule: 'Schedule',
+      attendance: 'Attendance',
+      grades: 'Grades',
     },
   },
 }
