@@ -113,15 +113,25 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
     return isGradeValidForLevel(grade, selectedLevel)
   }, [selectedLevel])
 
-  // Auto-clear invalid grade when level changes
+  // Auto-clear conflicting filters
   useEffect(() => {
     if (selectedGrade && selectedLevel) {
       if (!isGradeValid(selectedGrade)) {
-        setSelectedGrade(undefined)
-        onGradeCleared?.()
+        // Different behavior for modals vs filters:
+        // - Modals: clear invalid grade (onGradeCleared provided)
+        // - Filters: prioritize grade, clear level (onGradeCleared not provided)
+        if (onGradeCleared) {
+          // Modal use case: clear invalid grade
+          setSelectedGrade(undefined)
+          onGradeCleared()
+        } else {
+          // Filter use case: grade is more specific, clear level instead
+          setSelectedLevel(undefined)
+          onLevelChange?.(undefined)
+        }
       }
     }
-  }, [selectedLevel, selectedGrade, isGradeValid, onGradeCleared])
+  }, [selectedLevel, selectedGrade, isGradeValid, onGradeCleared, onLevelChange])
 
   // Filter class options based on level and grade
   const filteredClassOptions = useMemo(() => {
@@ -130,10 +140,10 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
     // If grade is selected, prioritize it (grade is more specific than level)
     if (selectedGrade) {
       const gradeNumber = Number(selectedGrade)
-      filtered = filtered.filter((c) => c.grade === gradeNumber)
+      filtered = filtered.filter((c) => c.grade == gradeNumber)
     } else if (selectedLevel) {
       // Only filter by level if no specific grade is selected
-      filtered = filtered.filter((c) => c.level === selectedLevel)
+      filtered = filtered.filter((c) => c.level == selectedLevel)
     }
 
     const options = filtered.map((c) => ({

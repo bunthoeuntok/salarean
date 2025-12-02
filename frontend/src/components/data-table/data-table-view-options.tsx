@@ -70,7 +70,7 @@ export function DataTableViewOptions<TData>({
         <div className='p-3 pb-2'>
           <p className='text-sm font-medium'>{t.table.toggleColumns}</p>
           <p className='text-xs text-muted-foreground'>
-            {visibleCount} of {columns.length} visible
+            {visibleCount} {t.table.of} {columns.length} {t.table.visible}
           </p>
         </div>
         <Separator />

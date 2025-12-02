@@ -150,11 +150,23 @@ export interface UITranslations {
   filter: {
     submit: string
     reset: string
+    selected: string
+    noResults: string
+    clearFilters: string
   }
   // Table
   table: {
     view: string
     toggleColumns: string
+    rowsSelected: string
+    rowsPerPage: string
+    page: string
+    of: string
+    visible: string
+    goToFirstPage: string
+    goToPreviousPage: string
+    goToNextPage: string
+    goToLastPage: string
   }
   // Settings
   settings: {

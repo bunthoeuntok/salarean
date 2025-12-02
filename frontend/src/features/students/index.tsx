@@ -173,22 +173,6 @@ export function StudentsPage() {
   const filterableColumns = useMemo(
     () => [
       {
-        id: 'status',
-        title: t.students.columns.status,
-        options: [
-          { label: t.students.status.ACTIVE, value: 'ACTIVE' as StudentStatus, icon: UserCheck },
-          { label: t.students.status.INACTIVE, value: 'INACTIVE' as StudentStatus, icon: UserX }
-        ],
-      },
-      {
-        id: 'gender',
-        title: t.students.columns.gender,
-        options: [
-          { label: t.students.gender.M, value: 'M' as Gender },
-          { label: t.students.gender.F, value: 'F' as Gender },
-        ],
-      },
-      {
         id: 'level',
         title: t.classes.columns.level,
         options: [
@@ -212,6 +196,22 @@ export function StudentsPage() {
         options: filteredClassOptions,
         singleSelect: true,
       },
+      {
+        id: 'status',
+        title: t.students.columns.status,
+        options: [
+          { label: t.students.status.ACTIVE, value: 'ACTIVE' as StudentStatus, icon: UserCheck },
+          { label: t.students.status.INACTIVE, value: 'INACTIVE' as StudentStatus, icon: UserX }
+        ],
+      },
+      {
+        id: 'gender',
+        title: t.students.columns.gender,
+        options: [
+          { label: t.students.gender.M, value: 'M' as Gender },
+          { label: t.students.gender.F, value: 'F' as Gender },
+        ],
+      }
     ],
     [t, filteredGradeOptions, filteredClassOptions, handleLevelChange, handleGradeChange]
   )

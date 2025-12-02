@@ -128,10 +128,22 @@ export const uiKm: UITranslations = {
   filter: {
     submit: 'ស្វែងរក',
     reset: 'កំណត់ឡើងវិញ',
+    selected: 'បានជ្រើសរើស',
+    noResults: 'រកមិនឃើញលទ្ធផល។',
+    clearFilters: 'សម្អាតតម្រង',
   },
   table: {
     view: 'មើល',
     toggleColumns: 'បើក / បិទជួរឈរ',
+    rowsSelected: 'នៃ {total} ជួរដេកត្រូវបានជ្រើសរើស',
+    rowsPerPage: 'ចំនួនជួរដេកក្នុងមួយទំព័រ',
+    page: 'ទំព័រ',
+    of: 'នៃ',
+    visible: 'បង្ហាញ',
+    goToFirstPage: 'ទៅទំព័រដំបូង',
+    goToPreviousPage: 'ទៅទំព័រមុន',
+    goToNextPage: 'ទៅទំព័របន្ទាប់',
+    goToLastPage: 'ទៅទំព័រចុងក្រោយ',
   },
   settings: {
     title: 'ការកំណត់',

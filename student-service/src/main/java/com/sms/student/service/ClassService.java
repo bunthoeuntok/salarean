@@ -151,10 +151,6 @@ public class ClassService implements IClassService {
         // Fetch from database with specification
         Page<SchoolClass> classPage = classRepository.findAll(spec, pageable);
 
-        log.debug("Found {} classes for teacher: {} (page {} of {})",
-                 classPage.getNumberOfElements(), teacherId,
-                 classPage.getNumber() + 1, classPage.getTotalPages());
-
         // Map to DTOs
         List<ClassSummaryDto> classSummaries = classPage.getContent().stream()
             .map(this::mapToSummaryDto)
@@ -207,16 +203,13 @@ public class ClassService implements IClassService {
                 }
             });
 
-        // Get enrolled students
-        List<StudentRosterItemDto> students = getClassStudents(classId, teacherId);
 
         // Map to DTO
-        ClassDetailDto classDetails = mapToDetailDto(schoolClass, students);
+        ClassDetailDto classDetails = mapToDetailDto(schoolClass);
 
         // Cache the result
         classCacheService.cacheClassDetails(classId, classDetails);
 
-        log.info("Found class details with {} students", students.size());
         return classDetails;
     }
 
@@ -285,7 +278,7 @@ public class ClassService implements IClassService {
      * @param students list of enrolled students
      * @return class detail DTO
      */
-    private ClassDetailDto mapToDetailDto(SchoolClass entity, List<StudentRosterItemDto> students) {
+    private ClassDetailDto mapToDetailDto(SchoolClass entity) {
         return ClassDetailDto.builder()
             .id(entity.getId())
             .schoolId(entity.getSchoolId())
@@ -300,7 +293,6 @@ public class ClassService implements IClassService {
             .status(entity.getStatus())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
-            .students(students)
             .build();
     }
 
@@ -434,7 +426,7 @@ public class ClassService implements IClassService {
         classCacheService.evictTeacherClasses(teacherId);
 
         // Return class details (with empty student list)
-        return mapToDetailDto(savedClass, List.of());
+        return mapToDetailDto(savedClass);
     }
 
     /**
@@ -579,11 +571,8 @@ public class ClassService implements IClassService {
         classCacheService.evictClassDetails(classId);
         classCacheService.evictEnrollmentHistory(classId);
 
-        // Get current students for response
-        List<StudentRosterItemDto> students = getClassStudents(classId, teacherId);
-
         // Return updated class details
-        return mapToDetailDto(updatedClass, students);
+        return mapToDetailDto(updatedClass);
     }
 
     @Override
@@ -607,9 +596,7 @@ public class ClassService implements IClassService {
         // Check if already completed/archived
         if (schoolClass.getStatus() == ClassStatus.COMPLETED) {
             log.warn("Class {} is already archived", classId);
-            // Return current state without modification
-            List<StudentRosterItemDto> students = getClassStudents(classId, teacherId);
-            return mapToDetailDto(schoolClass, students);
+            return mapToDetailDto(schoolClass);
         }
 
         // Archive the class (mark as completed)
@@ -622,10 +609,7 @@ public class ClassService implements IClassService {
         classCacheService.evictTeacherClasses(teacherId);
         classCacheService.evictClassDetails(classId);
 
-        // Get current students for response
-        List<StudentRosterItemDto> students = getClassStudents(classId, teacherId);
-
         // Return archived class details
-        return mapToDetailDto(archivedClass, students);
+        return mapToDetailDto(archivedClass);
     }
 }

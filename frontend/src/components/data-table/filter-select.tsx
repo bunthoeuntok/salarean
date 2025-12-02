@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { useLanguage } from '@/context/language-provider'
 
 export interface FilterOption {
   label: string
@@ -39,6 +40,7 @@ export function FilterSelect({
   onChange,
   singleSelect = false,
 }: FilterSelectProps) {
+  const { t } = useLanguage()
   const selectedSet = new Set(selectedValues)
 
   const handleSelect = (value: string) => {
@@ -86,7 +88,7 @@ export function FilterSelect({
                     variant='secondary'
                     className='rounded-sm px-1 font-normal'
                   >
-                    {selectedSet.size} selected
+                    {selectedSet.size} {t.filter.selected}
                   </Badge>
                 ) : (
                   options
@@ -110,7 +112,7 @@ export function FilterSelect({
         <Command>
           <CommandInput placeholder={title} />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandEmpty>{t.filter.noResults}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedSet.has(option.value)
@@ -150,7 +152,7 @@ export function FilterSelect({
                     onSelect={handleClear}
                     className='justify-center text-center'
                   >
-                    Clear filters
+                    {t.filter.clearFilters}
                   </CommandItem>
                 </CommandGroup>
               </>

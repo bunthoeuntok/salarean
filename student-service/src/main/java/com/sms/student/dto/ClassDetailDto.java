@@ -91,9 +91,4 @@ public class ClassDetailDto {
      * Timestamp when the class was last updated.
      */
     private LocalDateTime updatedAt;
-
-    /**
-     * List of students currently enrolled in this class.
-     */
-    private List<StudentRosterItemDto> students;
 }

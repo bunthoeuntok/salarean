@@ -152,13 +152,7 @@ public class ClassController {
             HttpServletRequest request) {
 
         UUID teacherId = extractTeacherIdFromRequest(request);
-
-        log.info("Fetching class details for classId: {} by teacher: {}", id, teacherId);
-
         ClassDetailDto classDetails = classService.getClassDetails(id, teacherId);
-
-        log.info("Returning class details with {} students",
-                 classDetails.getStudents() != null ? classDetails.getStudents().size() : 0);
 
         return ResponseEntity.ok(ApiResponse.success(classDetails));
     }

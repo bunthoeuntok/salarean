@@ -128,10 +128,22 @@ export const uiEn: UITranslations = {
   filter: {
     submit: 'Search',
     reset: 'Reset',
+    selected: 'selected',
+    noResults: 'No results found.',
+    clearFilters: 'Clear filters',
   },
   table: {
     view: 'View',
     toggleColumns: 'Toggle columns',
+    rowsSelected: 'of {total} row(s) selected',
+    rowsPerPage: 'Rows per page',
+    page: 'Page',
+    of: 'of',
+    visible: 'visible',
+    goToFirstPage: 'Go to first page',
+    goToPreviousPage: 'Go to previous page',
+    goToNextPage: 'Go to next page',
+    goToLastPage: 'Go to last page',
   },
   settings: {
     title: 'Settings',
