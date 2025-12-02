@@ -132,7 +132,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 # Replace {CLASS_ID} with an existing class UUID from database
 
 curl -H "Authorization: Bearer {TOKEN}" \
-  http://localhost:8080/api/classes/{CLASS_ID}/students?page=0&size=20
+  http://localhost:8080/api/classes/{CLASS_ID}/students
 ```
 
 **Expected response**:
@@ -140,13 +140,8 @@ curl -H "Authorization: Bearer {TOKEN}" \
 {
   "errorCode": "SUCCESS",
   "data": {
-    "content": [ /* array of students */ ],
-    "page": 0,
-    "size": 20,
-    "totalElements": 0,
-    "totalPages": 0,
-    "hasNext": false,
-    "hasPrevious": false
+    "students": [ /* array of students */ ],
+    "totalCount": 0
   }
 }
 ```
@@ -226,7 +221,7 @@ student-service/src/main/java/com/sms/student/
 │   │   └── IClassService.java # MODIFY: Add method signature
 │   └── ClassService.java      # MODIFY: Implement method
 ├── dto/
-│   ├── PagedStudentEnrollmentResponse.java  # NEW
+│   ├── StudentEnrollmentListResponse.java   # NEW
 │   └── StudentEnrollmentItem.java           # NEW
 └── repository/
     └── StudentClassEnrollmentRepository.java # MODIFY: Add query method
@@ -301,8 +296,8 @@ pnpm exec tsr generate
 export async function getClassStudents(
   classId: string,
   filters: StudentFilters = {}
-): Promise<PagedStudentEnrollmentResponse> {
-  const { data } = await api.get<ApiResponse<PagedStudentEnrollmentResponse>>(
+): Promise<StudentEnrollmentListResponse> {
+  const { data } = await api.get<ApiResponse<StudentEnrollmentListResponse>>(
     `/api/classes/${classId}/students`,
     { params: filters }
   )
@@ -338,14 +333,12 @@ export function useClassStudents(classId: string, filters = {}) {
 
 ```java
 @GetMapping("/{classId}/students")
-public ApiResponse<PagedStudentEnrollmentResponse> getStudentsByClass(
+public ApiResponse<StudentEnrollmentListResponse> getStudentsByClass(
     @PathVariable UUID classId,
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "20") int size,
-    @RequestParam(required = false) String search,
-    @RequestParam(required = false) String status
+    @RequestParam(required = false) String status,
+    @RequestParam(defaultValue = "studentName,asc") String sort
 ) {
-    var students = classService.getStudentsByClass(classId, page, size, search, status);
+    var students = classService.getStudentsByClass(classId, status, sort);
     return ApiResponse.success(students);
 }
 ```

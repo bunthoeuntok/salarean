@@ -125,12 +125,6 @@ Implement ARIA roles, keyboard navigation, focus management, and 4.5:1 color con
   - Button inside `<th>` for sorting
 - **Empty state**: Use `role="status"` or `aria-live="polite"`
 
-#### Pagination Controls
-
-- Semantic buttons with labels: "Previous page", "Next page", "Go to page 1"
-- `aria-disabled="true"` when Previous/Next unavailable
-- Current page indicator with `aria-current="page"`
-
 #### Color Contrast
 
 - **Text**: 4.5:1 contrast ratio (normal text), 3:1 (large text 18pt+)
@@ -158,7 +152,7 @@ Implement ARIA roles, keyboard navigation, focus management, and 4.5:1 color con
 - [ ] Tab navigation with arrow keys implemented
 - [ ] Search input has proper label and live region
 - [ ] Table uses semantic HTML with caption
-- [ ] Pagination controls are keyboard-accessible
+- [ ] Status filter dropdown is keyboard-accessible
 - [ ] Focus indicators visible on all interactive elements
 - [ ] Color contrast ratios meet 4.5:1 (text) and 3:1 (UI components)
 - [ ] Automated tests with axe-core passing

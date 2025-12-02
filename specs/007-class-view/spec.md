@@ -28,8 +28,7 @@ A teacher or administrator wants to see which students are currently enrolled in
 1. **Given** I am viewing the class list, **When** I click the "View" action on a class row, **Then** I am navigated to the class detail page showing the "Students" tab by default
 2. **Given** I am on the class detail page, **When** the page loads, **Then** I see a list of all students enrolled in this class with their names, student codes, and enrollment status, sorted alphabetically by name
 3. **Given** I am viewing the student list for a class, **When** there are no students enrolled, **Then** I see an empty state message indicating "No students enrolled in this class"
-4. **Given** I am viewing the student list for a class with 50+ students, **When** the list loads, **Then** I see pagination controls to navigate through all students
-5. **Given** I am on the class detail page, **When** I want to return to the class list, **Then** I see a "Back" or breadcrumb navigation option
+4. **Given** I am on the class detail page, **When** I want to return to the class list, **Then** I see a "Back" or breadcrumb navigation option
 
 ---
 
@@ -46,7 +45,7 @@ A teacher needs to access different aspects of class information (students, sche
 1. **Given** I am on the class detail page, **When** the page loads, **Then** I see four tabs: "Students", "Schedule", "Attendance", and "Grades"
 2. **Given** I am viewing the class detail page, **When** I click on the "Students" tab, **Then** the tab is highlighted as active and student list content is displayed
 3. **Given** I am on the Students tab, **When** I click on "Schedule", "Attendance", or "Grades" tabs, **Then** I see a placeholder message "Coming Soon - This feature will be available in a future release"
-4. **Given** I switch between tabs, **When** I return to the Students tab, **Then** the student list maintains its previous state (scroll position, pagination, filters if any)
+4. **Given** I switch between tabs, **When** I return to the Students tab, **Then** the student list maintains its previous state (scroll position, filters if any)
 
 ---
 
@@ -71,10 +70,10 @@ A teacher wants to quickly find specific students within a large class roster by
 
 - What happens when a class has been deleted but the user still has the detail page URL? System should redirect to class list with an error message.
 - What happens when a student is enrolled in the class while the teacher is viewing the student list? The list should not automatically update (to avoid confusion), but refreshing the page should show the new student.
-- What happens when a class has hundreds of students (performance concern)? Pagination should limit results to 20-50 students per page to ensure fast load times.
+- What happens when a class has hundreds of students (performance concern)? Display all students in a single scrollable list; expected class sizes are typically under 100 students.
 - What happens when the user's session expires while on the class detail page? System should redirect to login and return to this page after re-authentication.
 - What happens when a class exists but has not been assigned any students yet? Show empty state with a helpful message and potentially a call-to-action to enroll students.
-- What happens when a user navigates using only keyboard (no mouse)? All interactive elements (tabs, search, filters, pagination, back button) must be reachable and operable via Tab, Enter, Space, and Arrow keys with visible focus indicators.
+- What happens when a user navigates using only keyboard (no mouse)? All interactive elements (tabs, search, filters, back button) must be reachable and operable via Tab, Enter, Space, and Arrow keys with visible focus indicators.
 
 ## Requirements *(mandatory)*
 
@@ -86,8 +85,7 @@ A teacher wants to quickly find specific students within a large class roster by
 - **FR-004**: The "Students" tab MUST be selected and displayed by default when the class detail page loads
 - **FR-005**: The Students tab MUST display a list of all students enrolled in the selected class, sorted alphabetically by student name (A-Z) by default
 - **FR-006**: Each student entry MUST show: student name, student code, enrollment date, and enrollment status
-- **FR-007**: Student list MUST support pagination when the class has more than 20 students
-- **FR-008**: System MUST display an empty state message when no students are enrolled in the class
+- **FR-007**: System MUST display an empty state message when no students are enrolled in the class
 - **FR-009**: The "Schedule", "Attendance", and "Grades" tabs MUST display a "Coming Soon" placeholder message indicating future implementation
 - **FR-010**: Class detail page MUST provide navigation back to the class list (breadcrumb or back button)
 - **FR-011**: Tab navigation MUST visually indicate the currently active tab
@@ -116,12 +114,12 @@ A teacher wants to quickly find specific students within a large class roster by
 - **SC-004**: Users can successfully navigate between tabs, with the active tab clearly indicated
 - **SC-005**: Clicking "Schedule", "Attendance", or "Grades" tabs displays a clear "Coming Soon" message (no broken functionality)
 - **SC-006**: Users can find a specific student using search in under 10 seconds (compared to manual browsing)
-- **SC-007**: The page correctly handles classes with 0 students (empty state) and classes with 100+ students (pagination)
+- **SC-007**: The page correctly handles classes with 0 students (empty state) and classes with many students (scrollable list)
 - **SC-008**: 90% of users can successfully view their class roster on first attempt without assistance
 - **SC-009**: Zero errors occur when navigating back to the class list from the detail page
 - **SC-010**: The page remains responsive and usable on mobile devices (tablet and phone screen sizes)
 - **SC-011**: The page passes WCAG 2.1 Level AA automated accessibility checks (using tools like axe DevTools or WAVE)
-- **SC-012**: All interactive elements (tabs, search box, pagination controls, back button) are fully operable via keyboard only
+- **SC-012**: All interactive elements (tabs, search box, filter dropdown, back button) are fully operable via keyboard only
 - **SC-013**: Screen reader users can navigate and understand all page content and controls with proper ARIA labels and semantic HTML
 
 ### Business Value
@@ -137,7 +135,7 @@ A teacher wants to quickly find specific students within a large class roster by
 - User authentication and authorization are already implemented (users can only view classes they have permission to access)
 - The system already supports routing to different pages (navigation framework is in place)
 - Student profile photos are optional; the UI should gracefully handle missing photos with a default avatar or initials
-- Pagination defaults to 20 students per page, consistent with other list views in the application
+- Class sizes are typically under 100 students; all students are displayed in a single scrollable list without pagination
 - The "Coming Soon" placeholders are temporary; actual Schedule, Attendance, and Grades features will replace them in future releases
 - Tab-based navigation follows standard web UI patterns (clickable tabs with visual active state)
 - The class detail page URL will include the class ID (e.g., `/classes/:classId`) to support direct linking and bookmarking
@@ -169,7 +167,7 @@ The following are explicitly excluded from this feature:
 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
-| API performance degrades with large class sizes (100+ students) | High | Medium | Implement pagination and lazy loading; add database indexes on enrollment queries |
+| API performance degrades with large class sizes (100+ students) | Low | Low | Class sizes typically under 100 students; add database indexes on enrollment queries if needed |
 | Users expect Schedule/Attendance/Grades tabs to be functional | Medium | High | Use clear "Coming Soon" messaging; consider hiding tabs with a feature flag until ready |
 | Tab navigation state lost on page refresh | Low | Medium | Implement URL-based tab routing (e.g., `/classes/:id?tab=students`) |
 | Mobile users struggle with tab navigation on small screens | Medium | Medium | Design mobile-responsive tab UI; consider accordion or dropdown for mobile |

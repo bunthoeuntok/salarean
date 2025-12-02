@@ -51,25 +51,20 @@ enum GradeLevel {
 
 ---
 
-### PagedStudentEnrollmentResponse
+### StudentEnrollmentListResponse
 
-Paginated response for students enrolled in a class, with search/filter support.
+Response containing all students enrolled in a class, with optional status filtering support.
 
 ```typescript
-interface PagedStudentEnrollmentResponse {
-  content: StudentEnrollmentItem[]  // Array of enrollment items
-  page: number                      // Current page (0-indexed)
-  size: number                      // Page size (default: 20)
-  totalElements: number             // Total students matching filter
-  totalPages: number                // Total pages available
-  hasNext: boolean                  // True if more pages available
-  hasPrevious: boolean              // True if previous page exists
+interface StudentEnrollmentListResponse {
+  students: StudentEnrollmentItem[]  // Array of enrollment items (all students in class)
+  totalCount: number                  // Total number of students returned
 }
 ```
 
 **Source**: `/api/classes/{id}/students` (new endpoint in student-service)
 
-**Usage**: Powers student list table with pagination controls
+**Usage**: Powers student list table (all students displayed in scrollable list, no pagination)
 
 ---
 
@@ -108,14 +103,12 @@ enum EnrollmentStatus {
 
 ### StudentFilters
 
-Client-side state for search, filter, and pagination controls.
+Client-side state for search and filter controls.
 
 ```typescript
 interface StudentFilters {
-  search: string                // Search term (name or code)
-  status: EnrollmentStatus | null  // Filter by status (null = all)
-  page: number                  // Current page (0-indexed)
-  size: number                  // Page size (default: 20)
+  search: string                // Search term (name or code) - client-side filtering
+  status: EnrollmentStatus | null  // Filter by status (null = all) - server-side filtering
   sort: string                  // Sort expression (e.g., "studentName,asc")
 }
 ```
@@ -125,13 +118,11 @@ interface StudentFilters {
 const defaultFilters: StudentFilters = {
   search: '',
   status: null,
-  page: 0,
-  size: 20,
   sort: 'studentName,asc'  // Alphabetical by name (clarification decision)
 }
 ```
 
-**Usage**: Managed by TanStack Query hook (`useClassStudents`), synced with URL params (optional)
+**Usage**: Managed by TanStack Query hook (`useClassStudents`). Search term applied client-side using TanStack Table's globalFilter for real-time filtering (300ms debounce). Status filter applied server-side.
 
 ---
 
@@ -208,7 +199,7 @@ CREATE INDEX idx_enrollments_class_status ON student_class_enrollments(class_id,
 
 These DTOs are created in `student-service` for this feature.
 
-### PagedStudentEnrollmentResponse.java
+### StudentEnrollmentListResponse.java
 
 ```java
 package com.sms.student.dto;
@@ -224,14 +215,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagedStudentEnrollmentResponse {
-    private List<StudentEnrollmentItem> content;
-    private int page;
-    private int size;
-    private long totalElements;
-    private int totalPages;
-    private boolean hasNext;
-    private boolean hasPrevious;
+public class StudentEnrollmentListResponse {
+    private List<StudentEnrollmentItem> students;
+    private int totalCount;
 }
 ```
 
@@ -322,8 +308,6 @@ import { z } from 'zod'
 const studentFiltersSchema = z.object({
   search: z.string().max(100).optional().default(''),
   status: z.enum(['ACTIVE', 'TRANSFERRED', 'GRADUATED', 'WITHDRAWN']).nullable().optional(),
-  page: z.number().int().min(0).optional().default(0),
-  size: z.number().int().min(1).max(100).optional().default(20),
   sort: z.string().regex(/^[a-zA-Z]+,(asc|desc)$/).optional().default('studentName,asc'),
 })
 ```
@@ -333,11 +317,8 @@ const studentFiltersSchema = z.object({
 ```java
 // In ClassController.java
 @GetMapping("/{classId}/students")
-public ApiResponse<PagedStudentEnrollmentResponse> getStudentsByClass(
+public ApiResponse<StudentEnrollmentListResponse> getStudentsByClass(
     @PathVariable UUID classId,
-    @RequestParam(defaultValue = "0") @Min(0) int page,
-    @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
-    @RequestParam(required = false) @Size(max = 100) String search,
     @RequestParam(required = false) @Pattern(regexp = "ACTIVE|TRANSFERRED|GRADUATED|WITHDRAWN") String status,
     @RequestParam(defaultValue = "studentName,asc") String sort
 ) {
@@ -359,16 +340,15 @@ SELECT
 FROM student_class_enrollments e
 JOIN students s ON e.student_id = s.id
 WHERE e.class_id = ?
-  AND (? IS NULL OR e.status = ?)               -- Status filter
-  AND (? IS NULL OR s.full_name ILIKE ? OR s.student_code ILIKE ?)  -- Search filter
-ORDER BY s.full_name ASC                         -- Default sort
-LIMIT ? OFFSET ?;                                -- Pagination
+  AND (? IS NULL OR e.status = ?)               -- Status filter (server-side)
+ORDER BY s.full_name ASC;                        -- Default sort
 ```
+
+**Note**: Search filtering (by name/code) is performed client-side using TanStack Table's `globalFilter` for instant real-time filtering with 300ms debounce. This avoids unnecessary API calls for typical class sizes (10-100 students).
 
 **Expected performance**:
 - **Without filters**: <50ms (indexed on `class_id`)
 - **With status filter**: <60ms (composite index `class_id, status`)
-- **With search**: <100ms (indexed on `full_name` and `student_code`)
 
 ### Caching Strategy
 
@@ -394,9 +374,9 @@ const { data, isLoading } = useQuery({
 **No database schema changes required** - feature uses existing tables with proper indexes.
 
 **New DTOs created**:
-- `PagedStudentEnrollmentResponse` (pagination wrapper)
+- `StudentEnrollmentListResponse` (list wrapper with totalCount)
 - `StudentEnrollmentItem` (enrollment data for display)
 
 **TypeScript interfaces mirror DTOs** for type safety across frontend/backend boundary.
 
-**Performance optimized** with composite indexes and TanStack Query caching.
+**Performance optimized** with composite indexes and TanStack Query caching. Search filtering performed client-side for instant real-time feedback.

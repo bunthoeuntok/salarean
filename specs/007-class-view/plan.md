@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a class detail view page accessible from the class list. The primary requirement is to display enrolled students in a tabbed interface with lazy-loading support for future tabs (Schedule, Attendance, Grades). The Students tab will show a paginated, searchable, filterable list of students with real-time search (300ms debounce), alphabetical sorting by default, and WCAG 2.1 Level AA accessibility compliance.
+This feature implements a class detail view page accessible from the class list. The primary requirement is to display enrolled students in a tabbed interface with lazy-loading support for future tabs (Schedule, Attendance, Grades). The Students tab will show a searchable, filterable list of all students with real-time search (300ms debounce), alphabetical sorting by default, and WCAG 2.1 Level AA accessibility compliance.
 
 **Technical approach**: Frontend-only feature using React 19 + TanStack Router for routing, TanStack Query for data fetching with caching, shadcn/ui Tabs component for tab navigation, and existing student-service API endpoint `/api/classes/{id}/students` for fetching enrollment data.
 
@@ -24,7 +24,6 @@ This feature implements a class detail view page accessible from the class list.
 - Page load: <2 seconds for classes with up to 100 students
 - Search response: <300ms after debounce
 - Tab switching: <100ms for cached content
-- Pagination navigation: <500ms
 
 **Constraints**:
 - WCAG 2.1 Level AA compliance required
@@ -35,7 +34,7 @@ This feature implements a class detail view page accessible from the class list.
 
 **Scale/Scope**:
 - Expected class sizes: 10-100 students (extreme: up to 200)
-- Pagination: 20 students per page
+- All students displayed in scrollable list (no pagination - class sizes typically under 100)
 - Concurrent users: 50-100 teachers viewing classes simultaneously
 
 ## Constitution Check
@@ -59,7 +58,7 @@ This feature implements a class detail view page accessible from the class list.
 
 ### Principle III: Simplicity (YAGNI) ✅ PASS
 
-- **No premature optimization**: Uses standard pagination (20/page), no complex caching beyond TanStack Query defaults
+- **No premature optimization**: No complex caching beyond TanStack Query defaults; displays all students in scrollable list (no pagination needed for typical class sizes)
 - **No speculative features**: Only Students tab implemented; other tabs show "Coming Soon" placeholders
 - **Minimal dependencies**: Reuses existing shadcn/ui components, TanStack libraries already in project
 - **Clear code**: Feature-based architecture (features/classes/[id].tsx), no custom abstractions
@@ -84,7 +83,7 @@ This feature implements a class detail view page accessible from the class list.
 
 ### Principle VI: Backend API Conventions ✅ PASS
 
-- **Response wrapper**: API returns `ApiResponse<PagedStudentEnrollmentResponse>` with `errorCode` and `data`
+- **Response wrapper**: API returns `ApiResponse<StudentEnrollmentListResponse>` with `errorCode` and `data`
 - **Error codes**: Uses existing error codes (`CLASS_NOT_FOUND`, `UNAUTHORIZED`, etc.)
 - **Status codes**: Standard HTTP codes (200, 404, 401, 500)
 - **Internationalization**: Frontend maps error codes to translated messages (Khmer/English)
@@ -145,7 +144,7 @@ student-service/src/main/java/com/sms/student/
 │   │   └── IClassService.java # MODIFIED: Add getStudentsByClass method
 │   └── ClassService.java      # MODIFIED: Implement getStudentsByClass
 ├── dto/
-│   ├── PagedStudentEnrollmentResponse.java  # NEW: Paginated response DTO
+│   ├── StudentEnrollmentListResponse.java   # NEW: Student list response DTO
 │   └── StudentEnrollmentItem.java           # NEW: Enrollment item DTO
 └── repository/
     └── StudentClassEnrollmentRepository.java # MODIFIED: Add findByClassId query
@@ -280,16 +279,11 @@ interface ClassDetailResponse {
 }
 ```
 
-**PagedStudentEnrollmentResponse** (from `/api/classes/{id}/students`)
+**StudentEnrollmentListResponse** (from `/api/classes/{id}/students`)
 ```typescript
-interface PagedStudentEnrollmentResponse {
-  content: StudentEnrollmentItem[]
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  hasNext: boolean
-  hasPrevious: boolean
+interface StudentEnrollmentListResponse {
+  students: StudentEnrollmentItem[]  // All students enrolled in the class
+  totalCount: number                  // Total number of students
 }
 
 interface StudentEnrollmentItem {
@@ -305,10 +299,8 @@ interface StudentEnrollmentItem {
 **Search/Filter State**
 ```typescript
 interface StudentFilters {
-  search: string // Name or code
-  status: EnrollmentStatus | null
-  page: number
-  size: number
+  search: string // Name or code (client-side filtering)
+  status: EnrollmentStatus | null // Server-side filtering by enrollment status
 }
 ```
 
@@ -346,7 +338,7 @@ No transitions out of terminal states (TRANSFERRED, GRADUATED, WITHDRAWN).
 
 ### GET /api/classes/{id}/students
 
-**Purpose**: Fetch paginated list of students enrolled in a specific class with search/filter support.
+**Purpose**: Fetch all students enrolled in a specific class with optional status filter support.
 
 **Authentication**: Required (JWT token)
 
@@ -354,7 +346,7 @@ No transitions out of terminal states (TRANSFERRED, GRADUATED, WITHDRAWN).
 
 **Request**:
 ```http
-GET /api/classes/{classId}/students?page=0&size=20&search=john&status=ACTIVE
+GET /api/classes/{classId}/students?status=ACTIVE
 Authorization: Bearer {jwt_token}
 ```
 
@@ -362,9 +354,6 @@ Authorization: Bearer {jwt_token}
 - `classId` (UUID, required): Class identifier
 
 **Query Parameters**:
-- `page` (integer, optional, default: 0): Zero-based page number
-- `size` (integer, optional, default: 20, max: 100): Page size
-- `search` (string, optional): Search term for student name or code (case-insensitive substring match)
 - `status` (enum, optional): Filter by enrollment status (ACTIVE | TRANSFERRED | GRADUATED | WITHDRAWN)
 - `sort` (string, optional, default: "studentName,asc"): Sort field and direction
 
@@ -373,7 +362,7 @@ Authorization: Bearer {jwt_token}
 {
   "errorCode": "SUCCESS",
   "data": {
-    "content": [
+    "students": [
       {
         "studentId": "123e4567-e89b-12d3-a456-426614174000",
         "studentName": "John Doe",
@@ -383,12 +372,7 @@ Authorization: Bearer {jwt_token}
         "enrollmentStatus": "ACTIVE"
       }
     ],
-    "page": 0,
-    "size": 20,
-    "totalElements": 45,
-    "totalPages": 3,
-    "hasNext": true,
-    "hasPrevious": false
+    "totalCount": 45
   }
 }
 ```
@@ -464,7 +448,7 @@ Authorization: Bearer {jwt_token}
    # Get JWT token (login first)
    # Replace {classId} and {token}
    curl -H "Authorization: Bearer {token}" \
-     http://localhost:8080/api/classes/{classId}/students?page=0&size=20
+     http://localhost:8080/api/classes/{classId}/students
    ```
 
 ### Development Workflow

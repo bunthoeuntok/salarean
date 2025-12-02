@@ -7,7 +7,7 @@
 
 ## Overview
 
-Fetches a paginated list of students enrolled in a specific class with optional search and filter capabilities.
+Fetches all students enrolled in a specific class with optional status filter. Search filtering is performed client-side using TanStack Table for instant real-time feedback.
 
 ---
 
@@ -63,9 +63,6 @@ User must have permission to view the specified class:
 
 | Parameter | Type | Required | Default | Constraints | Description |
 |-----------|------|----------|---------|-------------|-------------|
-| `page` | integer | No | `0` | `>= 0` | Zero-based page number |
-| `size` | integer | No | `20` | `1-100` | Number of students per page |
-| `search` | string | No | (empty) | Max 100 chars | Search term for student name or code (case-insensitive substring match) |
 | `status` | enum | No | (all statuses) | ACTIVE, TRANSFERRED, GRADUATED, WITHDRAWN | Filter by enrollment status |
 | `sort` | string | No | `studentName,asc` | Format: `field,(asc\|desc)` | Sort field and direction |
 
@@ -74,29 +71,31 @@ User must have permission to view the specified class:
 - `studentCode` - Student's unique code
 - `enrollmentDate` - Date student enrolled in class
 
+**Note**: Search filtering (by name/code) is performed client-side using TanStack Table's `globalFilter` for instant real-time feedback. This avoids unnecessary API calls for typical class sizes (10-100 students).
+
 ### Request Examples
 
-**Basic request (first page, default size)**:
+**Basic request (all students)**:
 ```http
 GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-**Search for students named "John"**:
+**Filter by ACTIVE status**:
 ```http
-GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?search=john
+GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?status=ACTIVE
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-**Filter by ACTIVE status, page 2**:
+**Custom sort (by enrollment date, descending)**:
 ```http
-GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?status=ACTIVE&page=1&size=20
+GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?sort=enrollmentDate,desc
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-**Search + filter + custom sort**:
+**Filter + custom sort**:
 ```http
-GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?search=STU-2024&status=ACTIVE&sort=enrollmentDate,desc
+GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?status=ACTIVE&sort=enrollmentDate,desc
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -114,7 +113,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 {
   "errorCode": "SUCCESS",
   "data": {
-    "content": [
+    "students": [
       {
         "studentId": "123e4567-e89b-12d3-a456-426614174000",
         "studentName": "Sok Pisey",
@@ -132,12 +131,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         "enrollmentStatus": "ACTIVE"
       }
     ],
-    "page": 0,
-    "size": 20,
-    "totalElements": 45,
-    "totalPages": 3,
-    "hasNext": true,
-    "hasPrevious": false
+    "totalCount": 45
   }
 }
 ```
@@ -147,14 +141,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | Field | Type | Description |
 |-------|------|-------------|
 | `errorCode` | string | Always "SUCCESS" for 200 responses |
-| `data` | object | Pagination wrapper containing student list |
-| `data.content` | array | List of student enrollment items |
-| `data.page` | integer | Current page number (0-indexed) |
-| `data.size` | integer | Page size requested |
-| `data.totalElements` | integer | Total students matching filter criteria |
-| `data.totalPages` | integer | Total pages available |
-| `data.hasNext` | boolean | True if more pages available |
-| `data.hasPrevious` | boolean | True if previous page exists |
+| `data` | object | Response wrapper containing student list |
+| `data.students` | array | List of all student enrollment items matching filter |
+| `data.totalCount` | integer | Total number of students returned |
 
 **StudentEnrollmentItem Fields**:
 
@@ -180,8 +169,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **Triggers**:
 - Invalid UUID format for `classId`
-- `page` < 0
-- `size` < 1 or > 100
 - Invalid `status` enum value
 - Invalid `sort` format
 
@@ -245,15 +232,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 | Scenario | Target | Max Acceptable |
 |----------|--------|----------------|
-| Unfiltered query (20 students) | < 50ms | 100ms |
+| All students (no filter) | < 50ms | 100ms |
 | With status filter | < 60ms | 120ms |
-| With search term | < 100ms | 200ms |
-| Search + filter | < 120ms | 250ms |
+
+**Note**: Search filtering is performed client-side using TanStack Table's `globalFilter`, providing instant real-time feedback without API calls.
 
 **Database query optimization**:
 - Composite index on `(class_id, status)` for filtered queries
-- Full-text index on `student_name` and `student_code` for search
-- Pagination uses `LIMIT/OFFSET` (efficient for small offsets)
+- All students returned in single query (no pagination needed for typical class sizes)
 
 ### Scalability
 
@@ -261,6 +247,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - 50-100 concurrent users (teachers viewing classes)
 - Average class size: 30 students
 - Peak class size: 200 students (rare)
+
+**Design decision**: All students returned in single response (no pagination). Class sizes are typically 10-100 students, making pagination unnecessary and adding complexity. Search filtering is performed client-side using TanStack Table for instant real-time feedback.
 
 **Caching strategy**:
 - Frontend: TanStack Query caches response for 5 minutes (`staleTime: 300000`)
@@ -282,40 +270,30 @@ GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students
 {
   "errorCode": "SUCCESS",
   "data": {
-    "content": [],
-    "page": 0,
-    "size": 20,
-    "totalElements": 0,
-    "totalPages": 0,
-    "hasNext": false,
-    "hasPrevious": false
+    "students": [],
+    "totalCount": 0
   }
 }
 ```
 
-### Class with Exactly 20 Students (Single Page)
+### Class with 45 Students
 
 **Response** (200 OK):
 ```json
 {
   "errorCode": "SUCCESS",
   "data": {
-    "content": [ /* 20 students */ ],
-    "page": 0,
-    "size": 20,
-    "totalElements": 20,
-    "totalPages": 1,
-    "hasNext": false,
-    "hasPrevious": false
+    "students": [ /* 45 students */ ],
+    "totalCount": 45
   }
 }
 ```
 
-### Search with No Results
+### Status Filter with No Results
 
 **Request**:
 ```http
-GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?search=nonexistent
+GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?status=TRANSFERRED
 ```
 
 **Response** (200 OK):
@@ -323,13 +301,8 @@ GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?search=nonexisten
 {
   "errorCode": "SUCCESS",
   "data": {
-    "content": [],
-    "page": 0,
-    "size": 20,
-    "totalElements": 0,
-    "totalPages": 0,
-    "hasNext": false,
-    "hasPrevious": false
+    "students": [],
+    "totalCount": 0
   }
 }
 ```
@@ -343,12 +316,9 @@ GET /api/classes/550e8400-e29b-41d4-a716-446655440000/students?search=nonexisten
 ```typescript
 // services/classes.ts
 import { api } from '@/lib/api'
-import type { ApiResponse, PagedStudentEnrollmentResponse } from '@/types'
+import type { ApiResponse, StudentEnrollmentListResponse } from '@/types'
 
 export interface StudentFilters {
-  page?: number
-  size?: number
-  search?: string
   status?: 'ACTIVE' | 'TRANSFERRED' | 'GRADUATED' | 'WITHDRAWN'
   sort?: string
 }
@@ -356,8 +326,8 @@ export interface StudentFilters {
 export async function getClassStudents(
   classId: string,
   filters: StudentFilters = {}
-): Promise<PagedStudentEnrollmentResponse> {
-  const { data } = await api.get<ApiResponse<PagedStudentEnrollmentResponse>>(
+): Promise<StudentEnrollmentListResponse> {
+  const { data } = await api.get<ApiResponse<StudentEnrollmentListResponse>>(
     `/api/classes/${classId}/students`,
     { params: filters }
   )
@@ -391,22 +361,28 @@ export function useClassStudents(classId: string, filters: StudentFilters = {}) 
 
 ```typescript
 function StudentsTab({ classId }: { classId: string }) {
-  const [filters, setFilters] = useState<StudentFilters>({ page: 0, size: 20 })
-  const { data, isLoading, error } = useClassStudents(classId, filters)
+  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebouncedValue(searchTerm, 300)
+
+  const { data, isLoading, error } = useClassStudents(classId, {
+    status: statusFilter || undefined
+  })
+
+  // Client-side search filtering using TanStack Table
+  const table = useReactTable({
+    data: data?.students ?? [],
+    columns,
+    state: { globalFilter: debouncedSearch },
+    globalFilterFn: 'includesString',
+  })
 
   if (isLoading) return <StudentListSkeleton />
   if (error) return <ErrorAlert message="Failed to load students" />
-  if (!data || data.content.length === 0) return <EmptyState />
+  if (!data || data.students.length === 0) return <EmptyState />
 
   return (
-    <StudentTable
-      students={data.content}
-      pagination={{
-        page: data.page,
-        totalPages: data.totalPages,
-        onPageChange: (page) => setFilters({ ...filters, page })
-      }}
-    />
+    <StudentTable table={table} />
   )
 }
 ```
@@ -426,17 +402,14 @@ public class ClassController {
     private final IClassService classService;
 
     @GetMapping("/{classId}/students")
-    public ApiResponse<PagedStudentEnrollmentResponse> getStudentsByClass(
+    public ApiResponse<StudentEnrollmentListResponse> getStudentsByClass(
         @PathVariable UUID classId,
-        @RequestParam(defaultValue = "0") @Min(0) int page,
-        @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
-        @RequestParam(required = false) @Size(max = 100) String search,
         @RequestParam(required = false)
         @Pattern(regexp = "ACTIVE|TRANSFERRED|GRADUATED|WITHDRAWN") String status,
         @RequestParam(defaultValue = "studentName,asc") String sort
     ) {
-        PagedStudentEnrollmentResponse students = classService.getStudentsByClass(
-            classId, page, size, search, status, sort
+        StudentEnrollmentListResponse students = classService.getStudentsByClass(
+            classId, status, sort
         );
         return ApiResponse.success(students);
     }
@@ -447,11 +420,8 @@ public class ClassController {
 
 ```java
 public interface IClassService {
-    PagedStudentEnrollmentResponse getStudentsByClass(
+    StudentEnrollmentListResponse getStudentsByClass(
         UUID classId,
-        int page,
-        int size,
-        String search,
         String status,
         String sort
     );
@@ -469,16 +439,15 @@ import { describe, it, expect } from 'vitest'
 import { getClassStudents } from '@/services/classes'
 
 describe('GET /api/classes/{id}/students', () => {
-  it('returns paginated student list', async () => {
+  it('returns student list', async () => {
     const response = await getClassStudents('550e8400-e29b-41d4-a716-446655440000')
 
-    expect(response).toHaveProperty('content')
-    expect(response).toHaveProperty('page', 0)
-    expect(response).toHaveProperty('totalElements')
-    expect(Array.isArray(response.content)).toBe(true)
+    expect(response).toHaveProperty('students')
+    expect(response).toHaveProperty('totalCount')
+    expect(Array.isArray(response.students)).toBe(true)
 
-    if (response.content.length > 0) {
-      const student = response.content[0]
+    if (response.students.length > 0) {
+      const student = response.students[0]
       expect(student).toHaveProperty('studentId')
       expect(student).toHaveProperty('studentName')
       expect(student).toHaveProperty('studentCode')
@@ -486,17 +455,14 @@ describe('GET /api/classes/{id}/students', () => {
     }
   })
 
-  it('respects search parameter', async () => {
+  it('respects status filter parameter', async () => {
     const response = await getClassStudents(
       '550e8400-e29b-41d4-a716-446655440000',
-      { search: 'John' }
+      { status: 'ACTIVE' }
     )
 
-    response.content.forEach(student => {
-      expect(
-        student.studentName.toLowerCase().includes('john') ||
-        student.studentCode.toLowerCase().includes('john')
-      ).toBe(true)
+    response.students.forEach(student => {
+      expect(student.enrollmentStatus).toBe('ACTIVE')
     })
   })
 })
@@ -514,15 +480,12 @@ class ClassControllerIntegrationTest {
 
     @Test
     @WithMockUser(roles = "TEACHER")
-    void getStudentsByClass_returnsPagedResponse() throws Exception {
-        mockMvc.perform(get("/api/classes/{classId}/students", TEST_CLASS_ID)
-                .param("page", "0")
-                .param("size", "20"))
+    void getStudentsByClass_returnsStudentList() throws Exception {
+        mockMvc.perform(get("/api/classes/{classId}/students", TEST_CLASS_ID))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.errorCode").value("SUCCESS"))
-            .andExpect(jsonPath("$.data.content").isArray())
-            .andExpect(jsonPath("$.data.page").value(0))
-            .andExpect(jsonPath("$.data.size").value(20));
+            .andExpect(jsonPath("$.data.students").isArray())
+            .andExpect(jsonPath("$.data.totalCount").isNumber());
     }
 
     @Test
