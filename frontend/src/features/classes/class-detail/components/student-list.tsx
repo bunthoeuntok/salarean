@@ -76,25 +76,30 @@ export function StudentList({
 
   return (
     <div className="rounded-md border">
-      <table className="w-full">
-        <caption className="sr-only">Students enrolled in {className}</caption>
-        <thead>
-          <tr className="border-b bg-muted/50">
-            {table.getHeaderGroups().map((headerGroup) =>
-              headerGroup.headers.map((header) => (
-                <th key={header.id} className="p-4 text-left font-medium">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredRows.map((row) => (
-            <StudentListItem key={row.original.studentId} student={row.original} />
-          ))}
-        </tbody>
-      </table>
+      {/* Mobile-responsive table with horizontal scroll */}
+      <div className="-mx-4 overflow-x-auto sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full">
+            <caption className="sr-only">Students enrolled in {className}</caption>
+            <thead>
+              <tr className="border-b bg-muted/50">
+                {table.getHeaderGroups().map((headerGroup) =>
+                  headerGroup.headers.map((header) => (
+                    <th key={header.id} className="whitespace-nowrap p-4 text-left font-medium">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRows.map((row) => (
+                <StudentListItem key={row.original.studentId} student={row.original} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

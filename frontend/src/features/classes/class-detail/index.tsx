@@ -12,6 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { classService } from '@/services/class.service'
 import { ClassHeader } from './components/class-header'
 import { ComingSoonTab } from '../components/coming-soon-tab'
+import { ClassDetailErrorBoundary } from '../components/class-detail-error-boundary'
+import { ErrorState } from '../components/error-state'
 
 const StudentsTab = lazy(() =>
   import('./components/students-tab').then((module) => ({
@@ -29,7 +31,7 @@ function TabLoadingFallback() {
   )
 }
 
-export function ClassDetailPage() {
+function ClassDetailContent() {
   const { t } = useLanguage()
   const navigate = useNavigate()
   const { id } = Route.useParams()
@@ -40,10 +42,21 @@ export function ClassDetailPage() {
     data: classData,
     isLoading: isClassLoading,
     error: classError,
+    refetch,
   } = useQuery({
     queryKey: ['class', id],
     queryFn: () => classService.getClass(id),
     enabled: !!id,
+    retry: (failureCount, error) => {
+      // Don't retry on 404 (CLASS_NOT_FOUND)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } }
+        if (axiosError.response?.status === 404) {
+          return false
+        }
+      }
+      return failureCount < 2
+    },
   })
 
   const handleBack = () => {
@@ -59,20 +72,28 @@ export function ClassDetailPage() {
     })
   }
 
+  // Handle CLASS_NOT_FOUND error
   if (classError) {
+    const is404 = classError && typeof classError === 'object' && 'response' in classError
+      && (classError as { response?: { status?: number } }).response?.status === 404
+
     return (
       <>
         <Header fixed />
         <Main>
-          <div className="flex flex-col items-center justify-center py-12">
-            <p className="text-destructive">
-              {t.common.error}: Failed to load class details
-            </p>
-            <Button variant="outline" onClick={handleBack} className="mt-4">
+          <div className="mb-4">
+            <Button variant="ghost" size="sm" onClick={handleBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               {t.common.back}
             </Button>
           </div>
+          <ErrorState
+            title={is404 ? 'Class Not Found' : t.common.error}
+            message={is404
+              ? 'The class you are looking for does not exist or has been removed.'
+              : 'Failed to load class details. Please try again.'}
+            onRetry={is404 ? undefined : () => refetch()}
+          />
         </Main>
       </>
     )
@@ -100,49 +121,51 @@ export function ClassDetailPage() {
           <ClassHeader classData={classData} />
         ) : null}
 
-        {/* Tabs Navigation */}
+        {/* Tabs Navigation - Mobile responsive with horizontal scroll */}
         <Tabs
           value={tab}
           onValueChange={handleTabChange}
           className="mt-6"
         >
-          <TabsList
-            className="grid w-full grid-cols-4"
-            aria-label={t.classes.tabs?.ariaLabel ?? 'Class information tabs'}
-          >
-            <TabsTrigger
-              value="students"
-              className="flex items-center gap-2"
-              aria-controls="tabpanel-students"
+          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <TabsList
+              className="inline-flex w-auto min-w-full sm:grid sm:w-full sm:grid-cols-4"
+              aria-label={t.classes.tabs?.ariaLabel ?? 'Class information tabs'}
             >
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.classes.tabs?.students ?? 'Students'}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="schedule"
-              className="flex items-center gap-2"
-              aria-controls="tabpanel-schedule"
-            >
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.classes.tabs?.schedule ?? 'Schedule'}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="attendance"
-              className="flex items-center gap-2"
-              aria-controls="tabpanel-attendance"
-            >
-              <ClipboardList className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.classes.tabs?.attendance ?? 'Attendance'}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="grades"
-              className="flex items-center gap-2"
-              aria-controls="tabpanel-grades"
-            >
-              <GraduationCap className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.classes.tabs?.grades ?? 'Grades'}</span>
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger
+                value="students"
+                className="flex shrink-0 items-center gap-2 px-4 sm:px-2"
+                aria-controls="tabpanel-students"
+              >
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.classes.tabs?.students ?? 'Students'}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="schedule"
+                className="flex shrink-0 items-center gap-2 px-4 sm:px-2"
+                aria-controls="tabpanel-schedule"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.classes.tabs?.schedule ?? 'Schedule'}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="attendance"
+                className="flex shrink-0 items-center gap-2 px-4 sm:px-2"
+                aria-controls="tabpanel-attendance"
+              >
+                <ClipboardList className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.classes.tabs?.attendance ?? 'Attendance'}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="grades"
+                className="flex shrink-0 items-center gap-2 px-4 sm:px-2"
+                aria-controls="tabpanel-grades"
+              >
+                <GraduationCap className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.classes.tabs?.grades ?? 'Grades'}</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent
             value="students"
@@ -188,5 +211,19 @@ export function ClassDetailPage() {
         </Tabs>
       </Main>
     </>
+  )
+}
+
+export function ClassDetailPage() {
+  const navigate = useNavigate()
+
+  const handleBack = () => {
+    navigate({ to: '/classes' })
+  }
+
+  return (
+    <ClassDetailErrorBoundary onBack={handleBack}>
+      <ClassDetailContent />
+    </ClassDetailErrorBoundary>
   )
 }

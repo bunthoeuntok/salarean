@@ -11,7 +11,7 @@ const searchSchema = z.object({
   filters: z.record(z.array(z.string())).optional(),
 })
 
-export const Route = createFileRoute('/_authenticated/classes')({
+export const Route = createFileRoute('/_authenticated/classes/')({
   validateSearch: searchSchema,
   component: ClassesPage,
 })

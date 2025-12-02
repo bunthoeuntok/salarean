@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { Plus, CheckCircle, XCircle, Clock } from 'lucide-react'
 import type { Table } from '@tanstack/react-table'
 import { useLanguage } from '@/context/language-provider'
@@ -22,6 +23,7 @@ import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.ty
 
 export function ClassesPage() {
   const { t } = useLanguage()
+  const navigate = useNavigate()
   const [tableInstance, setTableInstance] = useState<Table<Class> | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -91,6 +93,10 @@ export function ClassesPage() {
       }),
   })
 
+  const handleViewClass = (classItem: Class) => {
+    navigate({ to: '/classes/$id', params: { id: classItem.id } })
+  }
+
   // Create columns with translations
   const columns = useMemo(
     () =>
@@ -98,10 +104,10 @@ export function ClassesPage() {
         t,
         handleEditClass,
         (classItem) => console.log('Delete class:', classItem),
-        (classItem) => console.log('View class:', classItem),
+        handleViewClass,
         (classItem) => console.log('Manage students:', classItem)
       ),
-    [t]
+    [t, navigate]
   )
 
   // Filter options for status, grade, level, and type
