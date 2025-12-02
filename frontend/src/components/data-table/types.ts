@@ -32,6 +32,8 @@ export interface DataTableProps<TData, TValue> {
   enableColumnReordering?: boolean
   // Toolbar
   showToolbar?: boolean
+  // Pagination display
+  showPagination?: boolean
   columnLabels?: Record<string, string>
   // Toolbar actions
   toolbarActions?: React.ReactNode

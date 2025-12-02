@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table'
 import { useLanguage } from '@/context/language-provider'
 import type { StudentEnrollmentItem } from '@/types/class.types'
+import type { EnrollmentStatusFilter } from '@/lib/validations/class-filters'
 import { StudentListItem } from './student-list-item'
 
 // Custom global filter function for searching by name or code
@@ -23,6 +24,7 @@ interface StudentListProps {
   students: StudentEnrollmentItem[]
   className: string
   globalFilter?: string
+  statusFilter?: EnrollmentStatusFilter
   onGlobalFilterChange?: (value: string) => void
 }
 
@@ -30,12 +32,23 @@ export function StudentList({
   students,
   className,
   globalFilter = '',
+  statusFilter = 'ALL',
   onGlobalFilterChange,
 }: StudentListProps) {
   const { t } = useLanguage()
 
+  // Client-side status filtering
+  const filteredByStatus = useMemo(() => {
+    if (statusFilter === 'ALL') return students
+    return students.filter((s) => s.enrollmentStatus === statusFilter)
+  }, [students, statusFilter])
+
   const columns = useMemo<ColumnDef<StudentEnrollmentItem>[]>(
     () => [
+      {
+        accessorKey: 'studentCode',
+        header: t.students.columns.code,
+      },
       {
         accessorKey: 'studentName',
         header: t.students.columns.name,
@@ -53,7 +66,7 @@ export function StudentList({
   )
 
   const table = useReactTable({
-    data: students,
+    data: filteredByStatus,
     columns,
     state: {
       globalFilter,
@@ -66,7 +79,7 @@ export function StudentList({
 
   const filteredRows = table.getRowModel().rows
 
-  if (filteredRows.length === 0 && globalFilter) {
+  if (filteredRows.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center">
         <p className="text-muted-foreground">{t.classes.detail?.noResults ?? 'No students found'}</p>
@@ -105,12 +118,27 @@ export function StudentList({
 }
 
 // Export the filtered count getter for use in parent component
-export function getFilteredStudentCount(students: StudentEnrollmentItem[], search: string): number {
-  if (!search) return students.length
-  const searchLower = search.toLowerCase()
-  return students.filter(
-    (s) =>
-      s.studentName.toLowerCase().includes(searchLower) ||
-      s.studentCode.toLowerCase().includes(searchLower)
-  ).length
+export function getFilteredStudentCount(
+  students: StudentEnrollmentItem[],
+  search: string,
+  statusFilter: EnrollmentStatusFilter = 'ALL'
+): number {
+  let filtered = students
+
+  // Apply status filter first
+  if (statusFilter !== 'ALL') {
+    filtered = filtered.filter((s) => s.enrollmentStatus === statusFilter)
+  }
+
+  // Then apply search filter
+  if (search) {
+    const searchLower = search.toLowerCase()
+    filtered = filtered.filter(
+      (s) =>
+        s.studentName.toLowerCase().includes(searchLower) ||
+        s.studentCode.toLowerCase().includes(searchLower)
+    )
+  }
+
+  return filtered.length
 }

@@ -70,6 +70,8 @@ export function DataTable<TData, TValue>({
   enableColumnReordering = false,
   // Toolbar
   showToolbar = true,
+  // Pagination
+  showPagination = true,
   columnLabels,
   // Toolbar actions
   toolbarActions,
@@ -343,9 +345,11 @@ export function DataTable<TData, TValue>({
         </DndContext>
       </div>
       {/* Fixed pagination for tablet and desktop */}
-      <div className='md:sticky md:bottom-0 md:bg-background md:pt-4 md:pb-2 md:border-t md:-mx-4 md:px-4'>
-        <DataTablePagination table={table} />
-      </div>
+      {showPagination && (
+        <div className='md:sticky md:bottom-0 md:bg-background md:pt-4 md:pb-2 md:border-t md:-mx-4 md:px-4'>
+          <DataTablePagination table={table} />
+        </div>
+      )}
     </div>
   )
 }

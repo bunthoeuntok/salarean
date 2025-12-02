@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { CheckCircle, XCircle, ArrowRightLeft, GraduationCap } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { useLanguage } from '@/context/language-provider'
@@ -8,10 +9,17 @@ interface StudentListItemProps {
   student: StudentEnrollmentItem
 }
 
+const statusIconMap: Record<EnrollmentStatus, React.ComponentType<{ className?: string }>> = {
+  ACTIVE: CheckCircle,
+  COMPLETED: GraduationCap,
+  TRANSFERRED: ArrowRightLeft,
+  WITHDRAWN: XCircle,
+}
+
 export function StudentListItem({ student }: StudentListItemProps) {
   const { t } = useLanguage()
 
-  const getStatusVariant = (status: EnrollmentStatus) => {
+  const getStatusVariant = (status: EnrollmentStatus): 'default' | 'secondary' | 'outline' => {
     switch (status) {
       case 'ACTIVE':
         return 'default'
@@ -36,33 +44,44 @@ export function StudentListItem({ student }: StudentListItemProps) {
 
   const formatEnrollmentDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), 'MMM d, yyyy')
+      return format(new Date(dateString), 'dd/MM/yyyy')
     } catch {
       return dateString
     }
   }
 
+  const StatusIcon = statusIconMap[student.enrollmentStatus]
+
   return (
     <tr className="border-b transition-colors hover:bg-muted/50">
+      {/* Student Code */}
+      <td className="p-4">
+        <span className="font-medium">{student.studentCode}</span>
+      </td>
+      {/* Student Name with Avatar */}
       <td className="p-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={student.photoUrl ?? undefined} alt={student.studentName} />
-            <AvatarFallback>{getInitials(student.studentName)}</AvatarFallback>
+            <AvatarFallback className="text-xs">{getInitials(student.studentName)}</AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-medium">{student.studentName}</p>
-            <p className="text-sm text-muted-foreground">{student.studentCode}</p>
+          <div className="flex flex-col">
+            <span className="font-medium">{student.studentName}</span>
           </div>
         </div>
       </td>
+      {/* Enrollment Date */}
       <td className="p-4 text-muted-foreground">
         {formatEnrollmentDate(student.enrollmentDate)}
       </td>
+      {/* Status */}
       <td className="p-4">
-        <Badge variant={getStatusVariant(student.enrollmentStatus)}>
-          {t.students.view.enrollmentStatus[student.enrollmentStatus]}
-        </Badge>
+        <div className="text-center">
+          <Badge variant={getStatusVariant(student.enrollmentStatus)}>
+            <StatusIcon className="mr-1 h-3 w-3" />
+            {t.students.view.enrollmentStatus[student.enrollmentStatus]}
+          </Badge>
+        </div>
       </td>
     </tr>
   )
