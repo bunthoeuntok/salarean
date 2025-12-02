@@ -16,6 +16,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-20
 - PostgreSQL 15+ (existing `student_db` database; **NEW tables**: classes, enrollment_history) (005-class-management)
 - TypeScript 5.x with React 19 + Vite 7.x, TanStack Router, TanStack Query, Zustand, Tailwind CSS 4.x, shadcn/ui, Axios, Zod, react-hook-form (006-frontend-auth)
 - HTTP-only cookies (tokens), Zustand (client state) (006-frontend-auth)
+- TypeScript 5.x with React 19, Java 21 (for API endpoint if modifications needed) (007-class-view)
+- PostgreSQL 15+ (existing `student_db` with `students` and `student_class_enrollments` tables) (007-class-view)
 
 - Java 21 (Spring Boot 3.5.7) + Spring Boot, Spring Security, Spring Data JPA, JWT (jjwt 0.12.5), BCrypt for password hashing (001-teacher-auth)
 
@@ -85,9 +87,9 @@ docker-compose down           # Stop all services
 - `ApiResponse<T>` wrapper for all API responses
 
 ## Recent Changes
+- 007-class-view: Added TypeScript 5.x with React 19, Java 21 (for API endpoint if modifications needed)
 - 006-frontend-auth: Added TypeScript 5.x with React 19 + Vite 7.x, TanStack Router, TanStack Query, Zustand, Tailwind CSS 4.x, shadcn/ui, Axios, Zod, react-hook-form
 - 005-class-management: Added Java 21 with Spring Boot 3.5.7 (existing student-service stack)
-- 005-class-management: Added Java 21 with Spring Boot 3.5.7
 
 
 <!-- MANUAL ADDITIONS START -->
