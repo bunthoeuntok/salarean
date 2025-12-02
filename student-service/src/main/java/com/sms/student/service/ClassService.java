@@ -4,8 +4,11 @@ import com.sms.student.cache.ClassCache;
 import com.sms.student.dto.ClassDetailDto;
 import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassSummaryDto;
+import com.sms.student.dto.StudentEnrollmentItem;
+import com.sms.student.dto.StudentEnrollmentListResponse;
 import com.sms.student.dto.StudentRosterItemDto;
 import com.sms.student.enums.ClassStatus;
+import com.sms.student.enums.EnrollmentStatus;
 import com.sms.student.exception.ClassNotFoundException;
 import com.sms.student.exception.UnauthorizedClassAccessException;
 import com.sms.student.model.SchoolClass;
@@ -239,6 +242,80 @@ public class ClassService implements IClassService {
 
         log.info("Returning {} students for class {}", rosterItems.size(), classId);
         return rosterItems;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StudentEnrollmentListResponse getStudentEnrollments(UUID classId, String status, String sort) {
+        log.info("Fetching student enrollments for classId: {}, status: {}, sort: {}", classId, status, sort);
+
+        // Verify class exists
+        if (!classRepository.existsById(classId)) {
+            throw new ClassNotFoundException("Class with ID " + classId + " not found");
+        }
+
+        // Get enrollments based on status filter
+        List<StudentClassEnrollment> enrollments;
+        if (status != null && !status.isEmpty()) {
+            try {
+                EnrollmentStatus enrollmentStatus = EnrollmentStatus.valueOf(status.toUpperCase());
+                enrollments = enrollmentRepository.findByClassIdAndStatus(classId, enrollmentStatus);
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid status filter: {}, returning all enrollments", status);
+                enrollments = enrollmentRepository.findByClassId(classId);
+            }
+        } else {
+            enrollments = enrollmentRepository.findByClassId(classId);
+        }
+
+        log.debug("Found {} enrollments for class {}", enrollments.size(), classId);
+
+        // Map to DTOs with student information
+        List<StudentEnrollmentItem> studentItems = enrollments.stream()
+            .map(enrollment -> {
+                Student student = studentRepository.findById(enrollment.getStudentId())
+                    .orElse(null);
+                if (student == null) {
+                    log.warn("Student not found: {}", enrollment.getStudentId());
+                    return null;
+                }
+                return mapToEnrollmentItem(student, enrollment);
+            })
+            .filter(item -> item != null)
+            .collect(Collectors.toList());
+
+        // Sort by student name if requested (default sort)
+        if (sort == null || sort.isEmpty() || sort.startsWith("studentName")) {
+            boolean ascending = sort == null || sort.isEmpty() || !sort.endsWith(",desc");
+            studentItems.sort((a, b) -> ascending
+                ? a.getStudentName().compareToIgnoreCase(b.getStudentName())
+                : b.getStudentName().compareToIgnoreCase(a.getStudentName()));
+        }
+
+        log.info("Returning {} students for class {}", studentItems.size(), classId);
+
+        return StudentEnrollmentListResponse.builder()
+            .students(studentItems)
+            .totalCount(studentItems.size())
+            .build();
+    }
+
+    /**
+     * Map Student and enrollment to StudentEnrollmentItem.
+     *
+     * @param student    student entity
+     * @param enrollment enrollment record
+     * @return student enrollment item DTO
+     */
+    private StudentEnrollmentItem mapToEnrollmentItem(Student student, StudentClassEnrollment enrollment) {
+        return StudentEnrollmentItem.builder()
+            .studentId(student.getId().toString())
+            .studentName(student.getFirstName() + " " + student.getLastName())
+            .studentCode(student.getStudentCode())
+            .photoUrl(student.getPhotoUrl())
+            .enrollmentDate(enrollment.getEnrollmentDate())
+            .enrollmentStatus(enrollment.getStatus().name())
+            .build();
     }
 
     /**

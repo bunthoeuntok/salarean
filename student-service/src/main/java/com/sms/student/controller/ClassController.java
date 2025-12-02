@@ -6,6 +6,7 @@ import com.sms.student.dto.ClassDetailDto;
 import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassUpdateRequest;
 import com.sms.student.dto.EnrollmentHistoryDto;
+import com.sms.student.dto.StudentEnrollmentListResponse;
 import com.sms.student.dto.StudentRosterItemDto;
 import com.sms.student.security.JwtTokenProvider;
 import com.sms.student.service.interfaces.IClassService;
@@ -158,23 +159,65 @@ public class ClassController {
     }
 
     /**
-     * Get list of students enrolled in a specific class.
+     * Get list of students enrolled in a specific class with optional status filter.
      *
      * <p>GET /api/classes/{id}/students</p>
      *
-     * <p>Returns roster of all students currently enrolled in the class.</p>
+     * <p>Returns all students enrolled in the class with enrollment metadata.
+     * Supports optional filtering by enrollment status (ACTIVE, COMPLETED, TRANSFERRED, WITHDRAWN).
+     * Search filtering is performed client-side using TanStack Table for real-time feedback.</p>
      *
      * @param id      UUID of the class
-     * @param request HTTP request to extract JWT token
-     * @return list of enrolled students
+     * @param status  optional enrollment status filter (ACTIVE, COMPLETED, TRANSFERRED, WITHDRAWN)
+     * @param sort    sort field and direction (e.g., "studentName,asc")
+     * @return student enrollment list response with students and total count
      */
     @GetMapping("/{id}/students")
     @PreAuthorize("hasRole('TEACHER')")
     @Operation(
         summary = "Get class students",
         description = "Retrieve list of all students enrolled in a specific class. " +
-                      "Only accessible by the teacher who owns the class."
+                      "Supports optional filtering by enrollment status. " +
+                      "Search filtering should be done client-side for real-time feedback."
     )
+    public ResponseEntity<ApiResponse<StudentEnrollmentListResponse>> getStudentEnrollments(
+            @Parameter(description = "Class UUID", required = true)
+            @PathVariable UUID id,
+            @Parameter(description = "Filter by enrollment status (ACTIVE, COMPLETED, TRANSFERRED, WITHDRAWN)")
+            @RequestParam(required = false) String status,
+            @Parameter(description = "Sort field and direction", example = "studentName,asc")
+            @RequestParam(defaultValue = "studentName,asc") String sort) {
+
+        log.info("Fetching student enrollments for classId: {}, status: {}, sort: {}", id, status, sort);
+
+        StudentEnrollmentListResponse response = classService.getStudentEnrollments(id, status, sort);
+
+        log.info("Returning {} students for class: {}", response.getTotalCount(), id);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Get list of students enrolled in a specific class (legacy endpoint).
+     *
+     * <p>GET /api/classes/{id}/roster</p>
+     *
+     * <p>Returns roster of all students currently enrolled in the class.</p>
+     *
+     * @param id      UUID of the class
+     * @param request HTTP request to extract JWT token
+     * @return list of enrolled students
+     * @deprecated Use GET /api/classes/{id}/students with StudentEnrollmentListResponse instead
+     */
+    @GetMapping("/{id}/roster")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Operation(
+        summary = "Get class roster (legacy)",
+        description = "Retrieve list of all students enrolled in a specific class. " +
+                      "Only accessible by the teacher who owns the class. " +
+                      "Deprecated: Use GET /api/classes/{id}/students instead."
+    )
+    @Deprecated
     public ResponseEntity<ApiResponse<List<StudentRosterItemDto>>> getClassStudents(
             @Parameter(description = "Class UUID", required = true)
             @PathVariable UUID id,

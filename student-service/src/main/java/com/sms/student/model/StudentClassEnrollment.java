@@ -1,6 +1,7 @@
 package com.sms.student.model;
 
 import com.sms.student.enums.EnrollmentReason;
+import com.sms.student.enums.EnrollmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -39,6 +40,17 @@ public class StudentClassEnrollment {
     @Column(nullable = false, length = 50)
     @Builder.Default
     private EnrollmentReason reason = EnrollmentReason.NEW;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private EnrollmentStatus status = EnrollmentStatus.ACTIVE;
+
+    @Column(name = "transfer_date")
+    private LocalDate transferDate;
+
+    @Column(name = "transfer_reason", length = 500)
+    private String transferReason;
 
     @Column(length = 500)
     private String notes;

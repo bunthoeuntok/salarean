@@ -3,6 +3,7 @@ package com.sms.student.service.interfaces;
 import com.sms.student.dto.ClassDetailDto;
 import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassSummaryDto;
+import com.sms.student.dto.StudentEnrollmentListResponse;
 import com.sms.student.dto.StudentRosterItemDto;
 import org.springframework.data.domain.Pageable;
 
@@ -85,6 +86,21 @@ public interface IClassService {
      * @throws com.sms.student.exception.UnauthorizedClassAccessException if class doesn't belong to teacher
      */
     List<StudentRosterItemDto> getClassStudents(UUID classId, UUID teacherId);
+
+    /**
+     * Get students enrolled in a class with optional status filter.
+     *
+     * <p>Returns all students enrolled in the class with enrollment metadata.
+     * Supports optional filtering by enrollment status (ACTIVE, COMPLETED, TRANSFERRED, WITHDRAWN).
+     * Search filtering is performed client-side for real-time feedback.</p>
+     *
+     * @param classId UUID of the class
+     * @param status  optional enrollment status filter (null returns all statuses)
+     * @param sort    sort expression (e.g., "studentName,asc")
+     * @return response containing student list and total count
+     * @throws com.sms.student.exception.ClassNotFoundException if class doesn't exist
+     */
+    StudentEnrollmentListResponse getStudentEnrollments(UUID classId, String status, String sort);
 
     /**
      * Get enrollment history for a specific class.

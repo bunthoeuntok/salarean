@@ -52,3 +52,45 @@ export interface UpdateClassRequest {
   type?: ClassType
   status?: ClassStatus
 }
+
+/**
+ * Enrollment status for students in a class
+ */
+export type EnrollmentStatus = 'ACTIVE' | 'COMPLETED' | 'TRANSFERRED' | 'WITHDRAWN'
+
+/**
+ * Single student enrollment item in a class roster
+ */
+export interface StudentEnrollmentItem {
+  studentId: string
+  studentName: string
+  studentCode: string
+  photoUrl: string | null
+  enrollmentDate: string
+  enrollmentStatus: EnrollmentStatus
+}
+
+/**
+ * Response containing all students in a class
+ */
+export interface StudentEnrollmentListResponse {
+  students: StudentEnrollmentItem[]
+  totalCount: number
+}
+
+/**
+ * Filter parameters for fetching class students
+ */
+export interface StudentFilters {
+  status?: EnrollmentStatus
+  sort?: string
+}
+
+/**
+ * Parameters for fetching class students API call
+ */
+export interface GetClassStudentsParams {
+  classId: string
+  status?: EnrollmentStatus
+  sort?: string
+}

@@ -4,6 +4,8 @@ import type {
   Class,
   ClassListParams,
   CreateClassRequest,
+  GetClassStudentsParams,
+  StudentEnrollmentListResponse,
   UpdateClassRequest,
 } from '@/types/class.types'
 
@@ -57,5 +59,22 @@ export const classService = {
    */
   async deleteClass(id: string): Promise<void> {
     await api.delete(`/api/classes/${id}`)
+  },
+
+  /**
+   * Get students enrolled in a class with optional status filter
+   */
+  async getClassStudents(
+    params: GetClassStudentsParams
+  ): Promise<StudentEnrollmentListResponse> {
+    const queryParams = new URLSearchParams()
+
+    if (params.status) queryParams.append('status', params.status)
+    if (params.sort) queryParams.append('sort', params.sort)
+
+    const queryString = queryParams.toString()
+    const url = `/api/classes/${params.classId}/students${queryString ? `?${queryString}` : ''}`
+
+    return apiRequest<StudentEnrollmentListResponse>(api.get(url))
   },
 }

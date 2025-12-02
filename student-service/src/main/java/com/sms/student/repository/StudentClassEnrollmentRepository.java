@@ -1,5 +1,6 @@
 package com.sms.student.repository;
 
+import com.sms.student.enums.EnrollmentStatus;
 import com.sms.student.model.StudentClassEnrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -54,4 +55,18 @@ public interface StudentClassEnrollmentRepository extends JpaRepository<StudentC
            "WHERE sce.classId = :classId " +
            "ORDER BY sce.enrollmentDate DESC, sce.createdAt DESC")
     List<StudentClassEnrollment> findAllByClassIdOrderByEnrollmentDateDesc(@Param("classId") UUID classId);
+
+    // Find all enrollments for a class ordered by student name (via join with students table)
+    @Query("SELECT sce FROM StudentClassEnrollment sce " +
+           "WHERE sce.classId = :classId " +
+           "ORDER BY sce.enrollmentDate ASC")
+    List<StudentClassEnrollment> findByClassId(@Param("classId") UUID classId);
+
+    // Find enrollments for a class filtered by status
+    @Query("SELECT sce FROM StudentClassEnrollment sce " +
+           "WHERE sce.classId = :classId AND sce.status = :status " +
+           "ORDER BY sce.enrollmentDate ASC")
+    List<StudentClassEnrollment> findByClassIdAndStatus(
+            @Param("classId") UUID classId,
+            @Param("status") EnrollmentStatus status);
 }
