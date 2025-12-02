@@ -87,13 +87,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Create ComingSoonTab placeholder component in frontend/src/features/classes/components/coming-soon-tab.tsx
-- [ ] T025 [US2] Add Zod search params schema for tab routing (tab: students|schedule|attendance|grades) to route file frontend/src/routes/_authenticated/classes.$id.tsx
-- [ ] T026 [US2] Implement shadcn/ui Tabs structure in frontend/src/features/classes/[id].tsx with 4 tabs (Students, Schedule, Attendance, Grades)
-- [ ] T027 [US2] Connect tab selection to URL search params using Route.useSearch() and Route.useNavigate() in frontend/src/features/classes/[id].tsx
-- [ ] T028 [US2] Wrap StudentsTab content with React.lazy and Suspense for lazy loading in frontend/src/features/classes/[id].tsx
-- [ ] T029 [US2] Create StudentsTab wrapper component in frontend/src/features/classes/components/students-tab.tsx that contains StudentList and related components
-- [ ] T030 [US2] Add ARIA attributes to tabs (role="tablist", role="tab", role="tabpanel", aria-selected, aria-controls) in frontend/src/features/classes/[id].tsx
+- [x] T024 [P] [US2] Create ComingSoonTab placeholder component in frontend/src/features/classes/components/coming-soon-tab.tsx
+- [x] T025 [US2] Add Zod search params schema for tab routing (tab: students|schedule|attendance|grades) to route file frontend/src/routes/_authenticated/classes.$id.tsx
+- [x] T026 [US2] Implement shadcn/ui Tabs structure in frontend/src/features/classes/class-detail/index.tsx with 4 tabs (Students, Schedule, Attendance, Grades)
+- [x] T027 [US2] Connect tab selection to URL search params using Route.useSearch() and Route.useNavigate() in frontend/src/features/classes/class-detail/index.tsx
+- [x] T028 [US2] Wrap StudentsTab content with React.lazy and Suspense for lazy loading in frontend/src/features/classes/class-detail/index.tsx
+- [x] T029 [US2] Create StudentsTab wrapper component in frontend/src/features/classes/class-detail/components/students-tab.tsx that contains StudentList and related components
+- [x] T030 [US2] Add ARIA attributes to tabs (role="tablist", role="tab", role="tabpanel", aria-selected, aria-controls) in frontend/src/features/classes/class-detail/index.tsx
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - tab navigation with URL persistence.
 
@@ -107,14 +107,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Create useDebouncedValue hook in frontend/src/hooks/use-debounce.ts with configurable delay (default 300ms)
-- [ ] T032 [P] [US3] Create Zod validation schema for student filters in frontend/src/lib/validations/class-filters.ts
-- [ ] T033 [P] [US3] Create StudentSearch component with search input in frontend/src/features/classes/components/student-search.tsx
-- [ ] T034 [P] [US3] Create StatusFilter dropdown component in frontend/src/features/classes/components/status-filter.tsx with options (All, Active, Transferred, Graduated, Withdrawn)
-- [ ] T035 [US3] Integrate TanStack Table in StudentList with globalFilter for client-side search filtering in frontend/src/features/classes/components/student-list.tsx
-- [ ] T036 [US3] Connect search input to debouncedSearch state and TanStack Table globalFilter in frontend/src/features/classes/components/students-tab.tsx
-- [ ] T037 [US3] Connect status filter to useClassStudents hook (server-side filtering) in frontend/src/features/classes/components/students-tab.tsx
-- [ ] T038 [US3] Add aria-live region for search results count announcement in frontend/src/features/classes/components/student-search.tsx
+- [x] T031 [P] [US3] Create useDebouncedValue hook in frontend/src/hooks/use-debounce.ts with configurable delay (default 300ms)
+- [x] T032 [P] [US3] Create Zod validation schema for student filters in frontend/src/lib/validations/class-filters.ts
+- [x] T033 [P] [US3] Create StudentSearch component with search input in frontend/src/features/classes/components/student-search.tsx
+- [x] T034 [P] [US3] Create StatusFilter dropdown component in frontend/src/features/classes/components/status-filter.tsx with options (All, Active, Transferred, Graduated, Withdrawn)
+- [x] T035 [US3] Integrate TanStack Table in StudentList with globalFilter for client-side search filtering in frontend/src/features/classes/class-detail/components/student-list.tsx
+- [x] T036 [US3] Connect search input to debouncedSearch state and TanStack Table globalFilter in frontend/src/features/classes/class-detail/components/students-tab.tsx
+- [x] T037 [US3] Connect status filter to useClassStudents hook (server-side filtering) in frontend/src/features/classes/class-detail/components/students-tab.tsx
+- [x] T038 [US3] Add aria-live region for search results count announcement in frontend/src/features/classes/components/student-search.tsx
 
 **Checkpoint**: All user stories should now be independently functional.
 

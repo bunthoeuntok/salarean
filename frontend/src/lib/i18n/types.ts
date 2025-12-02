@@ -460,6 +460,16 @@ export interface UITranslations {
       attendance: string
       grades: string
     }
+    detail?: {
+      searchPlaceholder: string
+      searchAriaLabel: string
+      noResults: string
+      statusFilterLabel: string
+      statusFilterPlaceholder: string
+      statusOptions?: {
+        ALL: string
+      }
+    }
   }
 }
 

@@ -434,5 +434,15 @@ export const uiKm: UITranslations = {
       attendance: 'វត្តមាន',
       grades: 'ពិន្ទុ',
     },
+    detail: {
+      searchPlaceholder: 'ស្វែងរកសិស្សតាមឈ្មោះ ឬលេខកូដ...',
+      searchAriaLabel: 'ស្វែងរកសិស្សតាមឈ្មោះ ឬលេខកូដ',
+      noResults: 'រកមិនឃើញសិស្សទេ',
+      statusFilterLabel: 'ត្រងតាមស្ថានភាពចុះឈ្មោះ',
+      statusFilterPlaceholder: 'ត្រងតាមស្ថានភាព',
+      statusOptions: {
+        ALL: 'ស្ថានភាពទាំងអស់',
+      },
+    },
   },
 }

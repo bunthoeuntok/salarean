@@ -434,5 +434,15 @@ export const uiEn: UITranslations = {
       attendance: 'Attendance',
       grades: 'Grades',
     },
+    detail: {
+      searchPlaceholder: 'Search students by name or code...',
+      searchAriaLabel: 'Search students by name or code',
+      noResults: 'No students found',
+      statusFilterLabel: 'Filter by enrollment status',
+      statusFilterPlaceholder: 'Filter by status',
+      statusOptions: {
+        ALL: 'All Statuses',
+      },
+    },
   },
 }
