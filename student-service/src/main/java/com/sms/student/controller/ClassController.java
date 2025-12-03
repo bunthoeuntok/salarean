@@ -198,43 +198,6 @@ public class ClassController {
     }
 
     /**
-     * Get list of students enrolled in a specific class (legacy endpoint).
-     *
-     * <p>GET /api/classes/{id}/roster</p>
-     *
-     * <p>Returns roster of all students currently enrolled in the class.</p>
-     *
-     * @param id      UUID of the class
-     * @param request HTTP request to extract JWT token
-     * @return list of enrolled students
-     * @deprecated Use GET /api/classes/{id}/students with StudentEnrollmentListResponse instead
-     */
-    @GetMapping("/{id}/roster")
-    @PreAuthorize("hasRole('TEACHER')")
-    @Operation(
-        summary = "Get class roster (legacy)",
-        description = "Retrieve list of all students enrolled in a specific class. " +
-                      "Only accessible by the teacher who owns the class. " +
-                      "Deprecated: Use GET /api/classes/{id}/students instead."
-    )
-    @Deprecated
-    public ResponseEntity<ApiResponse<List<StudentRosterItemDto>>> getClassStudents(
-            @Parameter(description = "Class UUID", required = true)
-            @PathVariable UUID id,
-            HttpServletRequest request) {
-
-        UUID teacherId = extractTeacherIdFromRequest(request);
-
-        log.info("Fetching students for classId: {} by teacher: {}", id, teacherId);
-
-        List<StudentRosterItemDto> students = classService.getClassStudents(id, teacherId);
-
-        log.info("Returning {} students for class: {}", students.size(), id);
-
-        return ResponseEntity.ok(ApiResponse.success(students));
-    }
-
-    /**
      * Get enrollment history for a specific class.
      *
      * <p>GET /api/classes/{id}/history</p>

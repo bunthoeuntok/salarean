@@ -199,6 +199,7 @@ export const uiEn: UITranslations = {
     columns: {
       code: 'Code',
       name: 'Name',
+      fullNameKhmer: 'Name (Khmer)',
       gender: 'Gender',
       dateOfBirth: 'Date of Birth',
       contact: 'Contact',

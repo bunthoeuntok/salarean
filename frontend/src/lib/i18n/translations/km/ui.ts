@@ -199,6 +199,7 @@ export const uiKm: UITranslations = {
     columns: {
       code: 'លេខកូដ',
       name: 'ឈ្មោះ',
+      fullNameKhmer: 'ឈ្មោះខ្មែរ',
       gender: 'ភេទ',
       dateOfBirth: 'ថ្ងៃខែឆ្នាំកំណើត',
       contact: 'ទំនាក់ទំនង',

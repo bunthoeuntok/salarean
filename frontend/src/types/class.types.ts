@@ -63,8 +63,11 @@ export type EnrollmentStatus = 'ACTIVE' | 'COMPLETED' | 'TRANSFERRED' | 'WITHDRA
  */
 export interface StudentEnrollmentItem {
   studentId: string
-  studentName: string
+  fullName: string
+  fullNameKhmer: string | null
   studentCode: string
+  gender: 'M' | 'F'
+  dateOfBirth: string
   photoUrl: string | null
   enrollmentDate: string
   enrollmentStatus: EnrollmentStatus

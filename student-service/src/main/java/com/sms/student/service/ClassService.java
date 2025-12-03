@@ -285,11 +285,11 @@ public class ClassService implements IClassService {
             .collect(Collectors.toList());
 
         // Sort by student name if requested (default sort)
-        if (sort == null || sort.isEmpty() || sort.startsWith("studentName")) {
+        if (sort == null || sort.isEmpty() || sort.startsWith("fullName") || sort.startsWith("studentName")) {
             boolean ascending = sort == null || sort.isEmpty() || !sort.endsWith(",desc");
             studentItems.sort((a, b) -> ascending
-                ? a.getStudentName().compareToIgnoreCase(b.getStudentName())
-                : b.getStudentName().compareToIgnoreCase(a.getStudentName()));
+                ? a.getFullName().compareToIgnoreCase(b.getFullName())
+                : b.getFullName().compareToIgnoreCase(a.getFullName()));
         }
 
         log.info("Returning {} students for class {}", studentItems.size(), classId);
@@ -308,10 +308,19 @@ public class ClassService implements IClassService {
      * @return student enrollment item DTO
      */
     private StudentEnrollmentItem mapToEnrollmentItem(Student student, StudentClassEnrollment enrollment) {
+        // Construct full name in Khmer if available
+        String fullNameKhmer = null;
+        if (student.getFirstNameKhmer() != null && student.getLastNameKhmer() != null) {
+            fullNameKhmer = student.getLastNameKhmer() + " " + student.getFirstNameKhmer();
+        }
+
         return StudentEnrollmentItem.builder()
             .studentId(student.getId().toString())
-            .studentName(student.getFirstName() + " " + student.getLastName())
+            .fullName(student.getFirstName() + " " + student.getLastName())
+            .fullNameKhmer(fullNameKhmer)
             .studentCode(student.getStudentCode())
+            .gender(student.getGender().name())
+            .dateOfBirth(student.getDateOfBirth())
             .photoUrl(student.getPhotoUrl())
             .enrollmentDate(enrollment.getEnrollmentDate())
             .enrollmentStatus(enrollment.getStatus().name())

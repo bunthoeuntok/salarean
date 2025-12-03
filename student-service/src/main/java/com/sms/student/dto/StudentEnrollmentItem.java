@@ -30,12 +30,27 @@ public class StudentEnrollmentItem {
     /**
      * Student's full name (e.g., "Sok Pisey").
      */
-    private String studentName;
+    private String fullName;
+
+    /**
+     * Student's full name in Khmer (e.g., "សុខ ពិសី").
+     */
+    private String fullNameKhmer;
 
     /**
      * Student's unique code (e.g., "STU-2024-0001").
      */
     private String studentCode;
+
+    /**
+     * Student's gender (M or F).
+     */
+    private String gender;
+
+    /**
+     * Student's date of birth.
+     */
+    private LocalDate dateOfBirth;
 
     /**
      * Student's profile photo URL (null if not uploaded).

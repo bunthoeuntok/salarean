@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTableFacetedFilter } from './data-table-faceted-filter'
 import { DataTableViewOptions } from './data-table-view-options'
+import { useDebouncedValue } from '@/hooks/use-debounce'
 import type { DataTableToolbarProps } from './types'
 
 export function DataTableToolbar<TData>({
@@ -16,14 +18,32 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
 
+  // Local state for immediate UI updates
+  const [localSearchValue, setLocalSearchValue] = useState(searchValue ?? '')
+
+  // Sync local state when prop changes (e.g., from URL navigation)
+  useEffect(() => {
+    setLocalSearchValue(searchValue ?? '')
+  }, [searchValue])
+
+  // Debounce the search value before updating URL (300ms delay)
+  const debouncedSearchValue = useDebouncedValue(localSearchValue, 300)
+
+  // Update URL when debounced value changes
+  useEffect(() => {
+    if (onSearchChange && debouncedSearchValue !== searchValue) {
+      onSearchChange(debouncedSearchValue)
+    }
+  }, [debouncedSearchValue, onSearchChange, searchValue])
+
   return (
     <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
       <div className='flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2'>
         {onSearchChange && (
           <Input
             placeholder={searchPlaceholder}
-            value={searchValue ?? ''}
-            onChange={(event) => onSearchChange(event.target.value)}
+            value={localSearchValue}
+            onChange={(event) => setLocalSearchValue(event.target.value)}
             className='h-8 w-full sm:w-[150px] lg:w-[250px]'
           />
         )}

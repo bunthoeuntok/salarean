@@ -27,6 +27,7 @@ import {
   type ColumnFiltersState,
   type SortingState,
   type RowSelectionState,
+  type Row,
 } from '@tanstack/react-table'
 import { Loader2 } from 'lucide-react'
 import {
@@ -102,6 +103,12 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [internalSorting, setInternalSorting] = useState<SortingState>([])
+  const [globalFilter, setGlobalFilter] = useState<string>('')
+
+  // Sync global filter with searchValue prop
+  useEffect(() => {
+    setGlobalFilter(searchValue ?? '')
+  }, [searchValue])
 
   // Use controlled or internal sorting
   const sorting = controlledSorting
@@ -135,7 +142,7 @@ export function DataTable<TData, TValue>({
             }
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             aria-label='Select all'
-            className='translate-y-[2px]'
+            className='translate-y-0.5'
           />
         ),
         cell: ({ row }: { row: { getIsSelected: () => boolean; toggleSelected: (value: boolean) => void } }) => (
@@ -143,7 +150,7 @@ export function DataTable<TData, TValue>({
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label='Select row'
-            className='translate-y-[2px]'
+            className='translate-y-0.5'
           />
         ),
         enableSorting: false,
@@ -172,10 +179,13 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnOrder: effectiveColumnOrder,
       columnSizing,
-      pagination: {
-        pageIndex: controlledPageIndex ?? 0,
-        pageSize: controlledPageSize ?? storedPageSize,
-      },
+      globalFilter,
+      ...(showPagination && {
+        pagination: {
+          pageIndex: controlledPageIndex ?? 0,
+          pageSize: controlledPageSize ?? storedPageSize,
+        },
+      }),
     },
     pageCount: pageCount ?? -1,
     manualPagination: !!onPaginationChange,
@@ -186,6 +196,19 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnSizingChange: setColumnSizing,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row: Row<TData>, _columnId: string, filterValue: string) => {
+      // Search across all column values
+      const search = String(filterValue).toLowerCase()
+
+      // Get all cell values
+      return row.getAllCells().some((cell) => {
+        const cellValue = cell.getValue()
+        if (cellValue == null) return false
+
+        return String(cellValue).toLowerCase().includes(search)
+      })
+    },
     onRowSelectionChange: (updater) => {
       const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater
       setRowSelection(newSelection)
@@ -217,7 +240,7 @@ export function DataTable<TData, TValue>({
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(showPagination && { getPaginationRowModel: getPaginationRowModel() }),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),

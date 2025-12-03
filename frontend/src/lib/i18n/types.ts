@@ -224,6 +224,7 @@ export interface UITranslations {
     columns: {
       code: string
       name: string
+      fullNameKhmer: string
       gender: string
       dateOfBirth: string
       contact: string

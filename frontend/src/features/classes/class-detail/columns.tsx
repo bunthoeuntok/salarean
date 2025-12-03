@@ -1,24 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { CheckCircle, XCircle, ArrowRightLeft, GraduationCap } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { DataTableColumnHeader } from '@/components/data-table'
 import type { StudentEnrollmentItem, EnrollmentStatus } from '@/types/class.types'
 
-const statusIconMap: Record<EnrollmentStatus, React.ComponentType<{ className?: string }>> = {
-  ACTIVE: CheckCircle,
-  COMPLETED: GraduationCap,
-  TRANSFERRED: ArrowRightLeft,
-  WITHDRAWN: XCircle,
-}
-
-const statusVariantMap: Record<EnrollmentStatus, 'default' | 'secondary' | 'outline'> = {
-  ACTIVE: 'default',
-  COMPLETED: 'secondary',
-  TRANSFERRED: 'outline',
-  WITHDRAWN: 'outline',
-}
 
 const getInitials = (name: string) => {
   return name
@@ -29,7 +14,7 @@ const getInitials = (name: string) => {
     .slice(0, 2)
 }
 
-const formatEnrollmentDate = (dateString: string) => {
+const formatDate = (dateString: string) => {
   try {
     return format(new Date(dateString), 'dd/MM/yyyy')
   } catch {
@@ -43,7 +28,13 @@ export const createStudentEnrollmentColumns = (
       columns: {
         code: string
         name: string
-        status: string
+        fullNameKhmer: string
+        gender: string
+        dateOfBirth: string
+      }
+      gender: {
+        M: string
+        F: string
       }
       view: {
         fields: {
@@ -65,7 +56,7 @@ export const createStudentEnrollmentColumns = (
     size: 120,
   },
   {
-    accessorKey: 'studentName',
+    accessorKey: 'fullName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={t.students.columns.name} />
     ),
@@ -74,14 +65,47 @@ export const createStudentEnrollmentColumns = (
       return (
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={student.photoUrl ?? undefined} alt={student.studentName} />
-            <AvatarFallback className="text-xs">{getInitials(student.studentName)}</AvatarFallback>
+            <AvatarImage src={student.photoUrl ?? undefined} alt={student.fullName} />
+            <AvatarFallback className="text-xs">{getInitials(student.fullName)}</AvatarFallback>
           </Avatar>
-          <span className="font-medium">{student.studentName}</span>
+          <span className="font-medium">{student.fullName}</span>
         </div>
       )
     },
     size: 250,
+  },
+  {
+    accessorKey: 'fullNameKhmer',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.students.columns.fullNameKhmer} />
+    ),
+    cell: ({ row }) => (
+      <span className="font-medium">{row.getValue('fullNameKhmer') || '-'}</span>
+    ),
+    size: 200,
+  },
+  {
+    accessorKey: 'gender',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.students.columns.gender} />
+    ),
+    cell: ({ row }) => {
+      const gender = row.getValue('gender') as 'M' | 'F'
+      return <span className="text-muted-foreground">{gender === 'M' ? t.students.gender.M : t.students.gender.F}</span>
+    },
+    size: 100,
+  },
+  {
+    accessorKey: 'dateOfBirth',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.students.columns.dateOfBirth} />
+    ),
+    cell: ({ row }) => (
+      <span className="text-muted-foreground">
+        {formatDate(row.getValue('dateOfBirth'))}
+      </span>
+    ),
+    size: 130,
   },
   {
     accessorKey: 'enrollmentDate',
@@ -90,29 +114,9 @@ export const createStudentEnrollmentColumns = (
     ),
     cell: ({ row }) => (
       <span className="text-muted-foreground">
-        {formatEnrollmentDate(row.getValue('enrollmentDate'))}
+        {formatDate(row.getValue('enrollmentDate'))}
       </span>
     ),
     size: 130,
-  },
-  {
-    accessorKey: 'enrollmentStatus',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.students.columns.status} />
-    ),
-    cell: ({ row }) => {
-      const status = row.getValue('enrollmentStatus') as EnrollmentStatus
-      const StatusIcon = statusIconMap[status]
-      return (
-        <Badge variant={statusVariantMap[status]}>
-          <StatusIcon className="mr-1 h-3 w-3" />
-          {t.students.view.enrollmentStatus[status]}
-        </Badge>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    size: 130,
-  },
+  }
 ]
