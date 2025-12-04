@@ -87,9 +87,9 @@ docker-compose down           # Stop all services
 - `ApiResponse<T>` wrapper for all API responses
 
 ## Recent Changes
+- 008-batch-student-transfer: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 007-class-view: Added TypeScript 5.x with React 19, Java 21 (for API endpoint if modifications needed)
 - 006-frontend-auth: Added TypeScript 5.x with React 19 + Vite 7.x, TanStack Router, TanStack Query, Zustand, Tailwind CSS 4.x, shadcn/ui, Axios, Zod, react-hook-form
-- 005-class-management: Added Java 21 with Spring Boot 3.5.7 (existing student-service stack)
 
 
 <!-- MANUAL ADDITIONS START -->
