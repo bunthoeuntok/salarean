@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 import { useLanguage } from '@/context/language-provider'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ClientDataTableWithUrl } from '@/components/data-table'
@@ -52,6 +52,13 @@ export function StudentsTab({ classId }: StudentsTabProps) {
 
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
 
+  // Clear selection when navigating away from this class
+  useEffect(() => {
+    return () => {
+      clearSelection(classId)
+    }
+  }, [classId, clearSelection])
+
   const handleOpenTransferDialog = () => {
     setIsTransferDialogOpen(true)
   }
@@ -61,16 +68,16 @@ export function StudentsTab({ classId }: StudentsTabProps) {
     clearSelection(classId)
   }
 
-  const handleToggleStudent = (studentId: string) => {
+  const handleToggleStudent = useCallback((studentId: string) => {
     const student = studentsData?.students.find((s) => s.studentId === studentId)
     if (student) {
       toggleStudent(classId, student)
     }
-  }
+  }, [studentsData?.students, classId, toggleStudent])
 
-  const handleToggleAll = (students: StudentEnrollmentItem[]) => {
+  const handleToggleAll = useCallback((students: StudentEnrollmentItem[]) => {
     toggleAll(classId, students)
-  }
+  }, [classId, toggleAll])
 
   // Create columns with translations and selection handlers
   const columns = useMemo(
@@ -81,7 +88,7 @@ export function StudentsTab({ classId }: StudentsTabProps) {
         onToggleStudent: handleToggleStudent,
         onToggleAll: handleToggleAll,
       }),
-    [t, selectedIds]
+    [t, selectedIds, handleToggleStudent, handleToggleAll]
   )
 
   if (error) {

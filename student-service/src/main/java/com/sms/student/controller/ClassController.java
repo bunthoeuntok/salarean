@@ -10,7 +10,6 @@ import com.sms.student.dto.ClassUpdateRequest;
 import com.sms.student.dto.EligibleClassResponse;
 import com.sms.student.dto.EnrollmentHistoryDto;
 import com.sms.student.dto.StudentEnrollmentListResponse;
-import com.sms.student.dto.StudentRosterItemDto;
 import com.sms.student.dto.UndoTransferResponse;
 import com.sms.student.security.JwtTokenProvider;
 import com.sms.student.service.interfaces.IClassService;
