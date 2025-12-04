@@ -54,7 +54,8 @@ public class EnrollmentHistory {
     @Column
     private UUID undoOfTransferId;
 
-    @Column(columnDefinition = "JSONB")
+    @Column(columnDefinition = "jsonb")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     private String metadata; // Stores additional context as JSON
 
     /**

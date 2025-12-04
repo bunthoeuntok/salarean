@@ -31,6 +31,7 @@ public class StudentTransferService implements IStudentTransferService {
     private final ClassRepository classRepository;
     private final StudentClassEnrollmentRepository enrollmentRepository;
     private final EnrollmentHistoryRepository enrollmentHistoryRepository;
+    private final jakarta.persistence.EntityManager entityManager;
 
     // Self-reference for calling @Transactional methods within the same class
     private final org.springframework.context.ApplicationContext applicationContext;
@@ -222,9 +223,13 @@ public class StudentTransferService implements IStudentTransferService {
         }
 
         // Update source enrollment - mark as TRANSFERRED
+        java.time.LocalDate today = java.time.LocalDate.now();
         sourceEnrollment.setStatus(com.sms.student.enums.EnrollmentStatus.TRANSFERRED);
-        sourceEnrollment.setTransferDate(java.time.LocalDate.now());
+        sourceEnrollment.setTransferDate(today);
+        sourceEnrollment.setTransferReason("Batch transfer to " + destinationClass.getSection());
+        sourceEnrollment.setEndDate(today);  // Set end_date to release unique constraint
         enrollmentRepository.save(sourceEnrollment);
+        entityManager.flush();  // Force flush to database before inserting new enrollment
 
         // Create new enrollment in destination class
         var newEnrollment = com.sms.student.model.StudentClassEnrollment.builder()
@@ -345,6 +350,7 @@ public class StudentTransferService implements IStudentTransferService {
                 var srcEnrollment = originalEnrollment.get();
                 srcEnrollment.setStatus(com.sms.student.enums.EnrollmentStatus.ACTIVE);
                 srcEnrollment.setTransferDate(null);
+                srcEnrollment.setEndDate(null);  // Clear end_date to mark as current enrollment
                 enrollmentRepository.save(srcEnrollment);
 
                 // Update class counts
