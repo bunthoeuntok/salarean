@@ -32,10 +32,9 @@ export function StudentsTab({ classId }: StudentsTabProps) {
   // Selection state from Zustand store
   const {
     selectedStudentsByClass,
+    studentDataByClass,
     toggleStudent,
     toggleAll,
-    getSelectedCount,
-    getSelectedStudents,
     clearSelection,
   } = useStudentSelectionStore()
 
@@ -44,11 +43,13 @@ export function StudentsTab({ classId }: StudentsTabProps) {
     [selectedStudentsByClass, classId]
   )
 
-  const selectedCount = getSelectedCount(classId)
-  const selectedStudents = useMemo(
-    () => getSelectedStudents(classId),
-    [getSelectedStudents, classId]
-  )
+  const selectedStudents = useMemo(() => {
+    const studentData = studentDataByClass.get(classId)
+    if (!studentData) return []
+    return Array.from(studentData.values())
+  }, [studentDataByClass, classId])
+
+  const selectedCount = selectedIds.size
 
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
 

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2, ArrowRight } from 'lucide-react'
 
@@ -35,6 +35,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
+import { useClassStore } from '../store/class-store'
 import type { StudentEnrollmentItem } from '@/types/class.types'
 
 const baseTransferSchema = z.object({
@@ -60,6 +61,7 @@ export function BatchTransferDialog({
 }: BatchTransferDialogProps) {
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
+  const getEligibleDestinations = useClassStore((state) => state.getEligibleDestinations)
 
   // Create schema with translated messages
   const transferSchema = useMemo(() => {
@@ -68,13 +70,11 @@ export function BatchTransferDialog({
     })
   }, [t])
 
-  // Fetch eligible destination classes
-  const { data: eligibleClasses, isLoading: isLoadingClasses } = useQuery({
-    queryKey: ['eligible-destinations', sourceClassId],
-    queryFn: () => classService.getEligibleDestinations(sourceClassId),
-    enabled: open && !!sourceClassId,
-    staleTime: 5 * 60 * 1000,
-  })
+  // Get eligible destination classes from store
+  const eligibleClasses = useMemo(() => {
+    if (!open || !sourceClassId) return []
+    return getEligibleDestinations(sourceClassId)
+  }, [open, sourceClassId, getEligibleDestinations])
 
   const form = useForm<FormData>({
     resolver: zodResolver(transferSchema),
@@ -251,35 +251,30 @@ export function BatchTransferDialog({
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={isLoadingClasses}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue
-                            placeholder={
-                              isLoadingClasses
-                                ? t.common.loading
-                                : t.classes.transfer?.dialog?.destinationClassPlaceholder
-                            }
+                            placeholder={t.classes.transfer?.dialog?.destinationClassPlaceholder}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {eligibleClasses?.map((cls) => (
+                        {eligibleClasses.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
                             <div className="flex items-center justify-between w-full gap-4">
-                              <span className="font-medium">{cls.name}</span>
+                              <span className="font-medium">
+                                Grade {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
+                              </span>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <span>
-                                  {cls.currentEnrollment}/{cls.capacity}
+                                  {cls.studentCount}/{cls.maxCapacity}
                                 </span>
-                                <span className="text-muted-foreground/50">|</span>
-                                <span>{cls.teacherName}</span>
                               </div>
                             </div>
                           </SelectItem>
                         ))}
-                        {eligibleClasses?.length === 0 && (
+                        {eligibleClasses.length === 0 && (
                           <div className="px-2 py-6 text-center text-sm text-muted-foreground">
                             {t.classes.transfer?.dialog?.noEligibleClasses}
                           </div>
@@ -312,8 +307,6 @@ export function BatchTransferDialog({
                 type="submit"
                 disabled={
                   transferMutation.isPending ||
-                  isLoadingClasses ||
-                  !eligibleClasses ||
                   eligibleClasses.length === 0
                 }
               >

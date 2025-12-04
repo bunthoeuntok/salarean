@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus, CheckCircle, XCircle, Clock } from 'lucide-react'
@@ -19,11 +19,13 @@ import { createClassColumns } from './columns'
 import { AddClassModal } from './components/add-class-modal'
 import { EditClassModal } from './components/edit-class-modal'
 import { useClassFiltering } from '@/hooks/useClassFiltering'
+import { useClassStore } from './store/class-store'
 import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.types'
 
 export function ClassesPage() {
   const { t } = useLanguage()
   const navigate = useNavigate()
+  const setClasses = useClassStore((state) => state.setClasses)
   const [tableInstance, setTableInstance] = useState<Table<Class> | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -92,6 +94,13 @@ export function ClassesPage() {
         type: filters.type?.[0] as ClassType | undefined,
       }),
   })
+
+  // Update class store whenever data changes
+  useEffect(() => {
+    if (data?.content) {
+      setClasses(data.content)
+    }
+  }, [data?.content, setClasses])
 
   const handleViewClass = (classItem: Class) => {
     navigate({ to: '/classes/$id', params: { id: classItem.id } })

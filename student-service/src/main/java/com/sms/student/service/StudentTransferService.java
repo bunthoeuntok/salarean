@@ -32,6 +32,13 @@ public class StudentTransferService implements IStudentTransferService {
     private final StudentClassEnrollmentRepository enrollmentRepository;
     private final EnrollmentHistoryRepository enrollmentHistoryRepository;
 
+    // Self-reference for calling @Transactional methods within the same class
+    private final org.springframework.context.ApplicationContext applicationContext;
+
+    private StudentTransferService getSelf() {
+        return applicationContext.getBean(StudentTransferService.class);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<EligibleClassResponse> getEligibleDestinationClasses(UUID sourceClassId) {
@@ -109,81 +116,42 @@ public class StudentTransferService implements IStudentTransferService {
         UUID transferId = UUID.randomUUID();
         java.time.LocalDateTime transferredAt = java.time.LocalDateTime.now();
 
-        // 5. Process each student
+        // 5. Process each student in separate transactions
         java.util.List<BatchTransferResponse.FailedTransfer> failedTransfers = new java.util.ArrayList<>();
         int successCount = 0;
 
         for (UUID studentId : request.getStudentIds()) {
             try {
-                // Validate student exists
-                var student = studentRepository.findById(studentId)
-                    .orElseThrow(() -> new RuntimeException("STUDENT_NOT_FOUND"));
-
-                // Find active enrollment in source class
-                var sourceEnrollment = enrollmentRepository
-                    .findByStudentIdAndClassIdAndStatus(
-                        studentId,
-                        sourceClassId,
-                        com.sms.student.enums.EnrollmentStatus.ACTIVE
-                    )
-                    .orElseThrow(() -> new RuntimeException("STUDENT_NOT_ENROLLED_IN_SOURCE"));
-
-                // Check if student already enrolled in destination
-                var existingEnrollment = enrollmentRepository
-                    .findByStudentIdAndClassIdAndStatus(
-                        studentId,
-                        request.getDestinationClassId(),
-                        com.sms.student.enums.EnrollmentStatus.ACTIVE
-                    );
-
-                if (existingEnrollment.isPresent()) {
-                    failedTransfers.add(BatchTransferResponse.FailedTransfer.builder()
-                        .studentId(studentId)
-                        .studentName(student.getFirstName() + " " + student.getLastName())
-                        .reason("ALREADY_ENROLLED_IN_DESTINATION")
-                        .build());
-                    continue;
-                }
-
-                // Update source enrollment - mark as TRANSFERRED
-                sourceEnrollment.setStatus(com.sms.student.enums.EnrollmentStatus.TRANSFERRED);
-                sourceEnrollment.setTransferDate(java.time.LocalDate.now());
-                enrollmentRepository.save(sourceEnrollment);
-
-                // Create new enrollment in destination class
-                var newEnrollment = com.sms.student.model.StudentClassEnrollment.builder()
-                    .studentId(studentId)
-                    .classId(request.getDestinationClassId())
-                    .enrollmentDate(java.time.LocalDate.now())
-                    .status(com.sms.student.enums.EnrollmentStatus.ACTIVE)
-                    .reason(com.sms.student.enums.EnrollmentReason.TRANSFER)
-                    .build();
-                enrollmentRepository.save(newEnrollment);
-
-                // Create enrollment history record for this transfer
-                var historyRecord = com.sms.student.model.EnrollmentHistory.builder()
-                    .studentId(studentId)
-                    .classId(request.getDestinationClassId())
-                    .action(com.sms.student.model.EnrollmentHistory.EnrollmentAction.TRANSFERRED)
-                    .reason("Batch transfer from " + sourceClass.getSection() + " to " + destinationClass.getSection())
-                    .performedByUserId(performedByUserId)
-                    .transferId(transferId)
-                    .metadata("{\"sourceClassId\":\"" + sourceClassId + "\",\"destinationClassId\":\"" + request.getDestinationClassId() + "\"}")
-                    .build();
-                enrollmentHistoryRepository.save(historyRecord);
-
-                // Update class student counts
-                sourceClass.decrementEnrollment();
-                destinationClass.incrementEnrollment();
-
+                // Process student transfer in a separate transaction (call through proxy)
+                getSelf().transferSingleStudent(
+                    studentId,
+                    sourceClassId,
+                    request.getDestinationClassId(),
+                    transferId,
+                    sourceClass,
+                    destinationClass,
+                    performedByUserId
+                );
                 successCount++;
 
             } catch (Exception e) {
-                log.error("Failed to transfer student {}: {}", studentId, e.getMessage());
+                // Handle any transfer failure
+                log.warn("Failed to transfer student {}: {}", studentId, e.getMessage());
+                var student = studentRepository.findById(studentId).orElse(null);
+                String studentName = student != null
+                    ? student.getFirstName() + " " + student.getLastName()
+                    : "Unknown";
+
+                // Map specific errors to appropriate error codes
+                String errorCode = e.getMessage();
+                if (errorCode.contains("duplicate key") || errorCode.equals("ALREADY_ENROLLED_IN_DESTINATION")) {
+                    errorCode = "ALREADY_ENROLLED_IN_DESTINATION";
+                }
+
                 failedTransfers.add(BatchTransferResponse.FailedTransfer.builder()
                     .studentId(studentId)
-                    .studentName("Unknown")
-                    .reason(e.getMessage())
+                    .studentName(studentName)
+                    .reason(errorCode)
                     .build());
             }
         }
@@ -202,6 +170,77 @@ public class StudentTransferService implements IStudentTransferService {
             .failedTransfers(failedTransfers)
             .transferredAt(transferredAt)
             .build();
+    }
+
+    /**
+     * Process a single student transfer in a separate transaction.
+     * This allows individual failures without rolling back the entire batch.
+     */
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void transferSingleStudent(
+        UUID studentId,
+        UUID sourceClassId,
+        UUID destinationClassId,
+        UUID transferId,
+        com.sms.student.model.SchoolClass sourceClass,
+        com.sms.student.model.SchoolClass destinationClass,
+        UUID performedByUserId
+    ) {
+        // Validate student exists
+        var student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("STUDENT_NOT_FOUND"));
+
+        // Find active enrollment in source class
+        var sourceEnrollment = enrollmentRepository
+            .findByStudentIdAndClassIdAndStatus(
+                studentId,
+                sourceClassId,
+                com.sms.student.enums.EnrollmentStatus.ACTIVE
+            )
+            .orElseThrow(() -> new RuntimeException("STUDENT_NOT_ENROLLED_IN_SOURCE"));
+
+        // Check if student already enrolled in destination
+        var existingEnrollment = enrollmentRepository
+            .findByStudentIdAndClassIdAndStatus(
+                studentId,
+                destinationClassId,
+                com.sms.student.enums.EnrollmentStatus.ACTIVE
+            );
+
+        if (existingEnrollment.isPresent()) {
+            throw new RuntimeException("ALREADY_ENROLLED_IN_DESTINATION");
+        }
+
+        // Update source enrollment - mark as TRANSFERRED
+        sourceEnrollment.setStatus(com.sms.student.enums.EnrollmentStatus.TRANSFERRED);
+        sourceEnrollment.setTransferDate(java.time.LocalDate.now());
+        enrollmentRepository.save(sourceEnrollment);
+
+        // Create new enrollment in destination class
+        var newEnrollment = com.sms.student.model.StudentClassEnrollment.builder()
+            .studentId(studentId)
+            .classId(destinationClassId)
+            .enrollmentDate(java.time.LocalDate.now())
+            .status(com.sms.student.enums.EnrollmentStatus.ACTIVE)
+            .reason(com.sms.student.enums.EnrollmentReason.TRANSFER)
+            .build();
+        enrollmentRepository.save(newEnrollment);
+
+        // Create enrollment history record for this transfer
+        var historyRecord = com.sms.student.model.EnrollmentHistory.builder()
+            .studentId(studentId)
+            .classId(destinationClassId)
+            .action(com.sms.student.model.EnrollmentHistory.EnrollmentAction.TRANSFERRED)
+            .reason("Batch transfer from " + sourceClass.getSection() + " to " + destinationClass.getSection())
+            .performedByUserId(performedByUserId)
+            .transferId(transferId)
+            .metadata("{\"sourceClassId\":\"" + sourceClassId + "\",\"destinationClassId\":\"" + destinationClassId + "\"}")
+            .build();
+        enrollmentHistoryRepository.save(historyRecord);
+
+        // Update class student counts
+        sourceClass.decrementEnrollment();
+        destinationClass.incrementEnrollment();
     }
 
     @Override
