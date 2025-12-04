@@ -4,7 +4,9 @@ import type { Class } from '@/types/class.types'
 interface ClassState {
   /** All classes loaded in the application */
   classes: Class[]
+}
 
+interface ClassActions {
   /** Set all classes */
   setClasses: (classes: Class[]) => void
 
@@ -13,11 +15,18 @@ interface ClassState {
 
   /** Get eligible destination classes for batch transfer */
   getEligibleDestinations: (sourceClassId: string) => Class[]
+
+  /** Clear all classes */
+  clearClasses: () => void
 }
 
-export const useClassStore = create<ClassState>((set, get) => ({
+type ClassStore = ClassState & ClassActions
+
+export const useClassStore = create<ClassStore>((set, get) => ({
+  // State
   classes: [],
 
+  // Actions
   setClasses: (classes) => {
     set({ classes })
   },
@@ -39,18 +48,22 @@ export const useClassStore = create<ClassState>((set, get) => ({
     // 4. Has available capacity (studentCount < maxCapacity)
     return classes.filter((cls) => {
       // Must be active
-      if (cls.status != 'ACTIVE') return false
+      if (cls.status !== 'ACTIVE') return false
 
       // Must match grade level
-      if (cls.grade != sourceClass.grade) return false
+      if (cls.grade !== sourceClass.grade) return false
 
       // Cannot transfer to same class
-      if (cls.id == sourceClassId) return false
+      if (cls.id === sourceClassId) return false
 
       // Must have available capacity
       const hasCapacity = cls.studentCount < cls.maxCapacity
 
       return hasCapacity
     })
+  },
+
+  clearClasses: () => {
+    set({ classes: [] })
   },
 }))

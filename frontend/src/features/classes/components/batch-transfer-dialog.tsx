@@ -35,7 +35,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
-import { useClassStore } from '../store/class-store'
+import { useClasses } from '@/hooks/use-classes'
 import type { StudentEnrollmentItem } from '@/types/class.types'
 
 const baseTransferSchema = z.object({
@@ -61,7 +61,7 @@ export function BatchTransferDialog({
 }: BatchTransferDialogProps) {
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
-  const getEligibleDestinations = useClassStore((state) => state.getEligibleDestinations)
+  const { getEligibleDestinations } = useClasses()
 
   // Create schema with translated messages
   const transferSchema = useMemo(() => {
@@ -70,7 +70,7 @@ export function BatchTransferDialog({
     })
   }, [t])
 
-  // Get eligible destination classes from store
+  // Get eligible destination classes from global hook
   const eligibleClasses = useMemo(() => {
     if (!open || !sourceClassId) return []
     return getEligibleDestinations(sourceClassId)

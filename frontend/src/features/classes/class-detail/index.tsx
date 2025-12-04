@@ -14,6 +14,7 @@ import { ClassHeader } from './components/class-header'
 import { ComingSoonTab } from '../components/coming-soon-tab'
 import { ClassDetailErrorBoundary } from '../components/class-detail-error-boundary'
 import { ErrorState } from '../components/error-state'
+import { useClasses } from '@/hooks/use-classes'
 
 const StudentsTab = lazy(() =>
   import('./components/students-tab').then((module) => ({
@@ -36,6 +37,9 @@ function ClassDetailContent() {
   const navigate = useNavigate()
   const { id } = Route.useParams()
   const { tab } = Route.useSearch()
+
+  // Fetch and populate global class store for batch transfer eligibility
+  useClasses()
 
   // Fetch class details
   const {
