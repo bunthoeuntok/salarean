@@ -14,6 +14,7 @@ export interface DataTableProps<TData, TValue> {
   // Sorting
   sorting?: { id: string; desc: boolean }[]
   onSortingChange?: (sorting: { id: string; desc: boolean }[]) => void
+  manualSorting?: boolean
   // Search
   searchValue?: string
   onSearchChange?: (value: string) => void

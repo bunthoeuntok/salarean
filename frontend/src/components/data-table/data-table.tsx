@@ -57,6 +57,7 @@ export function DataTable<TData, TValue>({
   // Sorting
   sorting: controlledSorting,
   onSortingChange,
+  manualSorting,
   // Search
   searchValue,
   onSearchChange,
@@ -189,7 +190,7 @@ export function DataTable<TData, TValue>({
     },
     pageCount: pageCount ?? -1,
     manualPagination: !!onPaginationChange,
-    manualSorting: !!onSortingChange,
+    manualSorting: manualSorting ?? false,
     enableColumnResizing,
     columnResizeMode: 'onChange',
     onSortingChange: handleSortingChange,
