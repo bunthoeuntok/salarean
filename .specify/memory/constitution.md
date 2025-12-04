@@ -1,23 +1,23 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.3.0 → 1.4.0 (Minor - Frontend structure standardization)
+Version change: 1.4.0 → 1.5.0 (Minor - DataTable component selection standards)
 Modified principles:
   - None (existing principles unchanged)
 Modified sections:
-  - Project Structure > Frontend Structure: Updated to reflect actual feature-based architecture
-  - Added Frontend Implementation Standards section (NEW)
+  - Frontend Implementation Standards: Added DataTable Component Selection Standards subsection
 Added sections:
-  - Frontend Implementation Standards (comprehensive frontend architecture guidance)
+  - DataTable Component Selection Standards (guidance for client vs server table implementations)
 Removed sections: None
 Templates requiring updates:
   - .specify/templates/plan-template.md ✅ Compatible (technology-agnostic)
   - .specify/templates/spec-template.md ✅ Compatible (technology-agnostic)
   - .specify/templates/tasks-template.md ✅ Compatible (technology-agnostic)
 External documents updated:
-  - README.md ⚠ No update needed (already reflects actual structure)
-  - CLAUDE.md ⚠ No update needed (already reflects actual structure)
+  - frontend/src/components/data-table/README.md ✅ Already contains comprehensive guidance
+  - CLAUDE.md ⚠ No update needed (references constitution for standards)
 Follow-up TODOs: None
+Rationale: Codifies DataTable component selection patterns to prevent inconsistent implementations
 ==================
 -->
 
@@ -420,12 +420,90 @@ features/students/
 └── index.tsx                # Student list page with data table
 ```
 
+**DataTable Component Selection Standards**:
+
+The frontend provides three specialized DataTable wrapper components for different use cases. Developers MUST choose the appropriate component based on dataset size and state persistence requirements:
+
+| Component | Dataset Size | Pagination | Sorting | Search | URL Persistence | Use When |
+|-----------|-------------|------------|---------|--------|-----------------|----------|
+| `ClientDataTable` | < 1000 rows | None | Client-side | Client-side | None | Simple tables, modals, embedded views |
+| `ClientDataTableWithUrl` | < 1000 rows | None | Client-side | Client-side | Search + Sort | Shareable views, main content tables |
+| `ServerDataTable` | > 1000 rows | Server-side | Server-side | Server-side | All (page, size, search, sort) | Large datasets, paginated APIs |
+
+**Selection Rules**:
+
+1. **Use `ClientDataTable`** when:
+   - Dataset is small (< 1000 rows)
+   - All data is loaded upfront (no pagination needed)
+   - No URL sharing requirement
+   - Examples: Modal tables, embedded lists, dropdowns
+
+2. **Use `ClientDataTableWithUrl`** when:
+   - Dataset is small (< 1000 rows)
+   - All data is loaded upfront (no pagination needed)
+   - Users need to share links with search/sort state
+   - State should persist on page refresh
+   - Examples: Class student lists, enrollment history, filtered views
+
+3. **Use `ServerDataTable`** when:
+   - Dataset is large (> 1000 rows) or unbounded
+   - API endpoint supports pagination
+   - Backend handles sorting/filtering for performance
+   - Full URL state persistence required
+   - Examples: All students page, all classes page, admin dashboards
+
+**Implementation Requirements**:
+
+- Client-side tables MUST NOT make API calls on sort/search operations
+- Server-side tables MUST trigger API refetch when pagination/sort/search changes
+- All DataTable implementations MUST use TanStack Query for server state
+- URL persistence MUST use `useTableUrlParams` hook for consistency
+- Search inputs MUST be debounced (300ms) to prevent excessive URL updates
+
+**Example Implementations**:
+
+```tsx
+// ClientDataTable - Simple, no URL persistence
+<ClientDataTable
+  data={students}
+  columns={columns}
+  searchPlaceholder="Search..."
+/>
+
+// ClientDataTableWithUrl - Shareable views
+<ClientDataTableWithUrl
+  data={classStudents}
+  columns={columns}
+  storageKey="class-students-123"
+  searchPlaceholder="Search students..."
+/>
+
+// ServerDataTable - Large datasets
+<ServerDataTable
+  data={data?.content ?? []}
+  columns={columns}
+  pageCount={data?.totalPages ?? 0}
+  storageKey="all-students"
+  isLoading={isLoading}
+/>
+```
+
+**Technical Details**:
+
+- `manualSorting={false}` for client-side tables (TanStack Table handles sorting)
+- `manualSorting={true}` for server-side tables (parent component fetches sorted data)
+- Client tables with URL persistence use `onSortingChange` callback to update URL only
+- All implementations support column resizing, reordering, and visibility persistence
+
+**Reference**: See `frontend/src/components/data-table/README.md` for complete component API documentation and migration examples.
+
 **Rationale**:
 - Feature-based architecture promotes modularity and independent development
 - Context providers centralize cross-cutting concerns (theme, i18n, layout)
 - TanStack Router + Query provide type-safe routing and data fetching
 - Zod validation ensures runtime type safety at API boundaries
 - Tailwind + shadcn/ui enable rapid, consistent UI development
+- Standardized DataTable components prevent inconsistent table implementations and ensure optimal performance characteristics
 
 ### Backend Implementation Standards
 
@@ -627,4 +705,4 @@ For runtime development guidance, refer to:
 - `.specify/` - Feature specifications and implementation plans
 - `CLAUDE.md` - Auto-generated development guidelines (updated per feature)
 
-**Version**: 1.4.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-12-02
+**Version**: 1.5.0 | **Ratified**: 2025-11-20 | **Last Amended**: 2025-12-04
