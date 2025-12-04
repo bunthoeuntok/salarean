@@ -69,4 +69,12 @@ public interface StudentClassEnrollmentRepository extends JpaRepository<StudentC
     List<StudentClassEnrollment> findByClassIdAndStatus(
             @Param("classId") UUID classId,
             @Param("status") EnrollmentStatus status);
+
+    // Find a specific student's enrollment in a class with a specific status
+    @Query("SELECT sce FROM StudentClassEnrollment sce " +
+           "WHERE sce.studentId = :studentId AND sce.classId = :classId AND sce.status = :status")
+    Optional<StudentClassEnrollment> findByStudentIdAndClassIdAndStatus(
+            @Param("studentId") UUID studentId,
+            @Param("classId") UUID classId,
+            @Param("status") EnrollmentStatus status);
 }

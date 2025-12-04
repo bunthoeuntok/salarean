@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
 import type { StudentEnrollmentItem, EnrollmentStatus } from '@/types/class.types'
 
@@ -43,8 +44,51 @@ export const createStudentEnrollmentColumns = (
         enrollmentStatus: Record<EnrollmentStatus, string>
       }
     }
+  },
+  options?: {
+    enableSelection?: boolean
+    selectedStudentIds?: Set<string>
+    onToggleStudent?: (studentId: string) => void
+    onToggleAll?: (students: StudentEnrollmentItem[]) => void
   }
-): ColumnDef<StudentEnrollmentItem>[] => [
+): ColumnDef<StudentEnrollmentItem>[] => {
+  const columns: ColumnDef<StudentEnrollmentItem>[] = []
+
+  // Add checkbox column if selection is enabled
+  if (options?.enableSelection) {
+    columns.push({
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getFilteredRowModel().rows.length > 0 &&
+            table.getFilteredRowModel().rows.every((row) =>
+              options.selectedStudentIds?.has(row.original.studentId)
+            )
+          }
+          onCheckedChange={() => {
+            const allStudents = table.getFilteredRowModel().rows.map(row => row.original)
+            options.onToggleAll?.(allStudents)
+          }}
+          aria-label="Select all students"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={options.selectedStudentIds?.has(row.original.studentId) ?? false}
+          onCheckedChange={() => {
+            options.onToggleStudent?.(row.original.studentId)
+          }}
+          aria-label={`Select ${row.original.fullName}`}
+        />
+      ),
+      size: 50,
+      enableSorting: false,
+      enableHiding: false,
+    })
+  }
+
+  columns.push(
   {
     accessorKey: 'studentCode',
     header: ({ column }) => (
@@ -118,5 +162,7 @@ export const createStudentEnrollmentColumns = (
       </span>
     ),
     size: 130,
-  }
-]
+  })
+
+  return columns
+}

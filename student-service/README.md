@@ -9,6 +9,8 @@ The Student Service is a Spring Boot microservice that provides comprehensive st
 - Student CRUD operations
 - Parent contact management
 - Student class enrollment tracking
+- Batch student transfer between classes
+- Transfer undo capability (5-minute window)
 - Photo upload and storage
 - Soft-delete with audit trail
 - JWT-based authentication and authorization
@@ -159,6 +161,70 @@ Authorization: Bearer {jwt-token}
 
 photo: [file]
 ```
+
+### Class Management
+
+#### Get Eligible Destination Classes
+```http
+GET /api/classes/{classId}/eligible-destinations
+Authorization: Bearer {jwt-token}
+```
+Returns active classes at the same grade level with available capacity for student transfer.
+
+#### Batch Transfer Students
+```http
+POST /api/classes/{classId}/batch-transfer
+Content-Type: application/json
+Authorization: Bearer {jwt-token}
+
+{
+  "destinationClassId": "uuid",
+  "studentIds": ["uuid1", "uuid2", "uuid3"]
+}
+```
+Transfers multiple students from source class to destination class. Validates grade match, capacity, and enrollment status. Returns transfer ID for undo capability.
+
+**Response:**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "transferId": "uuid",
+    "sourceClassId": "uuid",
+    "destinationClassId": "uuid",
+    "successfulTransfers": 3,
+    "failedTransfers": [],
+    "transferredAt": "2025-12-04T12:30:00"
+  }
+}
+```
+
+#### Undo Batch Transfer
+```http
+POST /api/classes/transfers/{transferId}/undo
+Authorization: Bearer {jwt-token}
+```
+Reverses a batch transfer within 5 minutes. Only the teacher who performed the transfer can undo it.
+
+**Response:**
+```json
+{
+  "errorCode": "SUCCESS",
+  "data": {
+    "transferId": "uuid",
+    "undoneStudents": 3,
+    "sourceClassId": "uuid",
+    "undoneAt": "2025-12-04T12:35:00"
+  }
+}
+```
+
+#### Get Class Students
+```http
+GET /api/classes/{classId}/students?status=ACTIVE
+Authorization: Bearer {jwt-token}
+```
+Returns all students enrolled in a class, optionally filtered by enrollment status.
 
 ### Health & Monitoring
 

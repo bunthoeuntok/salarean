@@ -1,13 +1,17 @@
 package com.sms.student.controller;
 
 import com.sms.common.dto.ApiResponse;
+import com.sms.student.dto.BatchTransferRequest;
+import com.sms.student.dto.BatchTransferResponse;
 import com.sms.student.dto.ClassCreateRequest;
 import com.sms.student.dto.ClassDetailDto;
 import com.sms.student.dto.ClassListResponse;
 import com.sms.student.dto.ClassUpdateRequest;
+import com.sms.student.dto.EligibleClassResponse;
 import com.sms.student.dto.EnrollmentHistoryDto;
 import com.sms.student.dto.StudentEnrollmentListResponse;
 import com.sms.student.dto.StudentRosterItemDto;
+import com.sms.student.dto.UndoTransferResponse;
 import com.sms.student.security.JwtTokenProvider;
 import com.sms.student.service.interfaces.IClassService;
 
@@ -47,6 +51,7 @@ public class ClassController {
 
     private final IClassService classService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final com.sms.student.service.IStudentTransferService studentTransferService;
 
     /**
      * List all classes for the authenticated teacher with pagination and filtering.
@@ -231,6 +236,153 @@ public class ClassController {
         log.info("Returning {} enrollment history records for class: {}", history.size(), id);
 
         return ResponseEntity.ok(ApiResponse.success(history));
+    }
+
+    /**
+     * Get eligible destination classes for batch student transfer.
+     *
+     * <p>GET /api/classes/{id}/eligible-destinations</p>
+     *
+     * <p>Returns a list of classes that are eligible as transfer destinations for students
+     * from the specified source class. Eligible classes must:
+     * <ul>
+     *   <li>Be in ACTIVE status</li>
+     *   <li>Have the same grade level as the source class</li>
+     *   <li>Not be the source class itself</li>
+     *   <li>Have available capacity (currentEnrollment < maxCapacity)</li>
+     * </ul>
+     * </p>
+     *
+     * <p>This endpoint is used by the batch transfer dialog to populate the destination
+     * class dropdown. Teacher name is currently a placeholder and will be fetched from
+     * auth-service in a future iteration.</p>
+     *
+     * @param id UUID of the source class
+     * @return list of eligible destination classes with enrollment details
+     */
+    @GetMapping("/{id}/eligible-destinations")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Operation(
+        summary = "Get eligible destination classes for transfer",
+        description = "Retrieve all classes that are eligible as transfer destinations for students " +
+                      "from the specified source class. Only returns active classes with the same grade " +
+                      "level that have available capacity."
+    )
+    public ResponseEntity<ApiResponse<List<EligibleClassResponse>>> getEligibleDestinations(
+            @Parameter(description = "Source class UUID", required = true)
+            @PathVariable UUID id) {
+
+        log.info("Fetching eligible destination classes for source class: {}", id);
+
+        List<EligibleClassResponse> eligibleClasses = studentTransferService.getEligibleDestinationClasses(id);
+
+        log.info("Found {} eligible destination classes for source class: {}", eligibleClasses.size(), id);
+
+        return ResponseEntity.ok(ApiResponse.success(eligibleClasses));
+    }
+
+    /**
+     * Execute batch transfer of students to another class.
+     *
+     * <p>POST /api/classes/{id}/batch-transfer</p>
+     *
+     * <p>Transfers multiple students from the source class to a destination class in a single
+     * atomic operation. The operation:
+     * <ul>
+     *   <li>Validates source and destination classes are active and have matching grades</li>
+     *   <li>Checks destination class has sufficient capacity</li>
+     *   <li>Updates enrollment status for all students</li>
+     *   <li>Creates enrollment history records with transfer ID for undo capability</li>
+     *   <li>Updates class enrollment counts</li>
+     *   <li>Handles partial failures (some students transfer successfully, others fail)</li>
+     * </ul>
+     * </p>
+     *
+     * <p>Teacher authorization is enforced via JWT token extraction. Only the teacher who owns
+     * the source class can initiate transfers.</p>
+     *
+     * @param id UUID of the source class
+     * @param request batch transfer request containing destination class ID and student IDs
+     * @param httpRequest HTTP request to extract JWT token
+     * @return transfer response with success count, transfer ID, and any failed transfers
+     */
+    @PostMapping("/{id}/batch-transfer")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Operation(
+        summary = "Execute batch student transfer",
+        description = "Transfer multiple students from the source class to a destination class. " +
+                      "Validates grade match, capacity, and creates complete audit trail. " +
+                      "Returns transfer ID for potential undo operation. " +
+                      "Handles partial failures gracefully."
+    )
+    public ResponseEntity<ApiResponse<BatchTransferResponse>> batchTransfer(
+            @Parameter(description = "Source class UUID", required = true)
+            @PathVariable UUID id,
+            @Parameter(description = "Batch transfer request", required = true)
+            @Valid @RequestBody BatchTransferRequest request,
+            HttpServletRequest httpRequest) {
+
+        UUID teacherId = extractTeacherIdFromRequest(httpRequest);
+
+        log.info("Executing batch transfer from class {} to class {} by teacher {} for {} students",
+                 id, request.getDestinationClassId(), teacherId, request.getStudentIds().size());
+
+        BatchTransferResponse response = studentTransferService.batchTransfer(id, request, teacherId);
+
+        log.info("Batch transfer completed: transferId={}, successful={}, failed={}",
+                 response.getTransferId(), response.getSuccessfulTransfers(),
+                 response.getFailedTransfers().size());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Undo a batch transfer operation.
+     *
+     * <p>POST /api/classes/transfers/{transferId}/undo</p>
+     *
+     * <p>Reverses a batch transfer operation within 5 minutes of the original transfer.
+     * The operation:
+     * <ul>
+     *   <li>Validates the transfer exists and was performed by the requesting teacher</li>
+     *   <li>Checks the undo is within the 5-minute time window</li>
+     *   <li>Verifies the transfer has not already been undone</li>
+     *   <li>Checks for conflicts (students not transferred again)</li>
+     *   <li>Reverts all students back to the source class</li>
+     *   <li>Updates enrollment statuses and class counts</li>
+     *   <li>Creates undo history records for audit trail</li>
+     * </ul>
+     * </p>
+     *
+     * <p>Authorization: Only the teacher who performed the original transfer can undo it.</p>
+     *
+     * @param transferId UUID of the transfer to undo
+     * @param httpRequest HTTP request to extract JWT token
+     * @return undo response with count of reverted students
+     */
+    @PostMapping("/transfers/{transferId}/undo")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Operation(
+        summary = "Undo batch student transfer",
+        description = "Reverse a batch transfer operation within 5 minutes. " +
+                      "Validates authorization, time window, and handles conflicts. " +
+                      "Returns count of successfully reverted students."
+    )
+    public ResponseEntity<ApiResponse<UndoTransferResponse>> undoTransfer(
+            @Parameter(description = "Transfer ID to undo", required = true)
+            @PathVariable UUID transferId,
+            HttpServletRequest httpRequest) {
+
+        UUID teacherId = extractTeacherIdFromRequest(httpRequest);
+
+        log.info("Undoing transfer {} by teacher {}", transferId, teacherId);
+
+        UndoTransferResponse response = studentTransferService.undoTransfer(transferId, teacherId);
+
+        log.info("Undo completed: {} students reverted to source class {}",
+                 response.getUndoneStudents(), response.getSourceClassId());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     /**

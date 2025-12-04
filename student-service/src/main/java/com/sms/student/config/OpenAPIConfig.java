@@ -41,6 +41,8 @@ public class OpenAPIConfig {
                                 "- Student CRUD operations\n" +
                                 "- Parent contact management\n" +
                                 "- Student enrollment and transfer\n" +
+                                "- Batch student transfer between classes\n" +
+                                "- Transfer undo capability (5-minute window)\n" +
                                 "- Class management for teachers\n" +
                                 "- Photo upload and processing")
                         .version("1.0.0")

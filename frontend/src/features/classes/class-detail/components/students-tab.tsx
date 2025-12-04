@@ -1,10 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useLanguage } from '@/context/language-provider'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ClientDataTableWithUrl } from '@/components/data-table'
 import { useClassStudents } from '@/hooks/useClassStudents'
 import { createStudentEnrollmentColumns } from '../columns'
+import { useStudentSelectionStore } from '../../store/selection-store'
+import { FloatingActionButton } from '../../components/floating-action-button'
+import { BatchTransferDialog } from '../../components/batch-transfer-dialog'
 import { EmptyState } from './empty-state'
+import type { StudentEnrollmentItem } from '@/types/class.types'
 
 interface StudentsTabProps {
   classId: string
@@ -25,8 +29,60 @@ export function StudentsTab({ classId }: StudentsTabProps) {
     enabled: !!classId,
   })
 
-  // Create columns with translations
-  const columns = useMemo(() => createStudentEnrollmentColumns(t), [t])
+  // Selection state from Zustand store
+  const {
+    selectedStudentsByClass,
+    toggleStudent,
+    toggleAll,
+    getSelectedCount,
+    getSelectedStudents,
+    clearSelection,
+  } = useStudentSelectionStore()
+
+  const selectedIds = useMemo(
+    () => selectedStudentsByClass.get(classId) || new Set<string>(),
+    [selectedStudentsByClass, classId]
+  )
+
+  const selectedCount = getSelectedCount(classId)
+  const selectedStudents = useMemo(
+    () => getSelectedStudents(classId),
+    [getSelectedStudents, classId]
+  )
+
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
+
+  const handleOpenTransferDialog = () => {
+    setIsTransferDialogOpen(true)
+  }
+
+  const handleTransferSuccess = () => {
+    // Clear selection after successful transfer
+    clearSelection(classId)
+  }
+
+  const handleToggleStudent = (studentId: string) => {
+    const student = studentsData?.students.find((s) => s.studentId === studentId)
+    if (student) {
+      toggleStudent(classId, student)
+    }
+  }
+
+  const handleToggleAll = (students: StudentEnrollmentItem[]) => {
+    toggleAll(classId, students)
+  }
+
+  // Create columns with translations and selection handlers
+  const columns = useMemo(
+    () =>
+      createStudentEnrollmentColumns(t, {
+        enableSelection: true,
+        selectedStudentIds: selectedIds,
+        onToggleStudent: handleToggleStudent,
+        onToggleAll: handleToggleAll,
+      }),
+    [t, selectedIds]
+  )
 
   if (error) {
     return (
@@ -51,23 +107,39 @@ export function StudentsTab({ classId }: StudentsTabProps) {
   }
 
   return (
-    <ClientDataTableWithUrl
-      columns={columns}
-      data={studentsData.students}
-      storageKey={`class-students-${classId}`}
-      searchPlaceholder={t.classes.detail?.searchPlaceholder ?? 'Search students...'}
-      enableColumnResizing
-      enableColumnReordering
-      showToolbar
-      columnLabels={{
-        studentCode: t.students.columns.code,
-        fullName: t.students.columns.name,
-        fullNameKhmer: t.students.columns.fullNameKhmer,
-        gender: t.students.columns.gender,
-        dateOfBirth: t.students.columns.dateOfBirth,
-        enrollmentDate: t.students.view.fields.enrollmentDate,
-        enrollmentStatus: t.students.columns.status,
-      }}
-    />
+    <>
+      <ClientDataTableWithUrl
+        columns={columns}
+        data={studentsData.students}
+        storageKey={`class-students-${classId}`}
+        searchPlaceholder={t.classes.detail?.searchPlaceholder ?? 'Search students...'}
+        enableColumnResizing
+        enableColumnReordering
+        showToolbar
+        columnLabels={{
+          studentCode: t.students.columns.code,
+          fullName: t.students.columns.name,
+          fullNameKhmer: t.students.columns.fullNameKhmer,
+          gender: t.students.columns.gender,
+          dateOfBirth: t.students.columns.dateOfBirth,
+          enrollmentDate: t.students.view.fields.enrollmentDate,
+          enrollmentStatus: t.students.columns.status,
+        }}
+      />
+
+      <FloatingActionButton
+        selectedCount={selectedCount}
+        onClick={handleOpenTransferDialog}
+        label={t.classes.transfer?.transferButton ?? 'Transfer Students'}
+      />
+
+      <BatchTransferDialog
+        open={isTransferDialogOpen}
+        onOpenChange={setIsTransferDialogOpen}
+        sourceClassId={classId}
+        selectedStudents={selectedStudents}
+        onSuccess={handleTransferSuccess}
+      />
+    </>
   )
 }

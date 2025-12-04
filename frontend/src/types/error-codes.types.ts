@@ -70,6 +70,28 @@ export type AuthErrorCode =
   | 'CORRUPTED_IMAGE'
 
 /**
+ * Student-service specific error codes.
+ * Maps to: student-service error codes (batch transfer operations)
+ */
+export type StudentErrorCode =
+  // Student transfer errors
+  | 'SOURCE_CLASS_NOT_FOUND'
+  | 'DESTINATION_CLASS_NOT_FOUND'
+  | 'SOURCE_CLASS_NOT_ACTIVE'
+  | 'DESTINATION_CLASS_NOT_ACTIVE'
+  | 'GRADE_MISMATCH'
+  | 'INSUFFICIENT_CAPACITY'
+  | 'STUDENT_NOT_FOUND'
+  | 'STUDENT_NOT_ENROLLED_IN_SOURCE'
+  | 'ALREADY_ENROLLED_IN_DESTINATION'
+  // Undo transfer errors
+  | 'TRANSFER_NOT_FOUND'
+  | 'TRANSFER_ALREADY_UNDONE'
+  | 'UNAUTHORIZED_UNDO'
+  | 'UNDO_WINDOW_EXPIRED'
+  | 'INVALID_METADATA'
+
+/**
  * Frontend-specific error codes (not returned from backend)
  */
 export type FrontendErrorCode =
@@ -78,4 +100,4 @@ export type FrontendErrorCode =
 /**
  * Union of all error codes that can be returned from API
  */
-export type ErrorCode = CommonErrorCode | AuthErrorCode | FrontendErrorCode
+export type ErrorCode = CommonErrorCode | AuthErrorCode | StudentErrorCode | FrontendErrorCode

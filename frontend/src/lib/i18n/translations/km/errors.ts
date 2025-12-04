@@ -63,4 +63,22 @@ export const errorsKm: ErrorCodeTranslations = {
   INVALID_PHOTO_FORMAT: 'រូបភាពត្រូវជា JPEG, PNG, ឬ WebP',
   PHOTO_UPLOAD_FAILED: 'បរាជ័យក្នុងការផ្ទុកឡើងរូបភាព',
   CORRUPTED_IMAGE: 'ឯកសាររូបភាពខូច',
+
+  // Student transfer errors
+  SOURCE_CLASS_NOT_FOUND: 'រកមិនឃើញថ្នាក់ប្រភព',
+  DESTINATION_CLASS_NOT_FOUND: 'រកមិនឃើញថ្នាក់ទិសដៅ',
+  SOURCE_CLASS_NOT_ACTIVE: 'ថ្នាក់ប្រភពមិនសកម្ម',
+  DESTINATION_CLASS_NOT_ACTIVE: 'ថ្នាក់ទិសដៅមិនសកម្ម',
+  GRADE_MISMATCH: 'មិនអាចផ្ទេរសិស្សរវាងកម្រិតផ្សេងគ្នាបានទេ',
+  INSUFFICIENT_CAPACITY: 'ថ្នាក់ទិសដៅគ្មានសមត្ថភាពគ្រប់គ្រាន់',
+  STUDENT_NOT_FOUND: 'រកមិនឃើញសិស្ស',
+  STUDENT_NOT_ENROLLED_IN_SOURCE: 'សិស្សមិនបានចុះឈ្មោះក្នុងថ្នាក់ប្រភព',
+  ALREADY_ENROLLED_IN_DESTINATION: 'សិស្សបានចុះឈ្មោះក្នុងថ្នាក់ទិសដៅរួចហើយ',
+
+  // Undo transfer errors
+  TRANSFER_NOT_FOUND: 'រកមិនឃើញកំណត់ត្រាផ្ទេរ',
+  TRANSFER_ALREADY_UNDONE: 'ការផ្ទេរនេះត្រូវបានលុបចោលរួចហើយ',
+  UNAUTHORIZED_UNDO: 'អ្នកមិនមានសិទ្ធិលុបចោលការផ្ទេរនេះទេ',
+  UNDO_WINDOW_EXPIRED: 'មិនអាចលុបចោលបានទេ - រយៈពេល ៥ នាទីបានផុតកំណត់',
+  INVALID_METADATA: 'ទិន្នន័យផ្ទេរមិនត្រឹមត្រូវ',
 }

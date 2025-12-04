@@ -471,6 +471,28 @@ export interface UITranslations {
         ALL: string
       }
     }
+    transfer?: {
+      transferButton: string
+      selectStudents: string
+      selectedCount: string
+      dialog: {
+        title: string
+        description: string
+        selectedStudents: string
+        studentsSelected: string
+        destinationClass: string
+        destinationClassPlaceholder: string
+        noEligibleClasses: string
+        warning: string
+        confirmButton: string
+        transferring: string
+        successMessage: string
+        partialSuccessMessage: string
+        undoHint: string
+        undoButton: string
+        undoSuccess: string
+      }
+    }
   }
 }
 

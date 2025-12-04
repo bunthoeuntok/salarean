@@ -63,4 +63,22 @@ export const errorsEn: ErrorCodeTranslations = {
   INVALID_PHOTO_FORMAT: 'Photo must be JPEG, PNG, or WebP',
   PHOTO_UPLOAD_FAILED: 'Failed to upload photo',
   CORRUPTED_IMAGE: 'Image file is corrupted',
+
+  // Student transfer errors
+  SOURCE_CLASS_NOT_FOUND: 'Source class not found',
+  DESTINATION_CLASS_NOT_FOUND: 'Destination class not found',
+  SOURCE_CLASS_NOT_ACTIVE: 'Source class is not active',
+  DESTINATION_CLASS_NOT_ACTIVE: 'Destination class is not active',
+  GRADE_MISMATCH: 'Cannot transfer students between different grade levels',
+  INSUFFICIENT_CAPACITY: 'Destination class does not have enough capacity',
+  STUDENT_NOT_FOUND: 'Student not found',
+  STUDENT_NOT_ENROLLED_IN_SOURCE: 'Student is not enrolled in the source class',
+  ALREADY_ENROLLED_IN_DESTINATION: 'Student is already enrolled in the destination class',
+
+  // Undo transfer errors
+  TRANSFER_NOT_FOUND: 'Transfer record not found',
+  TRANSFER_ALREADY_UNDONE: 'This transfer has already been undone',
+  UNAUTHORIZED_UNDO: 'You are not authorized to undo this transfer',
+  UNDO_WINDOW_EXPIRED: 'Cannot undo - the 5-minute window has expired',
+  INVALID_METADATA: 'Invalid transfer metadata',
 }

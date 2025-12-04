@@ -97,3 +97,55 @@ export interface GetClassStudentsParams {
   status?: EnrollmentStatus
   sort?: string
 }
+
+/**
+ * Eligible destination class for batch transfer
+ */
+export interface EligibleClassResponse {
+  id: string
+  name: string
+  code: string
+  gradeLevel: number
+  capacity: number
+  currentEnrollment: number
+  teacherName: string
+}
+
+/**
+ * Request for batch student transfer
+ */
+export interface BatchTransferRequest {
+  destinationClassId: string
+  studentIds: string[]
+}
+
+/**
+ * Response from batch student transfer
+ */
+export interface BatchTransferResponse {
+  transferId: string
+  sourceClassId: string
+  destinationClassId: string
+  successfulTransfers: number
+  failedTransfers: FailedTransfer[]
+  transferredAt: string
+}
+
+/**
+ * Details of a failed student transfer
+ */
+export interface FailedTransfer {
+  studentId: string
+  studentName: string
+  reason: string
+}
+
+/**
+ * Response from undo transfer operation
+ */
+export interface UndoTransferResponse {
+  transferId: string
+  undoneStudents: number
+  sourceClassId: string
+  undoneAt: string
+}
