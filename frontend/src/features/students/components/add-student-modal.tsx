@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Plus, Trash2, Loader2, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
@@ -43,7 +43,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/context/language-provider'
 import { studentService } from '@/services/student.service'
-import { classService } from '@/services/class.service'
+import { useClasses } from '@/hooks/use-classes'
 import type { Gender, Relationship, CreateStudentRequest } from '@/types/student.types'
 
 // Schema type for type inference
@@ -109,12 +109,13 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
     })
   }, [t])
 
-  // Fetch classes for dropdown
-  const { data: classesData } = useQuery({
-    queryKey: ['classes-for-dropdown'],
-    queryFn: () => classService.getClasses({ size: 100, status: 'ACTIVE' }),
-    staleTime: 5 * 60 * 1000,
-  })
+  // Fetch classes from global store
+  const { classes: allClasses } = useClasses()
+
+  // Filter only ACTIVE classes for dropdown
+  const activeClasses = useMemo(() => {
+    return allClasses.filter((cls) => cls.status === 'ACTIVE')
+  }, [allClasses])
 
   const form = useForm<FormData>({
     resolver: zodResolver(createStudentSchema),
@@ -440,7 +441,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {classesData?.content?.map((cls) => (
+                            {activeClasses.map((cls) => (
                               <SelectItem key={cls.id} value={cls.id}>
                                 Grade {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
                               </SelectItem>

@@ -156,6 +156,16 @@ public class StudentTransferService implements IStudentTransferService {
             }
         }
 
+        // Recalculate accurate student counts from database
+        // This ensures counts are correct even if some transfers failed
+        long sourceCount = enrollmentRepository.findByClassIdAndStatus(sourceClassId, com.sms.student.enums.EnrollmentStatus.ACTIVE).size();
+        long destCount = enrollmentRepository.findByClassIdAndStatus(request.getDestinationClassId(), com.sms.student.enums.EnrollmentStatus.ACTIVE).size();
+
+        sourceClass.setStudentCount((int) sourceCount);
+        destinationClass.setStudentCount((int) destCount);
+
+        log.debug("Recalculated student counts - Source class: {}, Destination class: {}", sourceCount, destCount);
+
         // Save updated class counts
         classRepository.save(sourceClass);
         classRepository.save(destinationClass);
@@ -360,6 +370,16 @@ public class StudentTransferService implements IStudentTransferService {
                 // Continue with other students
             }
         }
+
+        // Recalculate accurate student counts from database
+        // This ensures counts are correct after undo operation
+        long sourceCount = enrollmentRepository.findByClassIdAndStatus(sourceClassId, com.sms.student.enums.EnrollmentStatus.ACTIVE).size();
+        long destCount = enrollmentRepository.findByClassIdAndStatus(destinationClassId, com.sms.student.enums.EnrollmentStatus.ACTIVE).size();
+
+        sourceClass.setStudentCount((int) sourceCount);
+        destinationClass.setStudentCount((int) destCount);
+
+        log.debug("Recalculated student counts after undo - Source class: {}, Destination class: {}", sourceCount, destCount);
 
         // Save updated class counts
         classRepository.save(sourceClass);

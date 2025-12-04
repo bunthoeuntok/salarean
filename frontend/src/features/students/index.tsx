@@ -14,7 +14,6 @@ import {
   getStoredPageSize,
 } from '@/components/data-table'
 import { studentService } from '@/services/student.service'
-import { classService } from '@/services/class.service'
 import { createStudentColumns } from './columns'
 import { AddStudentModal } from './components/add-student-modal'
 import { EditStudentModal } from './components/edit-student-modal'
@@ -22,6 +21,7 @@ import { EnrollStudentModal } from './components/enroll-student-modal'
 import { TransferStudentModal } from './components/transfer-student-modal'
 import { ViewStudentModal } from './components/view-student-modal'
 import { useClassFiltering } from '@/hooks/useClassFiltering'
+import { useClasses } from '@/hooks/use-classes'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 import type { ClassLevel } from '@/types/class.types'
 
@@ -117,12 +117,8 @@ export function StudentsPage() {
     defaultPageSize: getStoredPageSize('students-table'),
   })
 
-  // Fetch classes for filter dropdown
-  const { data: classesData } = useQuery({
-    queryKey: ['classes-for-filter'],
-    queryFn: () => classService.getClasses({ size: 100 }),
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  })
+  // Fetch classes from global store
+  const { classes: allClasses } = useClasses()
 
   // Use class filtering hook for level → grade → class filtering
   const {
@@ -133,7 +129,7 @@ export function StudentsPage() {
   } = useClassFiltering({
     initialLevel: filters.level?.[0] as ClassLevel | undefined,
     initialGrade: filters.grade?.[0],
-    classes: classesData?.content,
+    classes: allClasses,
     includeNoClassOption: true,
     noClassLabel: t.students.noClass,
   })

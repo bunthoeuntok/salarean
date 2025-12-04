@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
@@ -41,7 +41,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/context/language-provider'
 import { studentService } from '@/services/student.service'
-import { classService } from '@/services/class.service'
+import { useClasses } from '@/hooks/use-classes'
 import type { Student, TransferStudentRequest } from '@/types/student.types'
 
 const baseTransferSchema = z.object({
@@ -71,13 +71,8 @@ export function TransferStudentModal({ open, onOpenChange, student }: TransferSt
     })
   }, [t])
 
-  // Fetch classes for dropdown
-  const { data: classesData } = useQuery({
-    queryKey: ['classes-for-transfer'],
-    queryFn: () => classService.getClasses({ size: 100, status: 'ACTIVE' }),
-    staleTime: 5 * 60 * 1000,
-    enabled: open,
-  })
+  // Fetch classes from global store
+  const { classes: allClasses } = useClasses()
 
   const form = useForm<FormData>({
     resolver: zodResolver(transferSchema),
@@ -115,13 +110,18 @@ export function TransferStudentModal({ open, onOpenChange, student }: TransferSt
     form.reset()
   }
 
-  // Filter out current class from available options
+  // Filter ACTIVE classes and exclude current class
   const availableClasses = useMemo(() => {
-    if (!classesData?.content || !student?.currentClassId) {
-      return classesData?.content ?? []
-    }
-    return classesData.content.filter(cls => cls.id !== student.currentClassId)
-  }, [classesData, student?.currentClassId])
+    return allClasses.filter((cls) => {
+      // Must be ACTIVE
+      if (cls.status !== 'ACTIVE') return false
+
+      // Cannot transfer to same class
+      if (student?.currentClassId && cls.id === student.currentClassId) return false
+
+      return true
+    })
+  }, [allClasses, student?.currentClassId])
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
