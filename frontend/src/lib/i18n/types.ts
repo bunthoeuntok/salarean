@@ -213,6 +213,16 @@ export interface UITranslations {
       changingPassword: string
       passwordChangeSuccess: string
     }
+    display: {
+      title: string
+      description: string
+      textSize: string
+      textSizeDescription: string
+      small: string
+      medium: string
+      large: string
+      updateSuccess: string
+    }
   }
   // Students
   students: {

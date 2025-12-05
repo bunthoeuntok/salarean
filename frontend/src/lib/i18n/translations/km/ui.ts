@@ -189,6 +189,16 @@ export const uiKm: UITranslations = {
       changingPassword: 'កំពុងផ្លាស់ប្ដូរ...',
       passwordChangeSuccess: 'ផ្លាស់ប្ដូរពាក្យសម្ងាត់បានជោគជ័យ។',
     },
+    display: {
+      title: 'ការបង្ហាញ',
+      description: 'ប្ដូរតាមបំណងរបៀបបង្ហាញខ្លឹមសារនៅក្នុងកម្មវិធី។',
+      textSize: 'ទំហំអក្សរ',
+      textSizeDescription: 'កែតម្រូវទំហំអក្សរទូទាំងកម្មវិធី។',
+      small: 'តូច',
+      medium: 'មធ្យម',
+      large: 'ធំ',
+      updateSuccess: 'ធ្វើបច្ចុប្បន្នភាពការកំណត់ការបង្ហាញបានជោគជ័យ។',
+    },
   },
   students: {
     title: 'សិស្ស',

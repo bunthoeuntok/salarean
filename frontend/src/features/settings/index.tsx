@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { User, KeyRound } from 'lucide-react'
+import { User, KeyRound, Monitor } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
@@ -19,6 +19,11 @@ export function Settings() {
       title: t.settings.account.title,
       href: '/settings/account',
       icon: <KeyRound size={18} />,
+    },
+    {
+      title: t.settings.display.title,
+      href: '/settings/display',
+      icon: <Monitor size={18} />,
     },
   ]
 

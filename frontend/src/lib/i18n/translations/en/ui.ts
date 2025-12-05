@@ -189,6 +189,16 @@ export const uiEn: UITranslations = {
       changingPassword: 'Changing...',
       passwordChangeSuccess: 'Password changed successfully.',
     },
+    display: {
+      title: 'Display',
+      description: 'Customize how content is displayed in the application.',
+      textSize: 'Text Size',
+      textSizeDescription: 'Adjust the size of text throughout the application.',
+      small: 'Small',
+      medium: 'Medium',
+      large: 'Large',
+      updateSuccess: 'Display settings updated successfully.',
+    },
   },
   students: {
     title: 'Students',
