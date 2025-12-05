@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2, ArrowRight } from 'lucide-react'
+import { CountdownToast } from '@/components/ui/countdown-toast'
 
 import {
   Dialog,
@@ -97,29 +98,42 @@ export function BatchTransferDialog({
       queryClient.invalidateQueries({ queryKey: ['classes'] })
 
       // Store transfer info in session storage for undo capability (5 minute window)
+      // Calculate expiration time from current client time (not server time)
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
+
       const undoInfo = {
         transferId: response.transferId,
         sourceClassId: response.sourceClassId,
         destinationClassId: response.destinationClassId,
         transferredAt: response.transferredAt,
-        expiresAt: new Date(new Date(response.transferredAt).getTime() + 5 * 60 * 1000).toISOString(),
+        expiresAt,
         studentCount: response.successfulTransfers,
       }
       sessionStorage.setItem(`transfer_${response.transferId}`, JSON.stringify(undoInfo))
 
-      // Show success toast with undo action
+      // Show success toast with undo action and countdown
       if (response.failedTransfers.length === 0) {
-        toast.success(
-          t.classes.transfer?.dialog?.successMessage?.replace(
-            '{count}',
-            response.successfulTransfers.toString()
-          ) || `Successfully transferred ${response.successfulTransfers} student(s)`,
+        toast.custom(
+          (toastId) => (
+            <div className="w-full rounded-lg border bg-background p-4 shadow-lg">
+              <CountdownToast
+                message={
+                  t.classes.transfer?.dialog?.successMessage?.replace(
+                    '{count}',
+                    response.successfulTransfers.toString()
+                  ) || `Successfully transferred ${response.successfulTransfers} student(s)`
+                }
+                expiresAt={expiresAt}
+                actionLabel={t.classes.transfer?.dialog?.undoButton || 'Undo'}
+                onAction={() => {
+                  handleUndo(response.transferId)
+                  toast.dismiss(toastId)
+                }}
+                toastId={toastId}
+              />
+            </div>
+          ),
           {
-            description: t.classes.transfer?.dialog?.undoHint || 'You can undo this within 5 minutes',
-            action: {
-              label: t.classes.transfer?.dialog?.undoButton || 'Undo',
-              onClick: () => handleUndo(response.transferId),
-            },
             duration: 300000, // 5 minutes
           }
         )

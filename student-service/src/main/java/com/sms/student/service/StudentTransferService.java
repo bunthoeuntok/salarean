@@ -345,6 +345,7 @@ public class StudentTransferService implements IStudentTransferService {
                 // Remove from destination class
                 var destEnrollment = currentEnrollment.get();
                 enrollmentRepository.delete(destEnrollment);
+                entityManager.flush();  // Force delete to complete before reactivating source
 
                 // Reactivate in source class
                 var srcEnrollment = originalEnrollment.get();
@@ -407,9 +408,24 @@ public class StudentTransferService implements IStudentTransferService {
      */
     private UUID extractClassIdFromMetadata(String metadata, String key) {
         try {
-            // Simple JSON parsing for "{\"sourceClassId\":\"uuid\",\"destinationClassId\":\"uuid\"}"
-            String searchKey = "\"" + key + "\":\"";
-            int startIdx = metadata.indexOf(searchKey) + searchKey.length();
+            // Simple JSON parsing - handle both compact and formatted JSON
+            // Compact: {"sourceClassId":"uuid",...}
+            // Formatted: {"sourceClassId": "uuid",...}
+            String searchKey1 = "\"" + key + "\":\"";  // No space after colon
+            String searchKey2 = "\"" + key + "\": \""; // With space after colon
+
+            int startIdx = metadata.indexOf(searchKey1);
+            if (startIdx >= 0) {
+                startIdx += searchKey1.length();
+            } else {
+                startIdx = metadata.indexOf(searchKey2);
+                if (startIdx >= 0) {
+                    startIdx += searchKey2.length();
+                } else {
+                    throw new IllegalArgumentException("Key not found: " + key);
+                }
+            }
+
             int endIdx = metadata.indexOf("\"", startIdx);
             String uuidStr = metadata.substring(startIdx, endIdx);
             return UUID.fromString(uuidStr);
