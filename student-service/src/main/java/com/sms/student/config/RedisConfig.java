@@ -3,12 +3,18 @@ package com.sms.student.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 /**
  * Redis configuration for student-service caching.
@@ -28,7 +34,33 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * @since 1.0.0
  */
 @Configuration
+@EnableCaching
 public class RedisConfig {
+
+    /**
+     * Configure RedisCacheManager with TTL and serialization settings.
+     * Enables @Cacheable, @CacheEvict annotations with 30-minute cache expiration.
+     *
+     * @param connectionFactory Redis connection factory
+     * @return configured RedisCacheManager
+     */
+    @Bean
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        // Configure Redis cache with TTL and serialization
+        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30))  // 30-minute cache expiration
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(
+                                new StringRedisSerializer()))
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(
+                                new GenericJackson2JsonRedisSerializer(objectMapper())))
+                .disableCachingNullValues();  // Don't cache null results
+
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(cacheConfig)
+                .build();
+    }
 
     /**
      * Configure RedisTemplate with JSON serialization.

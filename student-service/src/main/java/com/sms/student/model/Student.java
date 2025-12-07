@@ -93,6 +93,10 @@ public class Student {
     @Column(name = "updated_by")
     private UUID updatedBy;
 
+    // Teacher-based isolation field
+    @Column(name = "teacher_id")
+    private UUID teacherId;
+
     // Relationships
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default

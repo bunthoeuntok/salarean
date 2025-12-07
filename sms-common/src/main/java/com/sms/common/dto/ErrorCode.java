@@ -82,6 +82,12 @@ public enum ErrorCode {
     /** User session has expired */
     SESSION_EXPIRED,
 
+    /** User is not authorized to access this specific resource (ownership violation) */
+    UNAUTHORIZED_ACCESS,
+
+    /** Teacher context is missing (authentication succeeded but teacher ID not set) */
+    TEACHER_CONTEXT_MISSING,
+
 
     // ============================================
     // RESOURCE ERRORS (Generic)

@@ -49,12 +49,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("Set security context for user: {}", username);
+
+                // Set teacher context for teacher-based data isolation
+                try {
+                    java.util.UUID teacherId = jwtTokenProvider.extractUserId(jwt);
+                    TeacherContextHolder.setTeacherId(teacherId);
+                    log.debug("Set teacher context for teacher ID: {}", teacherId);
+                } catch (Exception e) {
+                    log.error("Failed to set teacher context: {}", e.getMessage());
+                }
             }
         } catch (Exception ex) {
             log.error("Cannot set user authentication: {}", ex.getMessage());
+        } finally {
+            // Always clear teacher context after request to prevent thread pool pollution
+            try {
+                filterChain.doFilter(request, response);
+            } finally {
+                TeacherContextHolder.clear();
+                log.debug("Cleared teacher context");
+            }
         }
-
-        filterChain.doFilter(request, response);
     }
 
     /**

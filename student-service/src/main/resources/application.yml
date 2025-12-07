@@ -36,6 +36,10 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: -1ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000  # 30 minutes in milliseconds
 
 eureka:
   client:

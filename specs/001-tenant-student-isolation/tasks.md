@@ -23,11 +23,11 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 **Purpose**: Database migration and configuration setup for teacher isolation
 
-- [ ] T001 Create database migration script `src/main/resources/db/migration/V6__add_teacher_id_to_students.sql`
-- [ ] T002 [P] Add Redis cache dependencies to `pom.xml` (spring-boot-starter-cache, spring-boot-starter-data-redis)
-- [ ] T003 [P] Configure Redis cache settings in `src/main/resources/application-docker.yml`
-- [ ] T004 [P] Configure Redis cache settings in `src/main/resources/application.yml`
-- [ ] T005 Apply database migration to add teacher_id column and index
+- [x] T001 Create database migration script `src/main/resources/db/migration/V11__add_teacher_id_to_students.sql`
+- [x] T002 [P] Add Redis cache dependencies to `pom.xml` (spring-boot-starter-cache, spring-boot-starter-data-redis)
+- [x] T003 [P] Configure Redis cache settings in `src/main/resources/application-docker.yml`
+- [x] T004 [P] Configure Redis cache settings in `src/main/resources/application.yml`
+- [x] T005 Apply database migration to add teacher_id column and index
 
 ---
 
@@ -37,13 +37,13 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create TeacherContextHolder class in `src/main/java/com/sms/student/security/TeacherContextHolder.java`
-- [ ] T007 Update JwtAuthenticationFilter to set/clear teacher context in `src/main/java/com/sms/student/security/JwtAuthenticationFilter.java`
-- [ ] T008 Create UnauthorizedAccessException class in `src/main/java/com/sms/student/exception/UnauthorizedAccessException.java`
-- [ ] T009 [P] Add UNAUTHORIZED_ACCESS and TEACHER_CONTEXT_MISSING to ErrorCode enum
-- [ ] T010 Update GlobalExceptionHandler to handle UnauthorizedAccessException in `src/main/java/com/sms/student/exception/GlobalExceptionHandler.java`
-- [ ] T011 Create RedisConfig class in `src/main/java/com/sms/student/config/RedisConfig.java`
-- [ ] T012 Add teacher_id field to Student entity in `src/main/java/com/sms/student/model/Student.java`
+- [x] T006 Create TeacherContextHolder class in `src/main/java/com/sms/student/security/TeacherContextHolder.java`
+- [x] T007 Update JwtAuthenticationFilter to set/clear teacher context in `src/main/java/com/sms/student/security/JwtAuthenticationFilter.java`
+- [x] T008 Create UnauthorizedAccessException class in `src/main/java/com/sms/student/exception/UnauthorizedAccessException.java`
+- [x] T009 [P] Add UNAUTHORIZED_ACCESS and TEACHER_CONTEXT_MISSING to ErrorCode enum
+- [x] T010 Update GlobalExceptionHandler to handle UnauthorizedAccessException in `src/main/java/com/sms/student/exception/GlobalExceptionHandler.java`
+- [x] T011 Create RedisConfig class in `src/main/java/com/sms/student/config/RedisConfig.java`
+- [x] T012 Add teacher_id field to Student entity in `src/main/java/com/sms/student/model/Student.java`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
