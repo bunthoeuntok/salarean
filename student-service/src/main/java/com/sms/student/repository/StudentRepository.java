@@ -49,4 +49,17 @@ public interface StudentRepository extends JpaRepository<Student, UUID>, JpaSpec
            "(SELECT sce.studentId FROM StudentClassEnrollment sce WHERE sce.endDate IS NULL) " +
            "AND s.status = 'ACTIVE'")
     List<Student> findStudentsWithoutClass();
+
+    // Teacher-based isolation queries
+    List<Student> findAllByTeacherId(UUID teacherId);
+
+    Optional<Student> findByIdAndTeacherId(UUID id, UUID teacherId);
+
+    boolean existsByStudentCodeAndTeacherId(String studentCode, UUID teacherId);
+
+    Optional<Student> findByStudentCodeAndTeacherId(String studentCode, UUID teacherId);
+
+    Page<Student> findByTeacherId(UUID teacherId, Pageable pageable);
+
+    Page<Student> findByTeacherIdAndStatus(UUID teacherId, StudentStatus status, Pageable pageable);
 }

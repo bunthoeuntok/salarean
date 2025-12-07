@@ -65,14 +65,14 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Add findAllByTeacherId query to StudentRepository in `src/main/java/com/sms/student/repository/StudentRepository.java`
-- [ ] T017 [P] [US1] Add findByIdAndTeacherId query to StudentRepository in `src/main/java/com/sms/student/repository/StudentRepository.java`
-- [ ] T018 [US1] Update getAllStudents method in StudentService to filter by teacher_id in `src/main/java/com/sms/student/service/StudentService.java`
-- [ ] T019 [US1] Update getStudentById method in StudentService to validate ownership in `src/main/java/com/sms/student/service/StudentService.java`
-- [ ] T020 [US1] Add @Cacheable annotation to getAllStudents method with teacher-scoped cache key
-- [ ] T021 [US1] Add @Cacheable annotation to getStudentById method with teacher-scoped cache key
-- [ ] T022 [US1] Verify StudentController GET /api/students endpoint uses updated service methods
-- [ ] T023 [US1] Verify StudentController GET /api/students/{id} endpoint uses updated service methods
+- [x] T016 [P] [US1] Add findAllByTeacherId query to StudentRepository in `src/main/java/com/sms/student/repository/StudentRepository.java`
+- [x] T017 [P] [US1] Add findByIdAndTeacherId query to StudentRepository in `src/main/java/com/sms/student/repository/StudentRepository.java`
+- [x] T018 [US1] Update getAllStudents method (listActiveStudents) in StudentService to filter by teacher_id in `src/main/java/com/sms/student/service/StudentService.java`
+- [x] T019 [US1] Update getStudentById method in StudentService to validate ownership in `src/main/java/com/sms/student/service/StudentService.java`
+- [x] T020 [US1] Add @Cacheable annotation to getAllStudents method (listActiveStudents) with teacher-scoped cache key
+- [x] T021 [US1] Add @Cacheable annotation to getStudentById method with teacher-scoped cache key
+- [x] T022 [US1] Verify StudentController GET /api/students endpoint uses updated service methods
+- [x] T023 [US1] Verify StudentController GET /api/students/{id} endpoint uses updated service methods
 - [ ] T024 [US1] Run tests to verify teacher isolation for read operations
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - teachers can view only their students
@@ -93,12 +93,12 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Update createStudent method in StudentService to auto-assign teacher_id from context in `src/main/java/com/sms/student/service/StudentService.java`
-- [ ] T029 [US2] Update createStudent method to set createdBy field to teacher_id
-- [ ] T030 [US2] Add @CacheEvict annotation to createStudent to evict teacher's student list cache
-- [ ] T031 [US2] Update findByStudentCodeAndTeacherId query in StudentRepository for duplicate checking
-- [ ] T032 [US2] Update existsByStudentCodeAndTeacherId method in StudentRepository to include teacher_id filter
-- [ ] T033 [US2] Verify StudentController POST /api/students does not accept teacher_id in request body
+- [x] T028 [US2] Update createStudent method in StudentService to auto-assign teacher_id from context in `src/main/java/com/sms/student/service/StudentService.java`
+- [x] T029 [US2] Update createStudent method to set createdBy field to teacher_id
+- [x] T030 [US2] Add @CacheEvict annotation to createStudent to evict teacher's student list cache
+- [x] T031 [US2] Update findByStudentCodeAndTeacherId query in StudentRepository for duplicate checking
+- [x] T032 [US2] Update existsByStudentCodeAndTeacherId method in StudentRepository to include teacher_id filter
+- [x] T033 [US2] Verify StudentController POST /api/students does not accept teacher_id in request body
 - [ ] T034 [US2] Run tests to verify automatic teacher_id assignment
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - teachers can view and create students
@@ -119,11 +119,11 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Update updateStudent method in StudentService to validate ownership using findByIdAndTeacherId in `src/main/java/com/sms/student/service/StudentService.java`
-- [ ] T039 [US3] Update updatedBy field to use teacher_id from context in updateStudent method
-- [ ] T040 [US3] Add @CacheEvict annotation to updateStudent to invalidate cached student data
-- [ ] T041 [US3] Ensure teacher_id field is immutable (cannot be changed via update request)
-- [ ] T042 [US3] Verify StudentController PUT /api/students/{id} endpoint handles UnauthorizedAccessException
+- [x] T038 [US3] Update updateStudent method in StudentService to validate ownership using findByIdAndTeacherId in `src/main/java/com/sms/student/service/StudentService.java`
+- [x] T039 [US3] Update updatedBy field to use teacher_id from context in updateStudent method
+- [x] T040 [US3] Add @CacheEvict annotation to updateStudent to invalidate cached student data
+- [x] T041 [US3] Ensure teacher_id field is immutable (cannot be changed via update request)
+- [x] T042 [US3] Verify StudentController PUT /api/students/{id} endpoint handles UnauthorizedAccessException
 - [ ] T043 [US3] Run tests to verify update authorization
 
 **Checkpoint**: User Stories 1, 2, AND 3 should all work - teachers can view, create, and update their own students
@@ -144,10 +144,10 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Update deleteStudent method in StudentService to validate ownership using findByIdAndTeacherId in `src/main/java/com/sms/student/service/StudentService.java`
-- [ ] T048 [US4] Update deletedBy field to use teacher_id from context in deleteStudent method
-- [ ] T049 [US4] Add @CacheEvict annotation to deleteStudent to invalidate cached student data
-- [ ] T050 [US4] Verify StudentController DELETE /api/students/{id} endpoint handles UnauthorizedAccessException
+- [x] T047 [US4] Update deleteStudent method in StudentService to validate ownership using findByIdAndTeacherId in `src/main/java/com/sms/student/service/StudentService.java`
+- [x] T048 [US4] Update deletedBy field to use teacher_id from context in deleteStudent method
+- [x] T049 [US4] Add @CacheEvict annotation to deleteStudent to invalidate cached student data
+- [x] T050 [US4] Verify StudentController DELETE /api/students/{id} endpoint handles UnauthorizedAccessException
 - [ ] T051 [US4] Run tests to verify delete authorization
 
 **Checkpoint**: All user stories should now be independently functional - full CRUD with teacher isolation
@@ -167,12 +167,12 @@ All paths are relative to `student-service/` directory within the monorepo.
 
 ### Implementation for Cache Reload
 
-- [ ] T054 [P] Create CacheReloadResponse DTO in `src/main/java/com/sms/student/dto/CacheReloadResponse.java`
-- [ ] T055 [P] Create ICacheService interface in `src/main/java/com/sms/student/service/interfaces/ICacheService.java`
-- [ ] T056 Create CacheService implementation in `src/main/java/com/sms/student/service/CacheService.java`
-- [ ] T057 Add clearTeacherCache method to IStudentService interface in `src/main/java/com/sms/student/service/interfaces/IStudentService.java`
-- [ ] T058 Implement clearTeacherCache in StudentService with @CacheEvict annotation
-- [ ] T059 Create CacheController with reload endpoint in `src/main/java/com/sms/student/controller/CacheController.java`
+- [x] T054 [P] Create CacheReloadResponse DTO in `src/main/java/com/sms/student/dto/CacheReloadResponse.java`
+- [x] T055 [P] Create ICacheService interface in `src/main/java/com/sms/student/service/interfaces/ICacheService.java`
+- [x] T056 Create CacheService implementation in `src/main/java/com/sms/student/service/CacheService.java`
+- [x] T057 Add clearTeacherCache method to IStudentService interface in `src/main/java/com/sms/student/service/interfaces/IStudentService.java`
+- [x] T058 Implement clearTeacherCache in StudentService with @CacheEvict annotation
+- [x] T059 Create CacheController with reload endpoint in `src/main/java/com/sms/student/controller/CacheController.java`
 - [ ] T060 Run tests to verify cache reload functionality
 
 **Checkpoint**: Cache reload feature is complete and tested

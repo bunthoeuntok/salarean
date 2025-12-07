@@ -138,4 +138,12 @@ public interface IStudentService {
      * @throws com.sms.student.exception.InvalidStudentDataException if validation fails
      */
     ParentContactResponse updateParentContact(UUID contactId, ParentContactRequest request);
+
+    /**
+     * Clear all cached student data for the currently authenticated teacher.
+     * Evicts all cache entries to force fresh data retrieval from database.
+     *
+     * @return Response containing cache reload confirmation and statistics
+     */
+    CacheReloadResponse clearTeacherCache();
 }
