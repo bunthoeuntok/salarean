@@ -2,6 +2,8 @@ package com.sms.student.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +40,28 @@ import java.time.Duration;
 public class RedisConfig {
 
     /**
+     * Configure ObjectMapper specifically for Redis serialization.
+     * This ObjectMapper is used ONLY by Redis and won't affect API responses.
+     * Supports Java 8 time types and polymorphic type handling.
+     *
+     * @return configured ObjectMapper instance for Redis
+     */
+    private ObjectMapper redisObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // Enable default typing for proper polymorphic deserialization
+        // This prevents "LinkedHashMap cannot be cast to DTO" errors
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(Object.class)
+                .build();
+        mapper.activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL);
+
+        return mapper;
+    }
+
+    /**
      * Configure RedisCacheManager with TTL and serialization settings.
      * Enables @Cacheable, @CacheEvict annotations with 30-minute cache expiration.
      *
@@ -54,7 +78,7 @@ public class RedisConfig {
                                 new StringRedisSerializer()))
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
-                                new GenericJackson2JsonRedisSerializer(objectMapper())))
+                                new GenericJackson2JsonRedisSerializer(redisObjectMapper())))
                 .disableCachingNullValues();  // Don't cache null results
 
         return RedisCacheManager.builder(connectionFactory)
@@ -78,26 +102,12 @@ public class RedisConfig {
         template.setKeySerializer(stringSerializer);
         template.setHashKeySerializer(stringSerializer);
 
-        // Use JSON serializer for values
-        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper());
+        // Use JSON serializer for values with Redis-specific ObjectMapper
+        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper());
         template.setValueSerializer(jsonSerializer);
         template.setHashValueSerializer(jsonSerializer);
 
         template.afterPropertiesSet();
         return template;
-    }
-
-    /**
-     * Configure ObjectMapper for Redis JSON serialization.
-     * Supports Java 8 time types (Instant, LocalDate, etc.).
-     *
-     * @return configured ObjectMapper instance
-     */
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
     }
 }

@@ -1,5 +1,6 @@
 package com.sms.student.service;
 
+import com.sms.student.cache.StudentCache;
 import com.sms.student.dto.*;
 import com.sms.student.model.ParentContact;
 import com.sms.student.model.SchoolClass;
@@ -19,8 +20,6 @@ import com.sms.student.service.interfaces.IStudentService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -51,10 +50,10 @@ public class StudentService implements IStudentService {
     private final IPhotoStorageService photoStorageService;
     private final IParentContactService parentContactService;
     private final ICacheService cacheService;
+    private final StudentCache studentCache;
 
     @Override
     @Transactional
-    @CacheEvict(value = "students", key = "#root.target.getTeacherId() + ':all:*'")
     public StudentResponse createStudent(StudentRequest request) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
@@ -160,6 +159,9 @@ public class StudentService implements IStudentService {
             classRepository.save(schoolClass);
         }
 
+        // Evict teacher's student cache
+        studentCache.evictTeacherStudents(teacherId);
+
         // Map to response DTO
         return mapToStudentResponse(student, contacts,
                                     schoolClass != null ? schoolClass.getId() : null);
@@ -167,7 +169,6 @@ public class StudentService implements IStudentService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "students", allEntries = true)
     public StudentResponse updateStudent(UUID id, StudentUpdateRequest request) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
@@ -235,12 +236,14 @@ public class StudentService implements IStudentService {
         UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
                 .orElse(null);
 
+        // Evict teacher's student cache
+        studentCache.evictTeacherStudents(teacherId);
+
         return mapToStudentResponse(student, newContacts, currentClassId);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = "students", allEntries = true)
     public void deleteStudent(UUID id, DeletionReason reason, UUID deletedBy) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
@@ -258,24 +261,36 @@ public class StudentService implements IStudentService {
         student.setUpdatedAt(LocalDateTime.now());
 
         studentRepository.save(student);
+
+        // Evict teacher's student cache
+        studentCache.evictTeacherStudents(teacherId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "students", key = "#root.target.getTeacherId() + ':student:' + #id")
     public StudentResponse getStudentById(UUID id) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
-                .orElseThrow(() -> {
-                    return new UnauthorizedAccessException("You are not authorized to access this student");
+        // Try to get from cache first
+        return studentCache.getStudentById(teacherId, id)
+                .orElseGet(() -> {
+                    // Cache miss - fetch from database
+                    Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
+                            .orElseThrow(() -> {
+                                return new UnauthorizedAccessException("You are not authorized to access this student");
+                            });
+
+                    List<ParentContact> contacts = parentContactRepository.findByStudentId(id);
+                    UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
+                            .orElse(null);
+
+                    StudentResponse response = mapToStudentResponse(student, contacts, currentClassId);
+
+                    // Cache the result
+                    studentCache.cacheStudent(teacherId, id, response);
+
+                    return response;
                 });
-
-        List<ParentContact> contacts = parentContactRepository.findByStudentId(id);
-        UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
-                .orElse(null);
-
-        return mapToStudentResponse(student, contacts, currentClassId);
     }
 
     /**
@@ -303,60 +318,83 @@ public class StudentService implements IStudentService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "students", key = "#root.target.getTeacherId() + ':all:page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public StudentListResponse listActiveStudents(Pageable pageable) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        Page<Student> studentPage = studentRepository.findByTeacherIdAndStatus(teacherId, StudentStatus.ACTIVE, pageable);
+        // Try to get from cache first
+        return studentCache.getActiveStudents(teacherId, pageable.getPageNumber(), pageable.getPageSize())
+                .orElseGet(() -> {
+                    // Cache miss - fetch from database
+                    Page<Student> studentPage = studentRepository.findByTeacherIdAndStatus(teacherId, StudentStatus.ACTIVE, pageable);
 
-        List<StudentSummary> summaries = studentPage.getContent().stream()
-                .map(this::mapToStudentSummary)
-                .collect(Collectors.toList());
+                    List<StudentSummary> summaries = studentPage.getContent().stream()
+                            .map(this::mapToStudentSummary)
+                            .collect(Collectors.toList());
 
-        return StudentListResponse.builder()
-                .content(summaries)
-                .page(studentPage.getNumber())
-                .size(studentPage.getSize())
-                .totalElements(studentPage.getTotalElements())
-                .totalPages(studentPage.getTotalPages())
-                .build();
+                    StudentListResponse response = StudentListResponse.builder()
+                            .content(summaries)
+                            .page(studentPage.getNumber())
+                            .size(studentPage.getSize())
+                            .totalElements(studentPage.getTotalElements())
+                            .totalPages(studentPage.getTotalPages())
+                            .build();
+
+                    // Cache the result
+                    studentCache.cacheActiveStudents(teacherId, pageable.getPageNumber(), pageable.getPageSize(), response);
+
+                    return response;
+                });
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "students", key = "#root.target.getTeacherId() + ':filtered:' + #search + ':' + #status + ':' + #gender + ':' + #level + ':' + #grade + ':' + #classId + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public StudentListResponse listStudentsWithFilters(String search, String status, String gender,
                                                         String level, Integer grade, String classId,
                                                         Pageable pageable) {
         // Get authenticated teacher ID for isolation
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Build specification with all filters (including teacher isolation)
-        // Note: @Where annotation on Student entity handles soft-delete filtering
-        org.springframework.data.jpa.domain.Specification<Student> spec =
-                org.springframework.data.jpa.domain.Specification
-                        .where(StudentSpecification.hasTeacherId(teacherId))
-                        .and(StudentSpecification.hasStatus(status))
-                        .and(StudentSpecification.hasGender(gender))
-                        .and(StudentSpecification.hasLevel(level))
-                        .and(StudentSpecification.hasGrade(grade))
-                        .and(StudentSpecification.hasClassId(classId))
-                        .and(StudentSpecification.searchByNameOrCode(search));
+        // Try to get from cache first
+        return studentCache.getFilteredStudents(
+                teacherId, search, status, gender, level, grade, classId,
+                pageable.getPageNumber(), pageable.getPageSize()
+        ).orElseGet(() -> {
+            // Cache miss - fetch from database
+            // Build specification with all filters (including teacher isolation)
+            // Note: @Where annotation on Student entity handles soft-delete filtering
+            org.springframework.data.jpa.domain.Specification<Student> spec =
+                    org.springframework.data.jpa.domain.Specification
+                            .where(StudentSpecification.hasTeacherId(teacherId))
+                            .and(StudentSpecification.hasStatus(status))
+                            .and(StudentSpecification.hasGender(gender))
+                            .and(StudentSpecification.hasLevel(level))
+                            .and(StudentSpecification.hasGrade(grade))
+                            .and(StudentSpecification.hasClassId(classId))
+                            .and(StudentSpecification.searchByNameOrCode(search));
 
-        // Fetch from database with specification
-        Page<Student> studentPage = studentRepository.findAll(spec, pageable);
+            // Fetch from database with specification
+            Page<Student> studentPage = studentRepository.findAll(spec, pageable);
 
-        List<StudentSummary> summaries = studentPage.getContent().stream()
-                .map(this::mapToStudentSummary)
-                .collect(Collectors.toList());
+            List<StudentSummary> summaries = studentPage.getContent().stream()
+                    .map(this::mapToStudentSummary)
+                    .collect(Collectors.toList());
 
-        return StudentListResponse.builder()
-                .content(summaries)
-                .page(studentPage.getNumber())
-                .size(studentPage.getSize())
-                .totalElements(studentPage.getTotalElements())
-                .totalPages(studentPage.getTotalPages())
-                .build();
+            StudentListResponse response = StudentListResponse.builder()
+                    .content(summaries)
+                    .page(studentPage.getNumber())
+                    .size(studentPage.getSize())
+                    .totalElements(studentPage.getTotalElements())
+                    .totalPages(studentPage.getTotalPages())
+                    .build();
+
+            // Cache the result
+            studentCache.cacheFilteredStudents(
+                    teacherId, search, status, gender, level, grade, classId,
+                    pageable.getPageNumber(), pageable.getPageSize(), response
+            );
+
+            return response;
+        });
     }
 
     @Override
