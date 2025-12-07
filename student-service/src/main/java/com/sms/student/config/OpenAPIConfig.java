@@ -38,13 +38,19 @@ public class OpenAPIConfig {
                         .title("Student Service API")
                         .description("Student Management System - Student Service REST API\n\n" +
                                 "**Features:**\n" +
-                                "- Student CRUD operations\n" +
+                                "- Student CRUD operations with teacher-based isolation\n" +
                                 "- Parent contact management\n" +
                                 "- Student enrollment and transfer\n" +
                                 "- Batch student transfer between classes\n" +
                                 "- Transfer undo capability (5-minute window)\n" +
                                 "- Class management for teachers\n" +
-                                "- Photo upload and processing")
+                                "- Photo upload and processing\n" +
+                                "- Teacher-scoped cache management\n\n" +
+                                "**Security:**\n" +
+                                "- Teacher-based data isolation: Each teacher can only access their own students\n" +
+                                "- JWT authentication required for all endpoints\n" +
+                                "- Automatic teacher_id assignment on student creation\n" +
+                                "- Ownership validation on all operations")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("SMS Development Team")

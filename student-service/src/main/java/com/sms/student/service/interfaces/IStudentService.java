@@ -69,16 +69,6 @@ public interface IStudentService {
     StudentResponse getStudentByCode(String studentCode);
 
     /**
-     * List all active students in a specific class.
-     *
-     * @param classId Class UUID
-     * @param pageable Pagination parameters
-     * @return Paginated list of student summaries
-     * @throws com.sms.student.exception.ClassNotFoundException if class not found
-     */
-    StudentListResponse listStudentsByClass(UUID classId, Pageable pageable);
-
-    /**
      * List all active students with pagination.
      *
      * @param pageable Pagination parameters

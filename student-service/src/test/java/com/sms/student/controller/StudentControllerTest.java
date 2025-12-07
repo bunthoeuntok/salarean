@@ -382,69 +382,6 @@ class StudentControllerTest {
     }
 
     @Test
-    void listStudentsByClass_WithValidClassId_ShouldReturn200Ok() throws Exception {
-        // Arrange
-        UUID classId = UUID.randomUUID();
-        StudentSummary summary = StudentSummary.builder()
-                .id(mockResponse.getId())
-                .studentCode("STU-2025-1234")
-                .firstName("Jane")
-                .lastName("Doe")
-                .age(15)
-                .currentClassId(classId)
-                .primaryParentContact("John Doe (+85512345678)")
-                .build();
-
-        StudentListResponse listResponse = StudentListResponse.builder()
-                .content(List.of(summary))
-                .page(0)
-                .size(20)
-                .totalElements(1)
-                .totalPages(1)
-                .build();
-
-        when(studentService.listStudentsByClass(any(), any())).thenReturn(listResponse);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/students/class/{classId}", classId)
-                        .param("page", "0")
-                        .param("size", "20")
-                        .param("sort", "lastName,asc"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[0].studentCode").value("STU-2025-1234"))
-                .andExpect(jsonPath("$.data.page").value(0))
-                .andExpect(jsonPath("$.data.size").value(20))
-                .andExpect(jsonPath("$.data.totalElements").value(1));
-    }
-
-    @Test
-    void listStudentsByClass_WithPagination_ShouldReturnCorrectPage() throws Exception {
-        // Arrange
-        UUID classId = UUID.randomUUID();
-        StudentListResponse listResponse = StudentListResponse.builder()
-                .content(List.of())
-                .page(2)
-                .size(10)
-                .totalElements(25)
-                .totalPages(3)
-                .build();
-
-        when(studentService.listStudentsByClass(any(), any())).thenReturn(listResponse);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/students/class/{classId}", classId)
-                        .param("page", "2")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorCode").value("SUCCESS"))
-                .andExpect(jsonPath("$.data.page").value(2))
-                .andExpect(jsonPath("$.data.size").value(10))
-                .andExpect(jsonPath("$.data.totalPages").value(3));
-    }
-
-    @Test
     void listActiveStudents_WithPaginationAndSorting_ShouldReturn200Ok() throws Exception {
         // Arrange
         StudentSummary summary1 = StudentSummary.builder()

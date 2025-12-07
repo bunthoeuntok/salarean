@@ -89,7 +89,14 @@ docker-compose down           # Stop all services
 - `ApiResponse<T>` wrapper for all API responses
 
 ## Recent Changes
-- 001-tenant-student-isolation: Added Java 21 with Spring Boot 3.5.7 + Spring Data JPA, Spring Data Redis, Spring Cache, Hibernate, jjwt (0.12.5), PostgreSQL Driver
+- 001-tenant-student-isolation: Implemented teacher-based data isolation for student-service
+  - Added teacher_id column to students table (V11 migration)
+  - Created TeacherContextHolder (ThreadLocal) for request-scoped teacher ID
+  - Updated all CRUD operations to filter by teacher_id (read, create, update, delete)
+  - Implemented teacher-scoped Redis caching with 30-minute TTL
+  - Added CacheService and CacheController for manual cache reload
+  - Created UnauthorizedAccessException for ownership violations (HTTP 401)
+  - Technologies: Spring Cache, Redis, JPA repository methods, @Cacheable/@CacheEvict annotations
 - 008-batch-student-transfer: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 007-class-view: Added TypeScript 5.x with React 19, Java 21 (for API endpoint if modifications needed)
 

@@ -186,13 +186,13 @@ All paths are relative to `student-service/` directory within the monorepo.
 - [ ] T061 [P] Run all unit tests to verify teacher isolation across all CRUD operations
 - [ ] T062 [P] Run all integration tests to verify API contract compliance
 - [ ] T063 [P] Perform manual testing per quickstart.md validation steps
-- [ ] T064 [P] Verify database migration can be rolled back (dev environment only)
-- [ ] T065 [P] Update OpenAPI/Swagger documentation for modified endpoints
-- [ ] T066 Code review for security vulnerabilities (SQL injection, cache poisoning)
+- [x] T064 [P] Verify database migration can be rolled back (dev environment only)
+- [x] T065 [P] Update OpenAPI/Swagger documentation for modified endpoints
+- [x] T066 Code review for security vulnerabilities (SQL injection, cache poisoning)
 - [ ] T067 Performance test: Verify student list queries complete in <2 seconds (SC-001)
 - [ ] T068 Concurrency test: Verify system handles 50+ concurrent teachers (SC-004)
 - [ ] T069 Security test: Verify 100% of unauthorized access attempts are blocked (SC-002)
-- [ ] T070 [P] Update CLAUDE.md with implementation notes (if applicable)
+- [x] T070 [P] Update CLAUDE.md with implementation notes (if applicable)
 - [ ] T071 Final validation: Run entire quickstart.md test suite
 
 ---

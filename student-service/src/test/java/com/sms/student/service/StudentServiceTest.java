@@ -388,52 +388,6 @@ class StudentServiceTest {
     }
 
     @Test
-    void listStudentsByClass_WithValidClassId_ShouldReturnPaginatedList() {
-        // Arrange
-        UUID classId = UUID.randomUUID();
-        Pageable pageable = PageRequest.of(0, 20);
-
-        List<Student> students = List.of(mockStudent);
-        Page<Student> studentPage = new PageImpl<>(students, pageable, 1);
-
-        when(classRepository.findById(classId)).thenReturn(Optional.of(mockClass));
-        when(studentRepository.findByClassIdAndStatus(classId, pageable)).thenReturn(studentPage);
-        when(enrollmentRepository.findCurrentClassIdByStudentId(any())).thenReturn(Optional.of(classId));
-        when(parentContactRepository.findPrimaryContactByStudentId(any())).thenReturn(Optional.empty());
-
-        // Act
-        com.sms.student.dto.StudentListResponse response = studentService.listStudentsByClass(classId, pageable);
-
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getContent()).hasSize(1);
-        assertThat(response.getPage()).isEqualTo(0);
-        assertThat(response.getSize()).isEqualTo(20);
-        assertThat(response.getTotalElements()).isEqualTo(1);
-        assertThat(response.getTotalPages()).isEqualTo(1);
-
-        verify(classRepository, times(1)).findById(classId);
-        verify(studentRepository, times(1)).findByClassIdAndStatus(classId, pageable);
-    }
-
-    @Test
-    void listStudentsByClass_WithNonExistentClass_ShouldThrowException() {
-        // Arrange
-        UUID nonExistentClassId = UUID.randomUUID();
-        Pageable pageable = PageRequest.of(0, 20);
-
-        when(classRepository.findById(nonExistentClassId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThatThrownBy(() -> studentService.listStudentsByClass(nonExistentClassId, pageable))
-                .isInstanceOf(com.sms.student.exception.ClassNotFoundException.class)
-                .hasMessageContaining("not found");
-
-        verify(classRepository, times(1)).findById(nonExistentClassId);
-        verify(studentRepository, never()).findByClassIdAndStatus(any(), any());
-    }
-
-    @Test
     void listActiveStudents_ShouldReturnPaginatedList() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 20);
@@ -456,28 +410,6 @@ class StudentServiceTest {
         assertThat(response.getTotalElements()).isEqualTo(1);
 
         verify(studentRepository, times(1)).findByStatus(StudentStatus.ACTIVE, pageable);
-    }
-
-    @Test
-    void listStudentsByClass_WithEmptyClass_ShouldReturnEmptyList() {
-        // Arrange
-        UUID classId = UUID.randomUUID();
-        Pageable pageable = PageRequest.of(0, 20);
-
-        Page<Student> emptyPage = new PageImpl<>(List.of(), pageable, 0);
-
-        when(classRepository.findById(classId)).thenReturn(Optional.of(mockClass));
-        when(studentRepository.findByClassIdAndStatus(classId, pageable)).thenReturn(emptyPage);
-
-        // Act
-        com.sms.student.dto.StudentListResponse response = studentService.listStudentsByClass(classId, pageable);
-
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.getContent()).isEmpty();
-        assertThat(response.getTotalElements()).isEqualTo(0);
-
-        verify(studentRepository, times(1)).findByClassIdAndStatus(classId, pageable);
     }
 
     @Test

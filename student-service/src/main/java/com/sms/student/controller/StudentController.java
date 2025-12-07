@@ -39,13 +39,7 @@ public class StudentController {
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> createStudent(
             @Valid @RequestBody StudentRequest request) {
-        log.info("Received request to create student: {} {}",
-                 request.getFirstName(), request.getLastName());
-
         StudentResponse response = studentService.createStudent(request);
-
-        log.info("Student created successfully with ID: {} and code: {}",
-                 response.getId(), response.getStudentCode());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -63,12 +57,7 @@ public class StudentController {
     public ResponseEntity<ApiResponse<StudentResponse>> updateStudent(
             @PathVariable UUID id,
             @Valid @RequestBody StudentUpdateRequest request) {
-        log.info("Received request to update student: {}", id);
-
         StudentResponse response = studentService.updateStudent(id, request);
-
-        log.info("Student {} updated successfully", id);
-
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -83,12 +72,7 @@ public class StudentController {
             @PathVariable UUID id,
             @RequestParam(required = false) DeletionReason reason,
             @RequestParam(required = false) UUID deletedBy) {
-        log.info("Received request to delete student: {} by user: {}", id, deletedBy);
-
         studentService.deleteStudent(id, reason, deletedBy);
-
-        log.info("Student {} deleted successfully", id);
-
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
@@ -100,10 +84,7 @@ public class StudentController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> getStudentById(@PathVariable UUID id) {
-        log.info("Received request to get student by ID: {}", id);
-
         StudentResponse response = studentService.getStudentById(id);
-
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -116,31 +97,7 @@ public class StudentController {
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<StudentResponse>> getStudentByCode(
             @PathVariable String studentCode) {
-        log.info("Received request to get student by code: {}", studentCode);
-
         StudentResponse response = studentService.getStudentByCode(studentCode);
-
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
-    /**
-     * List all active students in a specific class.
-     * GET /api/students/class/{classId}
-     * Requires TEACHER role.
-     */
-    @GetMapping("/class/{classId}")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<StudentListResponse>> listStudentsByClass(
-            @PathVariable UUID classId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "lastName,asc") String sort) {
-        log.info("Received request to list students for class: {}, page: {}, size: {}",
-                 classId, page, size);
-
-        Pageable pageable = createPageable(page, size, sort);
-        StudentListResponse response = studentService.listStudentsByClass(classId, pageable);
-
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -172,8 +129,6 @@ public class StudentController {
             @RequestParam(required = false) String level,
             @RequestParam(required = false) Integer grade,
             @RequestParam(required = false) String classId) {
-        log.info("Received request to list students, page: {}, size: {}, search: {}, status: {}, gender: {}, level: {}, grade: {}, classId: {}",
-                 page, size, search, status, gender, level, grade, classId);
 
         Pageable pageable = createPageable(page, size, sort);
         StudentListResponse response = studentService.listStudentsWithFilters(
@@ -193,11 +148,8 @@ public class StudentController {
             @PathVariable UUID id,
             @RequestParam("file") byte[] photoData,
             @RequestParam("contentType") String contentType) {
-        log.info("Received request to upload photo for student: {}", id);
 
         PhotoUploadResponse response = studentService.uploadStudentPhoto(id, photoData, contentType);
-
-        log.info("Photo uploaded successfully for student: {}", id);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

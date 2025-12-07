@@ -57,11 +57,9 @@ public class StudentService implements IStudentService {
     @CacheEvict(value = "students", key = "#root.target.getTeacherId() + ':all:*'")
     public StudentResponse createStudent(StudentRequest request) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
-        log.info("Creating new student: {} {} for teacher: {}", request.getFirstName(), request.getLastName(), teacherId);
 
         // Validate at least one parent contact exists
         if (request.getParentContacts() == null || request.getParentContacts().isEmpty()) {
-            log.error("No parent contacts provided");
             throw new InvalidStudentDataException("At least one parent contact is required");
         }
 
@@ -70,11 +68,9 @@ public class StudentService implements IStudentService {
                 .filter(ParentContactRequest::getIsPrimary)
                 .count();
         if (primaryCount == 0) {
-            log.error("No primary contact designated");
             throw new InvalidStudentDataException("At least one parent contact must be marked as primary");
         }
         if (primaryCount > 1) {
-            log.error("Multiple primary contacts designated: {}", primaryCount);
             throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
         }
 
@@ -83,16 +79,11 @@ public class StudentService implements IStudentService {
         if (request.getClassId() != null) {
             schoolClass = classRepository.findById(request.getClassId())
                     .orElseThrow(() -> {
-                        log.error("Class not found: {}", request.getClassId());
                         return new com.sms.student.exception.ClassNotFoundException("Class with ID " + request.getClassId() + " not found");
                     });
 
             // Check if class has capacity
             if (!schoolClass.hasCapacity()) {
-                log.error("Class {} is at full capacity: {}/{}",
-                         schoolClass.getId(),
-                         schoolClass.getStudentCount(),
-                         schoolClass.getMaxCapacity());
                 throw new ClassCapacityExceededException(
                         "Class is at full capacity (" + schoolClass.getMaxCapacity() + " students)");
             }
@@ -104,13 +95,11 @@ public class StudentService implements IStudentService {
         // Double-check uniqueness (teacher-scoped)
         int attempts = 0;
         while (studentRepository.existsByStudentCodeAndTeacherId(studentCode, teacherId) && attempts < 10) {
-            log.warn("Student code {} already exists for teacher {}, regenerating...", studentCode, teacherId);
             studentCode = generateStudentCode();
             attempts++;
         }
 
         if (attempts >= 10) {
-            log.error("Failed to generate unique student code after 10 attempts");
             throw new DuplicateStudentCodeException("Failed to generate unique student code");
         }
 
@@ -136,7 +125,6 @@ public class StudentService implements IStudentService {
 
         // Save student first to get ID
         student = studentRepository.save(student);
-        log.info("Student created with ID: {} and code: {}", student.getId(), student.getStudentCode());
 
         // Create parent contacts
         final Student savedStudent = student;
@@ -153,7 +141,6 @@ public class StudentService implements IStudentService {
                 .collect(Collectors.toList());
 
         parentContactRepository.saveAll(contacts);
-        log.info("Created {} parent contacts for student {}", contacts.size(), student.getId());
 
         // Create enrollment record if class provided
         if (schoolClass != null) {
@@ -171,8 +158,6 @@ public class StudentService implements IStudentService {
             // Increment class student count
             schoolClass.incrementEnrollment();
             classRepository.save(schoolClass);
-
-            log.info("Enrolled student {} in class {}", student.getId(), schoolClass.getId());
         }
 
         // Map to response DTO
@@ -185,18 +170,15 @@ public class StudentService implements IStudentService {
     @CacheEvict(value = "students", allEntries = true)
     public StudentResponse updateStudent(UUID id, StudentUpdateRequest request) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
-        log.info("Updating student: {} for teacher: {}", id, teacherId);
 
         // Validate ownership before fetching
         Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
                 .orElseThrow(() -> {
-                    log.error("Student not found or unauthorized access: student={}, teacher={}", id, teacherId);
                     return new UnauthorizedAccessException("You are not authorized to update this student");
                 });
 
         // Validate at least one parent contact exists
         if (request.getParentContacts() == null || request.getParentContacts().isEmpty()) {
-            log.error("No parent contacts provided for update");
             throw new InvalidStudentDataException("At least one parent contact is required");
         }
 
@@ -205,11 +187,9 @@ public class StudentService implements IStudentService {
                 .filter(ParentContactRequest::getIsPrimary)
                 .count();
         if (primaryCount == 0) {
-            log.error("No primary contact designated");
             throw new InvalidStudentDataException("At least one parent contact must be marked as primary");
         }
         if (primaryCount > 1) {
-            log.error("Multiple primary contacts designated: {}", primaryCount);
             throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
         }
 
@@ -230,7 +210,6 @@ public class StudentService implements IStudentService {
         List<ParentContact> existingContacts = parentContactRepository.findByStudentId(id);
         if (!existingContacts.isEmpty()) {
             parentContactRepository.deleteAll(existingContacts);
-            log.info("Deleted {} existing parent contacts for student {}", existingContacts.size(), id);
         }
 
         // Create new parent contacts from request
@@ -248,11 +227,9 @@ public class StudentService implements IStudentService {
                 .collect(Collectors.toList());
 
         parentContactRepository.saveAll(newContacts);
-        log.info("Created {} new parent contacts for student {}", newContacts.size(), id);
 
         // Save student changes
         student = studentRepository.save(student);
-        log.info("Student {} updated successfully", id);
 
         // Get current enrollment
         UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
@@ -261,44 +238,14 @@ public class StudentService implements IStudentService {
         return mapToStudentResponse(student, newContacts, currentClassId);
     }
 
-    /**
-     * Fetch student with retry logic for optimistic locking conflicts
-     */
-    private Student fetchStudentWithRetry(UUID id, int maxAttempts) {
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                return studentRepository.findById(id)
-                        .orElseThrow(() -> {
-                            log.error("Student not found: {}", id);
-                            return new StudentNotFoundException("Student with ID " + id + " not found");
-                        });
-            } catch (org.springframework.dao.OptimisticLockingFailureException e) {
-                if (attempt == maxAttempts) {
-                    log.error("Failed to fetch student {} after {} attempts due to optimistic locking", id, maxAttempts);
-                    throw new InvalidStudentDataException("Student is being updated by another process. Please try again.");
-                }
-                log.warn("Optimistic locking conflict fetching student {}, attempt {}/{}", id, attempt, maxAttempts);
-                try {
-                    Thread.sleep(100 * attempt); // Exponential backoff
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new InvalidStudentDataException("Update interrupted");
-                }
-            }
-        }
-        throw new InvalidStudentDataException("Failed to fetch student for update");
-    }
-
     @Override
     @Transactional
     @CacheEvict(value = "students", allEntries = true)
     public void deleteStudent(UUID id, DeletionReason reason, UUID deletedBy) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
-        log.info("Soft deleting student: {} for teacher: {}", id, teacherId);
 
         Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
                 .orElseThrow(() -> {
-                    log.error("Student not found or unauthorized access: student={}, teacher={}", id, teacherId);
                     return new UnauthorizedAccessException("You are not authorized to delete this student");
                 });
 
@@ -311,7 +258,6 @@ public class StudentService implements IStudentService {
         student.setUpdatedAt(LocalDateTime.now());
 
         studentRepository.save(student);
-        log.info("Student {} soft deleted successfully by teacher {}", id, teacherId);
     }
 
     @Override
@@ -319,11 +265,9 @@ public class StudentService implements IStudentService {
     @Cacheable(value = "students", key = "#root.target.getTeacherId() + ':student:' + #id")
     public StudentResponse getStudentById(UUID id) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
-        log.info("Fetching student by ID: {} for teacher: {}", id, teacherId);
 
         Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
                 .orElseThrow(() -> {
-                    log.error("Student not found or unauthorized access: student={}, teacher={}", id, teacherId);
                     return new UnauthorizedAccessException("You are not authorized to access this student");
                 });
 
@@ -344,11 +288,9 @@ public class StudentService implements IStudentService {
     @Override
     @Transactional(readOnly = true)
     public StudentResponse getStudentByCode(String studentCode) {
-        log.info("Fetching student by code: {}", studentCode);
 
         Student student = studentRepository.findByStudentCode(studentCode)
                 .orElseThrow(() -> {
-                    log.error("Student not found with code: {}", studentCode);
                     return new StudentNotFoundException("Student with code " + studentCode + " not found");
                 });
 
@@ -361,37 +303,9 @@ public class StudentService implements IStudentService {
 
     @Override
     @Transactional(readOnly = true)
-    public StudentListResponse listStudentsByClass(UUID classId, Pageable pageable) {
-        log.info("Listing students for class: {}, page: {}", classId, pageable.getPageNumber());
-
-        // Verify class exists
-        classRepository.findById(classId)
-                .orElseThrow(() -> {
-                    log.error("Class not found: {}", classId);
-                    return new com.sms.student.exception.ClassNotFoundException("Class with ID " + classId + " not found");
-                });
-
-        Page<Student> studentPage = studentRepository.findByClassIdAndStatus(classId, pageable);
-
-        List<StudentSummary> summaries = studentPage.getContent().stream()
-                .map(this::mapToStudentSummary)
-                .collect(Collectors.toList());
-
-        return StudentListResponse.builder()
-                .content(summaries)
-                .page(studentPage.getNumber())
-                .size(studentPage.getSize())
-                .totalElements(studentPage.getTotalElements())
-                .totalPages(studentPage.getTotalPages())
-                .build();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     @Cacheable(value = "students", key = "#root.target.getTeacherId() + ':all:page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public StudentListResponse listActiveStudents(Pageable pageable) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
-        log.info("Listing active students for teacher: {}, page: {}", teacherId, pageable.getPageNumber());
 
         Page<Student> studentPage = studentRepository.findByTeacherIdAndStatus(teacherId, StudentStatus.ACTIVE, pageable);
 
@@ -410,17 +324,19 @@ public class StudentService implements IStudentService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "students", key = "#root.target.getTeacherId() + ':filtered:' + #search + ':' + #status + ':' + #gender + ':' + #level + ':' + #grade + ':' + #classId + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public StudentListResponse listStudentsWithFilters(String search, String status, String gender,
                                                         String level, Integer grade, String classId,
                                                         Pageable pageable) {
-        log.info("Listing students with filters: search={}, status={}, gender={}, level={}, grade={}, classId={}",
-                 search, status, gender, level, grade, classId);
+        // Get authenticated teacher ID for isolation
+        UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Build specification with all filters
+        // Build specification with all filters (including teacher isolation)
         // Note: @Where annotation on Student entity handles soft-delete filtering
         org.springframework.data.jpa.domain.Specification<Student> spec =
                 org.springframework.data.jpa.domain.Specification
-                        .where(StudentSpecification.hasStatus(status))
+                        .where(StudentSpecification.hasTeacherId(teacherId))
+                        .and(StudentSpecification.hasStatus(status))
                         .and(StudentSpecification.hasGender(gender))
                         .and(StudentSpecification.hasLevel(level))
                         .and(StudentSpecification.hasGrade(grade))
@@ -429,11 +345,6 @@ public class StudentService implements IStudentService {
 
         // Fetch from database with specification
         Page<Student> studentPage = studentRepository.findAll(spec, pageable);
-
-        log.debug("Found {} students (page {} of {})",
-                 studentPage.getNumberOfElements(),
-                 studentPage.getNumber() + 1,
-                 studentPage.getTotalPages());
 
         List<StudentSummary> summaries = studentPage.getContent().stream()
                 .map(this::mapToStudentSummary)
@@ -451,12 +362,10 @@ public class StudentService implements IStudentService {
     @Override
     @Transactional
     public PhotoUploadResponse uploadStudentPhoto(UUID id, byte[] photoData, String contentType) {
-        log.info("Uploading photo for student: {}, size: {} bytes", id, photoData.length);
 
         // Verify student exists
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("Student not found: {}", id);
                     return new StudentNotFoundException("Student with ID " + id + " not found");
                 });
 
@@ -467,8 +376,6 @@ public class StudentService implements IStudentService {
         student.setPhotoUrl(photoPath);
         student.setUpdatedAt(LocalDateTime.now());
         studentRepository.save(student);
-
-        log.info("Photo uploaded successfully for student: {}, path: {}", id, photoPath);
 
         return PhotoUploadResponse.builder()
                 .photoUrl(photoPath)
@@ -590,20 +497,17 @@ public class StudentService implements IStudentService {
     @Override
     @Transactional
     public ParentContactResponse addParentContact(UUID studentId, ParentContactRequest request) {
-        log.info("Adding parent contact for student via StudentService: {}", studentId);
         return parentContactService.addParentContact(studentId, request);
     }
 
     @Override
     @Transactional
     public ParentContactResponse updateParentContact(UUID contactId, ParentContactRequest request) {
-        log.info("Updating parent contact via StudentService: {}", contactId);
         return parentContactService.updateParentContact(contactId, request);
     }
 
     @Override
     public CacheReloadResponse clearTeacherCache() {
-        log.info("Clearing teacher cache via StudentService");
         return cacheService.clearCurrentTeacherCache();
     }
 }

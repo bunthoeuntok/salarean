@@ -28,6 +28,18 @@ public class StudentSpecification {
     }
 
     /**
+     * Filter by teacher ID (teacher-based data isolation).
+     */
+    public static Specification<Student> hasTeacherId(UUID teacherId) {
+        return (root, query, cb) -> {
+            if (teacherId == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("teacherId"), teacherId);
+        };
+    }
+
+    /**
      * Filter by status (supports comma-separated values).
      */
     public static Specification<Student> hasStatus(String statusFilter) {
