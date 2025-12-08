@@ -1,6 +1,5 @@
 package com.sms.student.service;
 
-import com.sms.student.cache.StudentCache;
 import com.sms.student.dto.*;
 import com.sms.student.model.ParentContact;
 import com.sms.student.model.SchoolClass;
@@ -28,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +47,6 @@ public class StudentService implements IStudentService {
     private final IPhotoStorageService photoStorageService;
     private final IParentContactService parentContactService;
     private final ICacheService cacheService;
-    private final StudentCache studentCache;
 
     @Override
     @Transactional
@@ -159,9 +155,6 @@ public class StudentService implements IStudentService {
             classRepository.save(schoolClass);
         }
 
-        // Evict teacher's student cache
-        studentCache.evictTeacherStudents(teacherId);
-
         // Map to response DTO
         return mapToStudentResponse(student, contacts,
                                     schoolClass != null ? schoolClass.getId() : null);
@@ -236,9 +229,6 @@ public class StudentService implements IStudentService {
         UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
                 .orElse(null);
 
-        // Evict teacher's student cache
-        studentCache.evictTeacherStudents(teacherId);
-
         return mapToStudentResponse(student, newContacts, currentClassId);
     }
 
@@ -261,9 +251,6 @@ public class StudentService implements IStudentService {
         student.setUpdatedAt(LocalDateTime.now());
 
         studentRepository.save(student);
-
-        // Evict teacher's student cache
-        studentCache.evictTeacherStudents(teacherId);
     }
 
     @Override
@@ -271,26 +258,17 @@ public class StudentService implements IStudentService {
     public StudentResponse getStudentById(UUID id) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Try to get from cache first
-        return studentCache.getStudentById(teacherId, id)
-                .orElseGet(() -> {
-                    // Cache miss - fetch from database
-                    Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
-                            .orElseThrow(() -> {
-                                return new UnauthorizedAccessException("You are not authorized to access this student");
-                            });
-
-                    List<ParentContact> contacts = parentContactRepository.findByStudentId(id);
-                    UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
-                            .orElse(null);
-
-                    StudentResponse response = mapToStudentResponse(student, contacts, currentClassId);
-
-                    // Cache the result
-                    studentCache.cacheStudent(teacherId, id, response);
-
-                    return response;
+        // Fetch from database
+        Student student = studentRepository.findByIdAndTeacherId(id, teacherId)
+                .orElseThrow(() -> {
+                    return new UnauthorizedAccessException("You are not authorized to access this student");
                 });
+
+        List<ParentContact> contacts = parentContactRepository.findByStudentId(id);
+        UUID currentClassId = enrollmentRepository.findCurrentClassIdByStudentId(id)
+                .orElse(null);
+
+        return mapToStudentResponse(student, contacts, currentClassId);
     }
 
     /**
@@ -321,29 +299,24 @@ public class StudentService implements IStudentService {
     public StudentListResponse listActiveStudents(Pageable pageable) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Try to get from cache first
-        return studentCache.getActiveStudents(teacherId, pageable.getPageNumber(), pageable.getPageSize())
-                .orElseGet(() -> {
-                    // Cache miss - fetch from database
-                    Page<Student> studentPage = studentRepository.findByTeacherIdAndStatus(teacherId, StudentStatus.ACTIVE, pageable);
+        // Query database directly without caching
+        Page<Student> studentPage = studentRepository.findByTeacherIdAndStatus(
+                teacherId,
+                StudentStatus.ACTIVE,
+                pageable
+        );
 
-                    List<StudentSummary> summaries = studentPage.getContent().stream()
-                            .map(this::mapToStudentSummary)
-                            .collect(Collectors.toList());
+        List<StudentSummary> summaries = studentPage.getContent().stream()
+                .map(this::mapToStudentSummary)
+                .collect(Collectors.toList());
 
-                    StudentListResponse response = StudentListResponse.builder()
-                            .content(summaries)
-                            .page(studentPage.getNumber())
-                            .size(studentPage.getSize())
-                            .totalElements(studentPage.getTotalElements())
-                            .totalPages(studentPage.getTotalPages())
-                            .build();
-
-                    // Cache the result
-                    studentCache.cacheActiveStudents(teacherId, pageable.getPageNumber(), pageable.getPageSize(), response);
-
-                    return response;
-                });
+        return StudentListResponse.builder()
+                .content(summaries)
+                .page(studentPage.getNumber())
+                .size(studentPage.getSize())
+                .totalElements(studentPage.getTotalElements())
+                .totalPages(studentPage.getTotalPages())
+                .build();
     }
 
     @Override
@@ -354,47 +327,32 @@ public class StudentService implements IStudentService {
         // Get authenticated teacher ID for isolation
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Try to get from cache first
-        return studentCache.getFilteredStudents(
-                teacherId, search, status, gender, level, grade, classId,
-                pageable.getPageNumber(), pageable.getPageSize()
-        ).orElseGet(() -> {
-            // Cache miss - fetch from database
-            // Build specification with all filters (including teacher isolation)
-            // Note: @Where annotation on Student entity handles soft-delete filtering
-            org.springframework.data.jpa.domain.Specification<Student> spec =
-                    org.springframework.data.jpa.domain.Specification
-                            .where(StudentSpecification.hasTeacherId(teacherId))
-                            .and(StudentSpecification.hasStatus(status))
-                            .and(StudentSpecification.hasGender(gender))
-                            .and(StudentSpecification.hasLevel(level))
-                            .and(StudentSpecification.hasGrade(grade))
-                            .and(StudentSpecification.hasClassId(classId))
-                            .and(StudentSpecification.searchByNameOrCode(search));
+        // Build specification with all filters (including teacher isolation)
+        // Note: @Where annotation on Student entity handles soft-delete filtering
+        org.springframework.data.jpa.domain.Specification<Student> spec =
+                org.springframework.data.jpa.domain.Specification
+                        .where(StudentSpecification.hasTeacherId(teacherId))
+                        .and(StudentSpecification.hasStatus(status))
+                        .and(StudentSpecification.hasGender(gender))
+                        .and(StudentSpecification.hasLevel(level))
+                        .and(StudentSpecification.hasGrade(grade))
+                        .and(StudentSpecification.hasClassId(classId))
+                        .and(StudentSpecification.searchByNameOrCode(search));
 
-            // Fetch from database with specification
-            Page<Student> studentPage = studentRepository.findAll(spec, pageable);
+        // Fetch from database with specification (no caching)
+        Page<Student> studentPage = studentRepository.findAll(spec, pageable);
 
-            List<StudentSummary> summaries = studentPage.getContent().stream()
-                    .map(this::mapToStudentSummary)
-                    .collect(Collectors.toList());
+        List<StudentSummary> summaries = studentPage.getContent().stream()
+                .map(this::mapToStudentSummary)
+                .collect(Collectors.toList());
 
-            StudentListResponse response = StudentListResponse.builder()
-                    .content(summaries)
-                    .page(studentPage.getNumber())
-                    .size(studentPage.getSize())
-                    .totalElements(studentPage.getTotalElements())
-                    .totalPages(studentPage.getTotalPages())
-                    .build();
-
-            // Cache the result
-            studentCache.cacheFilteredStudents(
-                    teacherId, search, status, gender, level, grade, classId,
-                    pageable.getPageNumber(), pageable.getPageSize(), response
-            );
-
-            return response;
-        });
+        return StudentListResponse.builder()
+                .content(summaries)
+                .page(studentPage.getNumber())
+                .size(studentPage.getSize())
+                .totalElements(studentPage.getTotalElements())
+                .totalPages(studentPage.getTotalPages())
+                .build();
     }
 
     @Override
