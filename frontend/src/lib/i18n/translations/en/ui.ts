@@ -82,6 +82,7 @@ export const uiEn: UITranslations = {
     or: 'or',
     and: 'and',
     comingSoon: 'Coming soon',
+    active: 'Active',
   },
   validation: {
     required: 'This field is required',

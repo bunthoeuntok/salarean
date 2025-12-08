@@ -20,17 +20,20 @@ import { AddClassModal } from './components/add-class-modal'
 import { EditClassModal } from './components/edit-class-modal'
 import { useClassFiltering } from '@/hooks/useClassFiltering'
 import { useClasses } from '@/hooks/use-classes'
+import { useAcademicYearStore } from '@/store/academic-year-store'
 import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.types'
 
 export function ClassesPage() {
   const { t } = useLanguage()
   const navigate = useNavigate()
+  const { selectedAcademicYear } = useAcademicYearStore()
   const [tableInstance, setTableInstance] = useState<Table<Class> | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editClassId, setEditClassId] = useState<string | null>(null)
 
   // Fetch and populate global class store for batch transfer eligibility
+  // This automatically filters by selected academic year
   useClasses()
 
   const handleEditClass = (classItem: Class) => {
@@ -81,9 +84,9 @@ export function ClassesPage() {
     initialLevel: filters.level?.[0] as ClassLevel | undefined,
   })
 
-  // Fetch classes data
+  // Fetch classes data (automatically filtered by selected academic year)
   const { data, isLoading } = useQuery({
-    queryKey: ['classes', pageIndex, pageSize, searchValue, sorting, filters],
+    queryKey: ['classes', pageIndex, pageSize, searchValue, sorting, filters, selectedAcademicYear],
     queryFn: () =>
       classService.getClasses({
         page: pageIndex,
@@ -94,6 +97,7 @@ export function ClassesPage() {
         grade: filters.grade?.[0] ? Number(filters.grade[0]) : undefined,
         level: filters.level?.[0] as ClassLevel | undefined,
         type: filters.type?.[0] as ClassType | undefined,
+        academicYear: selectedAcademicYear,
       }),
   })
 

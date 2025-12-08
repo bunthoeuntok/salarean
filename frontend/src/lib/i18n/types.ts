@@ -97,6 +97,7 @@ export interface UITranslations {
     or: string
     and: string
     comingSoon: string
+    active: string
   }
   // Validation messages
   validation: {
