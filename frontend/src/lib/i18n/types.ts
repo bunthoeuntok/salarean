@@ -23,6 +23,8 @@ export interface UITranslations {
       emailOrPhonePlaceholder: string
       password: string
       passwordPlaceholder: string
+      academicYear: string
+      academicYearPlaceholder: string
       forgotPassword: string
       signInButton: string
       signingIn: string

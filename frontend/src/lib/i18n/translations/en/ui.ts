@@ -9,6 +9,8 @@ export const uiEn: UITranslations = {
       emailOrPhonePlaceholder: 'email@example.com or 012345678',
       password: 'Password',
       passwordPlaceholder: 'Enter your password',
+      academicYear: 'Academic Year',
+      academicYearPlaceholder: 'Select academic year',
       forgotPassword: 'Forgot password?',
       signInButton: 'Sign In',
       signingIn: 'Signing in...',

@@ -15,10 +15,18 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 import { useValidationSchemas, type LoginFormData } from '@/hooks/use-validation-schemas'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/auth-store'
+import { useAcademicYearStore } from '@/store/academic-year-store'
 import { useLanguage } from '@/context/language-provider'
 
 export function SignInForm() {
@@ -29,6 +37,7 @@ export function SignInForm() {
   const { loginSchema } = useValidationSchemas()
 
   const { setUser, setTokens } = useAuthStore()
+  const { selectedAcademicYear, availableYears, setAcademicYear } = useAcademicYearStore()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -66,6 +75,28 @@ export function SignInForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {t.auth.signIn.academicYear}
+          </label>
+          <Select
+            value={selectedAcademicYear}
+            onValueChange={setAcademicYear}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t.auth.signIn.academicYearPlaceholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <FormField
           control={form.control}
           name="emailOrPhone"

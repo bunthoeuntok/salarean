@@ -9,6 +9,8 @@ export const uiKm: UITranslations = {
       emailOrPhonePlaceholder: 'email@example.com ឬ 012345678',
       password: 'ពាក្យសម្ងាត់',
       passwordPlaceholder: 'បញ្ចូលពាក្យសម្ងាត់',
+      academicYear: 'ឆ្នាំសិក្សា',
+      academicYearPlaceholder: 'ជ្រើសរើសឆ្នាំសិក្សា',
       forgotPassword: 'ភ្លេចពាក្យសម្ងាត់?',
       signInButton: 'ចូលគណនី',
       signingIn: 'កំពុងចូល...',
