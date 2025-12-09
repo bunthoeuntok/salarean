@@ -106,15 +106,16 @@ public class StudentController {
      * GET /api/students
      * Requires TEACHER role.
      *
-     * @param page    page number (0-indexed)
-     * @param size    page size
-     * @param sort    sort field and direction (e.g., "lastName,asc")
-     * @param search  search by name or student code
-     * @param status  filter by status (comma-separated: ACTIVE,INACTIVE)
-     * @param gender  filter by gender (comma-separated: M,F)
-     * @param level   filter by class level (PRIMARY, SECONDARY, HIGH_SCHOOL)
-     * @param grade   filter by grade (1-12)
-     * @param classId filter by class ID (use "NONE" for students without class)
+     * @param page         page number (0-indexed)
+     * @param size         page size
+     * @param sort         sort field and direction (e.g., "lastName,asc")
+     * @param search       search by name or student code
+     * @param status       filter by status (comma-separated: ACTIVE,INACTIVE)
+     * @param gender       filter by gender (comma-separated: M,F)
+     * @param level        filter by class level (PRIMARY, SECONDARY, HIGH_SCHOOL)
+     * @param grade        filter by grade (1-12)
+     * @param classId      filter by class ID (use "NONE" for students without class)
+     * @param academicYear filter by academic year (e.g., "2024-2025")
      * @return paginated list of students
      */
     @GetMapping
@@ -128,11 +129,12 @@ public class StudentController {
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) String level,
             @RequestParam(required = false) Integer grade,
-            @RequestParam(required = false) String classId) {
+            @RequestParam(required = false) String classId,
+            @RequestParam(required = false) String academicYear) {
 
         Pageable pageable = createPageable(page, size, sort);
         StudentListResponse response = studentService.listStudentsWithFilters(
-                search, status, gender, level, grade, classId, pageable);
+                search, status, gender, level, grade, classId, academicYear, pageable);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

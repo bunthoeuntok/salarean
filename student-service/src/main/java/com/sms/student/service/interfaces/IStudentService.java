@@ -79,18 +79,19 @@ public interface IStudentService {
     /**
      * List students with pagination and filtering.
      *
-     * @param search   search term for name or student code (optional)
-     * @param status   filter by status, comma-separated (optional)
-     * @param gender   filter by gender, comma-separated (optional)
-     * @param level    filter by class level (optional)
-     * @param grade    filter by grade (optional)
-     * @param classId  filter by class ID (optional, use "NONE" for students without class)
-     * @param pageable pagination parameters
+     * @param search       search term for name or student code (optional)
+     * @param status       filter by status, comma-separated (optional)
+     * @param gender       filter by gender, comma-separated (optional)
+     * @param level        filter by class level (optional)
+     * @param grade        filter by grade (optional)
+     * @param classId      filter by class ID (optional, use "NONE" for students without class)
+     * @param academicYear filter by academic year (optional)
+     * @param pageable     pagination parameters
      * @return Paginated list of student summaries
      */
     StudentListResponse listStudentsWithFilters(String search, String status, String gender,
                                                  String level, Integer grade, String classId,
-                                                 Pageable pageable);
+                                                 String academicYear, Pageable pageable);
 
     /**
      * Upload student photo.

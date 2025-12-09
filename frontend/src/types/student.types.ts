@@ -54,6 +54,7 @@ export interface StudentListParams {
   level?: string   // ClassLevel filter
   grade?: number   // Grade filter
   classId?: string
+  academicYear?: string  // Academic year filter (e.g., "2024-2025")
 }
 
 export interface ParentContactRequest {

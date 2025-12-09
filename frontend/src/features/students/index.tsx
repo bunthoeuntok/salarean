@@ -22,11 +22,13 @@ import { TransferStudentModal } from './components/transfer-student-modal'
 import { ViewStudentModal } from './components/view-student-modal'
 import { useClassFiltering } from '@/hooks/useClassFiltering'
 import { useClasses } from '@/hooks/use-classes'
+import { useAcademicYearStore } from '@/store/academic-year-store'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 import type { ClassLevel } from '@/types/class.types'
 
 export function StudentsPage() {
   const { t } = useLanguage()
+  const { selectedAcademicYear } = useAcademicYearStore()
   const [tableInstance, setTableInstance] = useState<Table<Student> | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -134,9 +136,9 @@ export function StudentsPage() {
     noClassLabel: t.students.noClass,
   })
 
-  // Fetch students data
+  // Fetch students data (automatically filtered by selected academic year)
   const { data, isLoading } = useQuery({
-    queryKey: ['students', pageIndex, pageSize, searchValue, sorting, filters],
+    queryKey: ['students', pageIndex, pageSize, searchValue, sorting, filters, selectedAcademicYear],
     queryFn: () =>
       studentService.getStudents({
         page: pageIndex,
@@ -148,6 +150,7 @@ export function StudentsPage() {
         level: filters.level?.[0] || undefined,
         grade: filters.grade?.[0] ? Number(filters.grade[0]) : undefined,
         classId: filters.classId?.[0] || undefined,
+        academicYear: selectedAcademicYear,
       }),
   })
 

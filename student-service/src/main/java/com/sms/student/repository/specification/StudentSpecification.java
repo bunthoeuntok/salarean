@@ -185,4 +185,47 @@ public class StudentSpecification {
             return cb.in(root.get("id")).value(enrollmentSubquery);
         };
     }
+
+    /**
+     * Filter by academic year (uses subquery to join with class table through enrollment).
+     * A student is included if:
+     * 1. They have NO current enrollment (not enrolled in any class), OR
+     * 2. They are currently enrolled in a class with the specified academic year
+     */
+    public static Specification<Student> hasAcademicYear(String academicYearFilter) {
+        return (root, query, cb) -> {
+            if (academicYearFilter == null || academicYearFilter.isBlank()) {
+                return cb.conjunction();
+            }
+
+            // Subquery to find class IDs with the specified academic year
+            Subquery<UUID> classSubquery = query.subquery(UUID.class);
+            Root<SchoolClass> classRoot = classSubquery.from(SchoolClass.class);
+            classSubquery.select(classRoot.get("id"))
+                    .where(cb.equal(classRoot.get("academicYear"), academicYearFilter));
+
+            // Subquery to find students currently enrolled in classes with the specified academic year
+            Subquery<UUID> enrolledInAcademicYearSubquery = query.subquery(UUID.class);
+            Root<StudentClassEnrollment> enrollmentForYear = enrolledInAcademicYearSubquery.from(StudentClassEnrollment.class);
+            enrolledInAcademicYearSubquery.select(enrollmentForYear.get("studentId"))
+                    .where(
+                            cb.in(enrollmentForYear.get("classId")).value(classSubquery),
+                            cb.isNull(enrollmentForYear.get("endDate")) // Current enrollment only
+                    );
+
+            // Subquery to find students with ANY current enrollment
+            Subquery<UUID> hasAnyEnrollmentSubquery = query.subquery(UUID.class);
+            Root<StudentClassEnrollment> anyEnrollment = hasAnyEnrollmentSubquery.from(StudentClassEnrollment.class);
+            hasAnyEnrollmentSubquery.select(anyEnrollment.get("studentId"))
+                    .where(cb.isNull(anyEnrollment.get("endDate"))); // Current enrollment
+
+            // Return students who either:
+            // 1. Are enrolled in a class with the specified academic year, OR
+            // 2. Have no current enrollment at all (unenrolled students)
+            return cb.or(
+                    cb.in(root.get("id")).value(enrolledInAcademicYearSubquery),
+                    cb.not(cb.in(root.get("id")).value(hasAnyEnrollmentSubquery))
+            );
+        };
+    }
 }

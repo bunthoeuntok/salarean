@@ -30,6 +30,7 @@ export const studentService = {
     if (params.level) queryParams.append('level', params.level)
     if (params.grade !== undefined) queryParams.append('grade', params.grade.toString())
     if (params.classId) queryParams.append('classId', params.classId)
+    if (params.academicYear) queryParams.append('academicYear', params.academicYear)
 
     const queryString = queryParams.toString()
     const url = `/api/students${queryString ? `?${queryString}` : ''}`

@@ -323,11 +323,11 @@ public class StudentService implements IStudentService {
     @Transactional(readOnly = true)
     public StudentListResponse listStudentsWithFilters(String search, String status, String gender,
                                                         String level, Integer grade, String classId,
-                                                        Pageable pageable) {
+                                                        String academicYear, Pageable pageable) {
         // Get authenticated teacher ID for isolation
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Build specification with all filters (including teacher isolation)
+        // Build specification with all filters (including teacher isolation and academic year)
         // Note: @Where annotation on Student entity handles soft-delete filtering
         org.springframework.data.jpa.domain.Specification<Student> spec =
                 org.springframework.data.jpa.domain.Specification
@@ -337,6 +337,7 @@ public class StudentService implements IStudentService {
                         .and(StudentSpecification.hasLevel(level))
                         .and(StudentSpecification.hasGrade(grade))
                         .and(StudentSpecification.hasClassId(classId))
+                        .and(StudentSpecification.hasAcademicYear(academicYear))
                         .and(StudentSpecification.searchByNameOrCode(search));
 
         // Fetch from database with specification (no caching)
