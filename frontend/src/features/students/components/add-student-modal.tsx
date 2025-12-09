@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Plus, Trash2, Loader2, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
+import { formatDateDisplay } from '@/lib/khmer-calendar'
 
 import {
   Dialog,
@@ -76,7 +77,7 @@ interface AddStudentModalProps {
 }
 
 export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
-  const { t, translateError } = useLanguage()
+  const { t, translateError, language } = useLanguage()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('student-info')
 
@@ -350,7 +351,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                               >
                                 <CalendarIcon className='mr-2 h-4 w-4' />
                                 {field.value ? (
-                                  format(field.value, 'PPP')
+                                  formatDateDisplay(field.value, language)
                                 ) : (
                                   <span>{t.students.modal.fields.dateOfBirthPlaceholder}</span>
                                 )}
@@ -362,6 +363,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                               mode='single'
                               captionLayout='dropdown'
                               startMonth={new Date(1950, 0)}
+                              defaultMonth={field.value || new Date()}
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date: Date) =>
@@ -470,7 +472,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                               >
                                 <CalendarIcon className='mr-2 h-4 w-4' />
                                 {field.value ? (
-                                  format(field.value, 'PPP')
+                                  formatDateDisplay(field.value, language)
                                 ) : (
                                   <span>{t.students.modal.fields.enrollmentDatePlaceholder}</span>
                                 )}
@@ -483,6 +485,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                               captionLayout='dropdown'
                               startMonth={new Date(2020, 0)}
                               endMonth={new Date(new Date().getFullYear() + 1, 11)}
+                              defaultMonth={field.value || new Date()}
                               selected={field.value}
                               onSelect={field.onChange}
                             />

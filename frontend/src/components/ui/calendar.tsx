@@ -8,6 +8,13 @@ import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { useLanguage } from "@/context/language-provider"
+import {
+  getKhmerDayName,
+  toKhmerNumeral,
+  khmerMonths,
+  khmerMonthsShort,
+} from "@/lib/khmer-calendar"
 
 function Calendar({
   className,
@@ -17,11 +24,35 @@ function Calendar({
   buttonVariant = "ghost",
   formatters,
   components,
+  useKhmerFormat,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
+  useKhmerFormat?: boolean
 }) {
   const defaultClassNames = getDefaultClassNames()
+  const { language } = useLanguage()
+
+  // Determine if we should use Khmer formatting
+  const shouldUseKhmer = useKhmerFormat ?? language === 'km'
+
+  // Create Khmer formatters
+  const khmerFormatters = shouldUseKhmer ? {
+    formatCaption: (date: Date) => {
+      const month = khmerMonths[date.getMonth()]
+      const year = toKhmerNumeral(date.getFullYear())
+      return `${month} ${year}`
+    },
+    formatMonthDropdown: (date: Date) => {
+      return khmerMonthsShort[date.getMonth()]
+    },
+    formatYearDropdown: (date: Date) => toKhmerNumeral(date.getFullYear()),
+    formatWeekdayName: (date: Date) => getKhmerDayName(date, true),
+    formatDay: (date: Date) => toKhmerNumeral(date.getDate()),
+  } : {
+    formatMonthDropdown: (date: Date) =>
+      date.toLocaleString("default", { month: "short" }),
+  }
 
   return (
     <DayPicker
@@ -34,8 +65,7 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
-        formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
+        ...khmerFormatters,
         ...formatters,
       }}
       classNames={{

@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Plus, Trash2, Loader2, CalendarIcon } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
+import { formatDateDisplay } from '@/lib/khmer-calendar'
 
 import {
   Dialog,
@@ -80,7 +81,7 @@ interface EditStudentFormProps {
 
 // Inner form component - only mounts when studentData is available
 function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormProps) {
-  const { t, translateError } = useLanguage()
+  const { t, translateError, language } = useLanguage()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('student-info')
 
@@ -322,7 +323,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                           >
                             <CalendarIcon className='mr-2 h-4 w-4' />
                             {field.value ? (
-                              format(field.value, 'PPP')
+                              formatDateDisplay(field.value, language)
                             ) : (
                               <span>{t.students.modal.fields.dateOfBirthPlaceholder}</span>
                             )}
@@ -334,6 +335,7 @@ function EditStudentForm({ studentData, onClose, studentId }: EditStudentFormPro
                           mode='single'
                           captionLayout='dropdown'
                           startMonth={new Date(1950, 0)}
+                          defaultMonth={field.value || new Date()}
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date: Date) =>
