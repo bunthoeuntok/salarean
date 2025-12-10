@@ -14,6 +14,8 @@ import { useAuthStore } from './store/auth-store'
 import { handleServerError } from './lib/handle-server-error'
 import './styles/index.css'
 import './lib/i18n'
+// Import display store to initialize text size on page load
+import './store/display-store'
 
 const queryClient = new QueryClient({
   defaultOptions: {
