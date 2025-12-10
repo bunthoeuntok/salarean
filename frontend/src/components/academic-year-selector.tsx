@@ -1,4 +1,4 @@
-import { Calendar } from 'lucide-react'
+import { Calendar, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { useAcademicYearStore } from '@/store/academic-year-store'
 import { Button } from '@/components/ui/button'
@@ -17,12 +17,13 @@ export function AcademicYearSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='sm' className='gap-2 px-2'>
-          <Calendar className='size-4 opacity-50' />
-          <span className='hidden sm:inline'>{selectedAcademicYear}</span>
+        <Button variant='outline' size='sm' className='w-full justify-start gap-2 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center'>
+          <Calendar className='size-4 shrink-0' />
+          <span className='flex-1 truncate text-left group-data-[collapsible=icon]:hidden'>{selectedAcademicYear}</span>
+          <ChevronDown className='size-4 shrink-0 opacity-50 group-data-[collapsible=icon]:hidden' />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='end'>
+      <DropdownMenuContent align='start' className='w-[200px]'>
         {availableYears.map((year) => (
           <DropdownMenuItem
             key={year}
