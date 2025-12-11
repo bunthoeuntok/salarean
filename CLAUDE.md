@@ -20,6 +20,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-20
 - PostgreSQL 15+ (existing `student_db` with `students` and `student_class_enrollments` tables) (007-class-view)
 - Java 21 with Spring Boot 3.5.7 + Spring Data JPA, Spring Data Redis, Spring Cache, Hibernate, jjwt (0.12.5), PostgreSQL Driver (001-tenant-student-isolation)
 - PostgreSQL 15+ (student_db database), Redis 7+ (for caching) (001-tenant-student-isolation)
+- Java 21 (Spring Boot 3.5.7) for backend, TypeScript 5.x with React 19 for frontend + Spring Boot, Spring Data JPA, Spring Security, TanStack Router, TanStack Query, shadcn/ui, Zustand (009-teacher-school-setup)
+- PostgreSQL 15+ (existing databases: `auth_db` for teacher authentication, new location tables or shared database for provinces/districts/schools; `student_db` or separate database for teacher_school relationship) (009-teacher-school-setup)
 
 - Java 21 (Spring Boot 3.5.7) + Spring Boot, Spring Security, Spring Data JPA, JWT (jjwt 0.12.5), BCrypt for password hashing (001-teacher-auth)
 
@@ -89,6 +91,7 @@ docker-compose down           # Stop all services
 - `ApiResponse<T>` wrapper for all API responses
 
 ## Recent Changes
+- 009-teacher-school-setup: Added Java 21 (Spring Boot 3.5.7) for backend, TypeScript 5.x with React 19 for frontend + Spring Boot, Spring Data JPA, Spring Security, TanStack Router, TanStack Query, shadcn/ui, Zustand
 - 001-tenant-student-isolation: Implemented teacher-based data isolation for student-service
   - Added teacher_id column to students table (V11 migration)
   - Created TeacherContextHolder (ThreadLocal) for request-scoped teacher ID
@@ -98,7 +101,6 @@ docker-compose down           # Stop all services
   - Created UnauthorizedAccessException for ownership violations (HTTP 401)
   - Technologies: Spring Cache, Redis, JPA repository methods, @Cacheable/@CacheEvict annotations
 - 008-batch-student-transfer: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
-- 007-class-view: Added TypeScript 5.x with React 19, Java 21 (for API endpoint if modifications needed)
 
 
 <!-- MANUAL ADDITIONS START -->
