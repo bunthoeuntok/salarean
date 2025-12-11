@@ -1,8 +1,13 @@
 package com.sms.student.service;
 
 import com.sms.student.dto.SchoolResponse;
+import com.sms.student.exception.DistrictNotFoundException;
 import com.sms.student.exception.SchoolNotFoundException;
+import com.sms.student.model.District;
+import com.sms.student.model.Province;
 import com.sms.student.model.School;
+import com.sms.student.repository.DistrictRepository;
+import com.sms.student.repository.ProvinceRepository;
 import com.sms.student.repository.SchoolRepository;
 import com.sms.student.service.interfaces.ISchoolService;
 
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
 public class SchoolService implements ISchoolService {
 
     private final SchoolRepository schoolRepository;
+    private final DistrictRepository districtRepository;
+    private final ProvinceRepository provinceRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -56,20 +63,56 @@ public class SchoolService implements ISchoolService {
         return mapToSchoolResponse(school);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<SchoolResponse> getSchoolsByDistrict(UUID districtId) {
+        log.debug("Fetching schools for district ID: {}", districtId);
+
+        // Validate district exists
+        if (!districtRepository.existsById(districtId)) {
+            log.warn("District not found with ID: {}", districtId);
+            throw new DistrictNotFoundException("District not found with ID: " + districtId);
+        }
+
+        List<School> schools = schoolRepository.findByDistrictIdOrderByNameAsc(districtId);
+
+        log.debug("Found {} schools for district ID: {}", schools.size(), districtId);
+
+        return schools.stream()
+                .map(this::mapToSchoolResponse)
+                .collect(Collectors.toList());
+    }
+
     /**
      * Map School entity to SchoolResponse DTO.
+     * Enriches response with province and district names if foreign keys are present.
      */
     private SchoolResponse mapToSchoolResponse(School school) {
-        return SchoolResponse.builder()
+        SchoolResponse.SchoolResponseBuilder builder = SchoolResponse.builder()
                 .id(school.getId())
                 .name(school.getName())
                 .nameKhmer(school.getNameKhmer())
                 .address(school.getAddress())
-                .province(school.getProvince())
-                .district(school.getDistrict())
+                .provinceId(school.getProvinceId())
+                .districtId(school.getDistrictId())
+                .province(school.getProvince())  // Deprecated field
+                .district(school.getDistrict())  // Deprecated field
                 .type(school.getType())
                 .createdAt(school.getCreatedAt())
-                .updatedAt(school.getUpdatedAt())
-                .build();
+                .updatedAt(school.getUpdatedAt());
+
+        // Enrich with province name if province_id exists
+        if (school.getProvinceId() != null) {
+            provinceRepository.findById(school.getProvinceId())
+                    .ifPresent(province -> builder.provinceName(province.getName()));
+        }
+
+        // Enrich with district name if district_id exists
+        if (school.getDistrictId() != null) {
+            districtRepository.findById(school.getDistrictId())
+                    .ifPresent(district -> builder.districtName(district.getName()));
+        }
+
+        return builder.build();
     }
 }

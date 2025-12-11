@@ -78,41 +78,41 @@ This is a **monorepo web application** with:
 
 #### student-service - Location APIs
 
-- [ ] T022 [P] [US1] Create IProvinceService interface in student-service/src/main/java/com/sms/student/service/interfaces/IProvinceService.java
-- [ ] T023 [P] [US1] Implement ProvinceService in student-service/src/main/java/com/sms/student/service/ProvinceService.java
-- [ ] T024 [P] [US1] Create IDistrictService interface in student-service/src/main/java/com/sms/student/service/interfaces/IDistrictService.java
-- [ ] T025 [P] [US1] Implement DistrictService in student-service/src/main/java/com/sms/student/service/DistrictService.java
-- [ ] T026 [US1] Update ISchoolService to add getSchoolsByDistrict method in student-service/src/main/java/com/sms/student/service/interfaces/ISchoolService.java
-- [ ] T027 [US1] Implement getSchoolsByDistrict in SchoolService in student-service/src/main/java/com/sms/student/service/SchoolService.java
-- [ ] T028 [P] [US1] Create ProvinceController with GET /api/provinces endpoint in student-service/src/main/java/com/sms/student/controller/ProvinceController.java
-- [ ] T029 [P] [US1] Create DistrictController with GET /api/districts endpoint in student-service/src/main/java/com/sms/student/controller/DistrictController.java
-- [ ] T030 [US1] Add GET /api/schools?districtId={uuid} endpoint to SchoolController in student-service/src/main/java/com/sms/student/controller/SchoolController.java
+- [X] T022 [P] [US1] Create IProvinceService interface in student-service/src/main/java/com/sms/student/service/interfaces/IProvinceService.java
+- [X] T023 [P] [US1] Implement ProvinceService in student-service/src/main/java/com/sms/student/service/ProvinceService.java
+- [X] T024 [P] [US1] Create IDistrictService interface in student-service/src/main/java/com/sms/student/service/interfaces/IDistrictService.java
+- [X] T025 [P] [US1] Implement DistrictService in student-service/src/main/java/com/sms/student/service/DistrictService.java
+- [X] T026 [US1] Update ISchoolService to add getSchoolsByDistrict method in student-service/src/main/java/com/sms/student/service/interfaces/ISchoolService.java
+- [X] T027 [US1] Implement getSchoolsByDistrict in SchoolService in student-service/src/main/java/com/sms/student/service/SchoolService.java
+- [X] T028 [P] [US1] Create ProvinceController with GET /api/provinces endpoint in student-service/src/main/java/com/sms/student/controller/ProvinceController.java
+- [X] T029 [P] [US1] Create DistrictController with GET /api/districts endpoint in student-service/src/main/java/com/sms/student/controller/DistrictController.java
+- [X] T030 [US1] Add GET /api/schools?districtId={uuid} endpoint to SchoolController in student-service/src/main/java/com/sms/student/controller/SchoolController.java
 
 #### auth-service - Teacher-School Association
 
-- [ ] T031 [P] [US1] Create ITeacherSchoolService interface in auth-service/src/main/java/com/sms/auth/service/interfaces/ITeacherSchoolService.java
-- [ ] T032 [US1] Implement TeacherSchoolService with createOrUpdate and get methods in auth-service/src/main/java/com/sms/auth/service/TeacherSchoolService.java
-- [ ] T033 [US1] Add cross-service validation to check school_id exists via HTTP call to student-service in TeacherSchoolService
-- [ ] T034 [P] [US1] Create TeacherSchoolController with POST /api/teacher-school endpoint in auth-service/src/main/java/com/sms/auth/controller/TeacherSchoolController.java
-- [ ] T035 [P] [US1] Add GET /api/teacher-school endpoint to TeacherSchoolController in auth-service/src/main/java/com/sms/auth/controller/TeacherSchoolController.java
+- [X] T031 [P] [US1] Create ITeacherSchoolService interface in auth-service/src/main/java/com/sms/auth/service/interfaces/ITeacherSchoolService.java
+- [X] T032 [US1] Implement TeacherSchoolService with createOrUpdate and get methods in auth-service/src/main/java/com/sms/auth/service/TeacherSchoolService.java
+- [X] T033 [US1] Add cross-service validation to check school_id exists via HTTP call to student-service in TeacherSchoolService
+- [X] T034 [P] [US1] Create TeacherSchoolController with POST /api/teacher-school endpoint in auth-service/src/main/java/com/sms/auth/controller/TeacherSchoolController.java
+- [X] T035 [P] [US1] Add GET /api/teacher-school endpoint to TeacherSchoolController in auth-service/src/main/java/com/sms/auth/controller/TeacherSchoolController.java
 
 ### Frontend Implementation for User Story 1
 
-- [ ] T036 [P] [US1] Create Zod validation schema for teacher-school in frontend/src/lib/validations/school-setup.ts
-- [ ] T037 [P] [US1] Create API service functions for provinces, districts, schools in frontend/src/services/location.ts
-- [ ] T038 [P] [US1] Create API service functions for teacher-school association in frontend/src/services/school.ts
-- [ ] T039 [P] [US1] Create Zustand store for school setup state in frontend/src/store/school-setup-store.ts
-- [ ] T040 [P] [US1] Create ProvinceSelector component in frontend/src/features/school-setup/components/province-selector.tsx
-- [ ] T041 [P] [US1] Create DistrictSelector component in frontend/src/features/school-setup/components/district-selector.tsx
-- [ ] T042 [P] [US1] Create SchoolTable component with ClientDataTable in frontend/src/features/school-setup/components/school-table.tsx
-- [ ] T043 [US1] Create school setup page with cascading selectors in frontend/src/features/school-setup/index.tsx
-- [ ] T044 [US1] Add school setup route in frontend/src/routes/_authenticated/school-setup.tsx
-- [ ] T045 [US1] Implement TanStack Router beforeLoad guard to check teacher-school association in frontend/src/routes/_authenticated.tsx
-- [ ] T046 [US1] Add i18n translation keys for location selection UI in frontend/src/lib/i18n/locales/en.json and km.json
+- [X] T036 [P] [US1] Create Zod validation schema for teacher-school in frontend/src/lib/validations/school-setup.ts
+- [X] T037 [P] [US1] Create API service functions for provinces, districts, schools in frontend/src/services/location.ts
+- [X] T038 [P] [US1] Create API service functions for teacher-school association in frontend/src/services/school.ts
+- [X] T039 [P] [US1] Create Zustand store for school setup state in frontend/src/store/school-setup-store.ts
+- [X] T040 [P] [US1] Create ProvinceSelector component in frontend/src/features/school-setup/components/province-selector.tsx
+- [X] T041 [P] [US1] Create DistrictSelector component in frontend/src/features/school-setup/components/district-selector.tsx
+- [X] T042 [P] [US1] Create SchoolTable component with ClientDataTable in frontend/src/features/school-setup/components/school-table.tsx
+- [X] T043 [US1] Create school setup page with cascading selectors in frontend/src/features/school-setup/index.tsx
+- [X] T044 [US1] Add school setup route in frontend/src/routes/_authenticated/school-setup.tsx
+- [X] T045 [US1] Implement TanStack Router beforeLoad guard to check teacher-school association in frontend/src/routes/_authenticated.tsx
+- [X] T046 [US1] Add i18n translation keys for location selection UI in frontend/src/lib/i18n/locales/en.json and km.json
 
 ### Integration & Logging for User Story 1
 
-- [ ] T047 [US1] Add logging for school setup completion events in TeacherSchoolService
+- [X] T047 [US1] Add logging for school setup completion events in TeacherSchoolService
 - [ ] T048 [US1] Test complete flow: register → redirect to school setup → select province/district/school → verify association → redirect to main app
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - teachers can select existing schools and complete setup independently

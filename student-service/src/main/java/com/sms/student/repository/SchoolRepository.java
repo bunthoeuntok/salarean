@@ -28,6 +28,9 @@ public interface SchoolRepository extends JpaRepository<School, UUID> {
     // NEW: Find schools by district ID
     List<School> findByDistrictId(UUID districtId);
 
+    // NEW: Find schools by district ID ordered by name
+    List<School> findByDistrictIdOrderByNameAsc(UUID districtId);
+
     // NEW: Check if school name exists in district
     boolean existsByDistrictIdAndName(UUID districtId, String name);
 

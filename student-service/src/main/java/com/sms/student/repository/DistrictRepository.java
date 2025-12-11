@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface DistrictRepository extends JpaRepository<District, UUID> {
 
     List<District> findByProvinceId(UUID provinceId);
+
+    List<District> findByProvinceIdOrderByNameAsc(UUID provinceId);
 }

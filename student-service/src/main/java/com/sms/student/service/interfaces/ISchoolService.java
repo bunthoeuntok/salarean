@@ -26,4 +26,13 @@ public interface ISchoolService {
      * @throws com.sms.student.exception.SchoolNotFoundException if school not found
      */
     SchoolResponse getSchoolById(UUID id);
+
+    /**
+     * Get schools by district ID.
+     *
+     * @param districtId District UUID
+     * @return List of schools in the district
+     * @throws com.sms.student.exception.DistrictNotFoundException if district not found
+     */
+    List<SchoolResponse> getSchoolsByDistrict(UUID districtId);
 }

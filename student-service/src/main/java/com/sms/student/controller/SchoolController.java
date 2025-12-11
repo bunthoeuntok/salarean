@@ -26,20 +26,26 @@ public class SchoolController {
     private final ISchoolService schoolService;
 
     /**
-     * List all schools.
-     * GET /api/schools
+     * List schools.
+     * GET /api/schools - Returns all schools
+     * GET /api/schools?districtId={uuid} - Returns schools for specific district
      * Requires TEACHER role.
      */
     @GetMapping
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<List<SchoolResponse>>> listSchools() {
-        log.info("Received request to list all schools");
-
-        List<SchoolResponse> schools = schoolService.listAllSchools();
-
-        log.info("Returning {} schools", schools.size());
-
-        return ResponseEntity.ok(ApiResponse.success(schools));
+    public ResponseEntity<ApiResponse<List<SchoolResponse>>> listSchools(
+            @RequestParam(required = false) UUID districtId) {
+        if (districtId != null) {
+            log.info("Received request to list schools for district ID: {}", districtId);
+            List<SchoolResponse> schools = schoolService.getSchoolsByDistrict(districtId);
+            log.info("Returning {} schools for district", schools.size());
+            return ResponseEntity.ok(ApiResponse.success(schools));
+        } else {
+            log.info("Received request to list all schools");
+            List<SchoolResponse> schools = schoolService.listAllSchools();
+            log.info("Returning {} schools", schools.size());
+            return ResponseEntity.ok(ApiResponse.success(schools));
+        }
     }
 
     /**
