@@ -14,11 +14,22 @@ public interface SchoolRepository extends JpaRepository<School, UUID> {
     // Find schools by type
     List<School> findByType(SchoolType type);
 
-    // Find schools by province
+    // Find schools by province (deprecated - use findByProvinceId instead)
+    @Deprecated
     List<School> findByProvince(String province);
 
-    // Find schools by district
+    // Find schools by district (deprecated - use findByDistrictId instead)
+    @Deprecated
     List<School> findByProvinceAndDistrict(String province, String district);
+
+    // NEW: Find schools by province ID
+    List<School> findByProvinceId(UUID provinceId);
+
+    // NEW: Find schools by district ID
+    List<School> findByDistrictId(UUID districtId);
+
+    // NEW: Check if school name exists in district
+    boolean existsByDistrictIdAndName(UUID districtId, String name);
 
     // Check if school exists
     boolean existsById(UUID id);

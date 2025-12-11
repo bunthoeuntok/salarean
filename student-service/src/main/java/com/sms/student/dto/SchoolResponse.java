@@ -19,8 +19,21 @@ public class SchoolResponse {
     private String name;
     private String nameKhmer;
     private String address;
+
+    // NEW: Foreign key IDs
+    private UUID provinceId;
+    private UUID districtId;
+
+    // Enriched fields for display
+    private String provinceName;
+    private String districtName;
+
+    // OLD: Deprecated VARCHAR fields (for backward compatibility)
+    @Deprecated
     private String province;
+    @Deprecated
     private String district;
+
     private SchoolType type;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -25,11 +25,11 @@ This is a **monorepo web application** with:
 
 **Purpose**: Project initialization and database schema foundations
 
-- [ ] T001 Create Flyway migration V12 for provinces and districts tables in student-service/src/main/resources/db/migration/V12__create_provinces_and_districts_tables.sql
-- [ ] T002 Create Flyway migration V13 to populate provinces/districts from existing data in student-service/src/main/resources/db/migration/V13__populate_provinces_and_districts_from_existing_data.sql
-- [ ] T003 Create Flyway migration V14 to add province_id and district_id foreign keys to schools table in student-service/src/main/resources/db/migration/V14__add_province_and_district_foreign_keys_to_schools.sql
-- [ ] T004 Create Flyway migration V5 for teacher_school table in auth-service/src/main/resources/db/migration/V5__create_teacher_school_table.sql
-- [ ] T005 Run all database migrations to verify schema changes (./mvnw flyway:migrate in both services)
+- [X] T001 Create Flyway migration V12 for provinces and districts tables in student-service/src/main/resources/db/migration/V12__create_provinces_and_districts_tables.sql
+- [X] T002 Create Flyway migration V13 to populate provinces/districts from existing data in student-service/src/main/resources/db/migration/V13__populate_provinces_and_districts_from_existing_data.sql
+- [X] T003 Create Flyway migration V14 to add province_id and district_id foreign keys to schools table in student-service/src/main/resources/db/migration/V14__add_province_and_district_foreign_keys_to_schools.sql
+- [X] T004 Create Flyway migration V5 for teacher_school table in auth-service/src/main/resources/db/migration/V5__create_teacher_school_table.sql
+- [X] T005 Run all database migrations to verify schema changes (./mvnw flyway:migrate in both services)
 
 ---
 
@@ -41,28 +41,28 @@ This is a **monorepo web application** with:
 
 ### student-service Foundational Tasks
 
-- [ ] T006 [P] Create Province entity in student-service/src/main/java/com/sms/student/model/Province.java
-- [ ] T007 [P] Create District entity in student-service/src/main/java/com/sms/student/model/District.java
-- [ ] T008 [P] Update School entity to add provinceId and districtId fields in student-service/src/main/java/com/sms/student/model/School.java
-- [ ] T009 [P] Create ProvinceRepository interface in student-service/src/main/java/com/sms/student/repository/ProvinceRepository.java
-- [ ] T010 [P] Create DistrictRepository interface in student-service/src/main/java/com/sms/student/repository/DistrictRepository.java
-- [ ] T011 [P] Update SchoolRepository with findByDistrictId method in student-service/src/main/java/com/sms/student/repository/SchoolRepository.java
-- [ ] T012 [P] Add error codes (PROVINCE_NOT_FOUND, DISTRICT_NOT_FOUND, DUPLICATE_SCHOOL_NAME) to student-service ErrorCode enum
+- [X] T006 [P] Create Province entity in student-service/src/main/java/com/sms/student/model/Province.java
+- [X] T007 [P] Create District entity in student-service/src/main/java/com/sms/student/model/District.java
+- [X] T008 [P] Update School entity to add provinceId and districtId fields in student-service/src/main/java/com/sms/student/model/School.java
+- [X] T009 [P] Create ProvinceRepository interface in student-service/src/main/java/com/sms/student/repository/ProvinceRepository.java
+- [X] T010 [P] Create DistrictRepository interface in student-service/src/main/java/com/sms/student/repository/DistrictRepository.java
+- [X] T011 [P] Update SchoolRepository with findByDistrictId method in student-service/src/main/java/com/sms/student/repository/SchoolRepository.java
+- [X] T012 [P] Add error codes (PROVINCE_NOT_FOUND, DISTRICT_NOT_FOUND, DUPLICATE_SCHOOL_NAME) to student-service ErrorCode enum
 
 ### auth-service Foundational Tasks
 
-- [ ] T013 [P] Create TeacherSchool entity in auth-service/src/main/java/com/sms/auth/model/TeacherSchool.java
-- [ ] T014 [P] Create TeacherSchoolRepository interface in auth-service/src/main/java/com/sms/auth/repository/TeacherSchoolRepository.java
-- [ ] T015 [P] Add error codes (TEACHER_ALREADY_ASSIGNED, SCHOOL_NOT_FOUND, INVALID_PRINCIPAL_DATA) to auth-service ErrorCode enum
+- [X] T013 [P] Create TeacherSchool entity in auth-service/src/main/java/com/sms/auth/model/TeacherSchool.java
+- [X] T014 [P] Create TeacherSchoolRepository interface in auth-service/src/main/java/com/sms/auth/repository/TeacherSchoolRepository.java
+- [X] T015 [P] Add error codes (TEACHER_ALREADY_ASSIGNED, SCHOOL_NOT_FOUND, INVALID_PRINCIPAL_DATA) to auth-service ErrorCode enum
 
 ### DTOs (Data Transfer Objects)
 
-- [ ] T016 [P] Create ProvinceResponse DTO in student-service/src/main/java/com/sms/student/dto/ProvinceResponse.java
-- [ ] T017 [P] Create DistrictResponse DTO in student-service/src/main/java/com/sms/student/dto/DistrictResponse.java
-- [ ] T018 [P] Create SchoolRequest DTO in student-service/src/main/java/com/sms/student/dto/SchoolRequest.java
-- [ ] T019 [P] Create SchoolResponse DTO in student-service/src/main/java/com/sms/student/dto/SchoolResponse.java
-- [ ] T020 [P] Create TeacherSchoolRequest DTO in auth-service/src/main/java/com/sms/auth/dto/TeacherSchoolRequest.java
-- [ ] T021 [P] Create TeacherSchoolResponse DTO in auth-service/src/main/java/com/sms/auth/dto/TeacherSchoolResponse.java
+- [X] T016 [P] Create ProvinceResponse DTO in student-service/src/main/java/com/sms/student/dto/ProvinceResponse.java
+- [X] T017 [P] Create DistrictResponse DTO in student-service/src/main/java/com/sms/student/dto/DistrictResponse.java
+- [X] T018 [P] Create SchoolRequest DTO in student-service/src/main/java/com/sms/student/dto/SchoolRequest.java
+- [X] T019 [P] Create SchoolResponse DTO in student-service/src/main/java/com/sms/student/dto/SchoolResponse.java
+- [X] T020 [P] Create TeacherSchoolRequest DTO in auth-service/src/main/java/com/sms/auth/dto/TeacherSchoolRequest.java
+- [X] T021 [P] Create TeacherSchoolResponse DTO in auth-service/src/main/java/com/sms/auth/dto/TeacherSchoolResponse.java
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

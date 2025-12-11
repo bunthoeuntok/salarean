@@ -10,7 +10,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "schools")
+@Table(
+    name = "schools",
+    uniqueConstraints = @UniqueConstraint(
+        name = "unique_school_per_district",
+        columnNames = {"district_id", "name"}
+    )
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,15 +37,26 @@ public class School {
     @Column(length = 500)
     private String address;
 
-    @Column(length = 100)
-    private String province;
+    // NEW: Foreign key to provinces table
+    @Column(name = "province_id")
+    private UUID provinceId;
 
-    @Column(length = 100)
-    private String district;
+    // NEW: Foreign key to districts table
+    @Column(name = "district_id")
+    private UUID districtId;
 
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private SchoolType type;
+
+    // OLD: Deprecated VARCHAR columns (kept for backward compatibility)
+    @Deprecated
+    @Column(length = 100)
+    private String province;
+
+    @Deprecated
+    @Column(length = 100)
+    private String district;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
