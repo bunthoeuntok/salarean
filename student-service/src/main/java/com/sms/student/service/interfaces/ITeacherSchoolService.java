@@ -1,7 +1,7 @@
-package com.sms.auth.service.interfaces;
+package com.sms.student.service.interfaces;
 
-import com.sms.auth.dto.TeacherSchoolRequest;
-import com.sms.auth.dto.TeacherSchoolResponse;
+import com.sms.student.dto.TeacherSchoolRequest;
+import com.sms.student.dto.TeacherSchoolResponse;
 
 import java.util.UUID;
 

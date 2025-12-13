@@ -1,24 +1,18 @@
-package com.sms.auth.service;
+package com.sms.student.service;
 
-import com.sms.auth.dto.TeacherSchoolRequest;
-import com.sms.auth.dto.TeacherSchoolResponse;
-import com.sms.auth.exception.SchoolNotFoundException;
-import com.sms.auth.exception.UserNotFoundException;
-import com.sms.auth.model.TeacherSchool;
-import com.sms.auth.repository.TeacherSchoolRepository;
-import com.sms.auth.repository.UserRepository;
-import com.sms.auth.service.interfaces.ITeacherSchoolService;
-import com.sms.common.dto.ApiResponse;
-import com.sms.common.dto.ErrorCode;
+import com.sms.student.dto.TeacherSchoolRequest;
+import com.sms.student.dto.TeacherSchoolResponse;
+import com.sms.student.exception.SchoolNotFoundException;
+import com.sms.student.model.School;
+import com.sms.student.model.TeacherSchool;
+import com.sms.student.repository.SchoolRepository;
+import com.sms.student.repository.TeacherSchoolRepository;
+import com.sms.student.service.interfaces.ITeacherSchoolService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,22 +21,19 @@ import java.util.UUID;
 public class TeacherSchoolService implements ITeacherSchoolService {
 
     private final TeacherSchoolRepository teacherSchoolRepository;
-    private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
-
-    @Value("${student-service.url:http://student-service:8083}")
-    private String studentServiceUrl;
+    private final SchoolRepository schoolRepository;
 
     @Override
     @Transactional
     public TeacherSchoolResponse createOrUpdate(UUID userId, TeacherSchoolRequest request) {
         log.info("Creating or updating teacher-school association for user ID: {}", userId);
 
-        // Validate user exists
-        if (!userRepository.existsById(userId)) {
-            log.error("User not found with ID: {}", userId);
-            throw new UserNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "User not found with ID: " + userId);
-        }
+        // Validate school exists
+        School school = schoolRepository.findById(request.getSchoolId())
+                .orElseThrow(() -> {
+                    log.error("School not found with ID: {}", request.getSchoolId());
+                    return new SchoolNotFoundException("School not found with ID: " + request.getSchoolId());
+                });
 
         // Find existing association or create new one
         TeacherSchool teacherSchool = teacherSchoolRepository.findByUserId(userId)
@@ -51,7 +42,7 @@ public class TeacherSchoolService implements ITeacherSchoolService {
                         .build());
 
         // Update fields
-        teacherSchool.setSchoolId(request.getSchoolId());
+        teacherSchool.setSchool(school);
         teacherSchool.setPrincipalName(request.getPrincipalName());
         teacherSchool.setPrincipalGender(request.getPrincipalGender());
 
@@ -69,9 +60,7 @@ public class TeacherSchoolService implements ITeacherSchoolService {
         log.debug("Fetching teacher-school association for user ID: {}", userId);
 
         return teacherSchoolRepository.findByUserId(userId)
-                .map(teacherSchool -> {
-                    return mapToResponse(teacherSchool);
-                })
+                .map(this::mapToResponse)
                 .orElse(null);
     }
 
@@ -79,7 +68,8 @@ public class TeacherSchoolService implements ITeacherSchoolService {
         return TeacherSchoolResponse.builder()
                 .id(teacherSchool.getId())
                 .userId(teacherSchool.getUserId())
-                .schoolId(teacherSchool.getSchoolId())
+                .schoolId(teacherSchool.getSchool().getId())
+                .schoolName(teacherSchool.getSchool().getName())
                 .principalName(teacherSchool.getPrincipalName())
                 .principalGender(teacherSchool.getPrincipalGender())
                 .createdAt(teacherSchool.getCreatedAt())

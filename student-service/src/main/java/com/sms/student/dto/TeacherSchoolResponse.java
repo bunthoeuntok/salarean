@@ -1,4 +1,4 @@
-package com.sms.auth.dto;
+package com.sms.student.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

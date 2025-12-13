@@ -1,9 +1,10 @@
-package com.sms.auth.controller;
+package com.sms.student.controller;
 
-import com.sms.auth.dto.TeacherSchoolRequest;
-import com.sms.auth.dto.TeacherSchoolResponse;
-import com.sms.auth.service.interfaces.ITeacherSchoolService;
 import com.sms.common.dto.ApiResponse;
+import com.sms.common.dto.ErrorCode;
+import com.sms.student.dto.TeacherSchoolRequest;
+import com.sms.student.dto.TeacherSchoolResponse;
+import com.sms.student.service.interfaces.ITeacherSchoolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,12 +13,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+/**
+ * REST controller for teacher-school association management.
+ * All endpoints require TEACHER role.
+ */
 @RestController
 @RequestMapping("/api/teacher-school")
 @RequiredArgsConstructor
@@ -29,6 +35,7 @@ public class TeacherSchoolController {
 
     @Operation(summary = "Create or update teacher-school association")
     @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<TeacherSchoolResponse>> createOrUpdateAssociation(
             @Valid @RequestBody TeacherSchoolRequest request) {
         UUID userId = extractUserIdFromToken();
@@ -46,6 +53,7 @@ public class TeacherSchoolController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @GetMapping
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<TeacherSchoolResponse>> getAssociation() {
         UUID userId = extractUserIdFromToken();
         log.info("GET /api/teacher-school - Fetching association for user: {}", userId);
@@ -56,7 +64,7 @@ public class TeacherSchoolController {
             log.info("No teacher-school association found for user: {}", userId);
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(com.sms.common.dto.ErrorCode.RESOURCE_NOT_FOUND));
+                    .body(ApiResponse.error(ErrorCode.RESOURCE_NOT_FOUND));
         }
 
         log.info("Teacher-school association found for user: {}", userId);
