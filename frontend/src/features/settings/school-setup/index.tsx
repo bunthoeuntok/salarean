@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,7 +30,7 @@ import { ProvinceSelector } from '@/features/school-setup/components/province-se
 import { DistrictSelector } from '@/features/school-setup/components/district-selector'
 import { SchoolTable } from '@/features/school-setup/components/school-table'
 import { useSchoolSetupStore } from '@/store/school-setup-store'
-import { createTeacherSchool } from '@/services/school.service'
+import { createTeacherSchool, teacherSchoolKeys } from '@/services/school.service'
 import {
   teacherSchoolSchema,
   type TeacherSchoolFormData,
@@ -44,6 +44,7 @@ const steps = [
 export function SettingsSchoolSetup() {
   const { t } = useLanguage()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const search = useSearch({ from: '/_authenticated/settings/school-setup' }) as SchoolSetupSearch
   const { selectedSchoolId, reset } = useSchoolSetupStore()
   const [currentStep, setCurrentStep] = useState(1)
@@ -61,6 +62,8 @@ export function SettingsSchoolSetup() {
   const createMutation = useMutation({
     mutationFn: createTeacherSchool,
     onSuccess: () => {
+      // Invalidate teacher-school query to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: teacherSchoolKeys.all })
       toast.success(t.schoolSetup.success.setupComplete)
       reset()
       navigate({ to: '/' })

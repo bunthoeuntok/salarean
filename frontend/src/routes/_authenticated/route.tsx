@@ -1,13 +1,13 @@
 import { createFileRoute, redirect, isRedirect, Outlet } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth-store'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
-import { fetchTeacherSchool } from '@/services/school.service'
+import { teacherSchoolQueryOptions } from '@/services/school.service'
 
 // Pages that require school setup to be completed
 const SCHOOL_SETUP_REQUIRED_PATHS = ['/students', '/classes']
 
 export const Route = createFileRoute('/_authenticated')({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ location, context }) => {
     const { accessToken } = useAuthStore.getState()
 
     // Check authentication
@@ -27,9 +27,11 @@ export const Route = createFileRoute('/_authenticated')({
       return
     }
 
-    // Check if teacher has completed school setup
+    // Check if teacher has completed school setup using TanStack Query cache
     try {
-      const teacherSchool = await fetchTeacherSchool()
+      const teacherSchool = await context.queryClient.ensureQueryData(
+        teacherSchoolQueryOptions
+      )
 
       if (!teacherSchool) {
         // No school association - redirect to school setup with reason

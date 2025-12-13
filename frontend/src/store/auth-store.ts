@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import type { AuthUser } from '@/types/auth.types'
 import type { Language } from '@/lib/i18n/types'
 import { getBrowserLanguage } from '@/lib/i18n'
-import { invalidateTeacherSchoolCache } from '@/services/school.service'
+import { queryClient } from '@/lib/query-client'
 
 interface AuthState {
   user: AuthUser | null
@@ -74,7 +74,7 @@ export const useAuthStore = create<AuthStore>()(
       setLoading: (isLoading) => set({ isLoading }),
 
       logout: () => {
-        invalidateTeacherSchoolCache()
+        queryClient.clear()
         set({
           user: null,
           accessToken: null,
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       reset: () => {
-        invalidateTeacherSchoolCache()
+        queryClient.clear()
         set({
           user: null,
           accessToken: null,
