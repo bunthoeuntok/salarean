@@ -507,6 +507,64 @@ export interface UITranslations {
       }
     }
   }
+  // School Setup
+  schoolSetup: {
+    title: string
+    subtitle: string
+    step1: {
+      title: string
+      province: string
+      provincePlaceholder: string
+      district: string
+      districtPlaceholder: string
+      districtDisabled: string
+      schools: string
+      schoolsCount: string
+      selectProvince: string
+      loadingProvinces: string
+      loadingDistricts: string
+      loadingSchools: string
+      noDistricts: string
+      noSchools: string
+      addNewSchool: string
+      continueButton: string
+      selectSchoolError: string
+    }
+    step2: {
+      title: string
+      backToSelection: string
+      principalName: string
+      principalNamePlaceholder: string
+      principalGender: string
+      principalGenderPlaceholder: string
+      genderMale: string
+      genderFemale: string
+      backButton: string
+      completeButton: string
+      completing: string
+    }
+    table: {
+      schoolName: string
+      type: string
+      address: string
+      action: string
+      selectButton: string
+      selectedButton: string
+    }
+    types: {
+      PRIMARY: string
+      SECONDARY: string
+      HIGH_SCHOOL: string
+      VOCATIONAL: string
+    }
+    errors: {
+      failedToLoad: string
+      setupFailed: string
+    }
+    success: {
+      setupComplete: string
+    }
+  }
 }
 
 /**

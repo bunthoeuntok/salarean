@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { fetchSchools } from "@/services/location";
+import { fetchSchools } from '@/services/location.service'
 import { useSchoolSetupStore } from "@/store/school-setup-store";
 import { Loader2, Check } from "lucide-react";
 

@@ -32,7 +32,7 @@ import { ProvinceSelector } from "./components/province-selector";
 import { DistrictSelector } from "./components/district-selector";
 import { SchoolTable } from "./components/school-table";
 import { useSchoolSetupStore } from "@/store/school-setup-store";
-import { createTeacherSchool } from "@/services/school";
+import { createTeacherSchool } from '@/services/school.service'
 import {
   teacherSchoolSchema,
   type TeacherSchoolFormData,

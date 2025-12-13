@@ -1,7 +1,7 @@
-import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
+import { createFileRoute, redirect, isRedirect, Outlet } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth-store'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
-import { fetchTeacherSchool } from '@/services/school'
+import { fetchTeacherSchool } from '@/services/school.service'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_authenticated')({
     }
 
     // Skip school setup check if already on school-setup page
-    if (location.pathname === '/school-setup') {
+    if (location.pathname === '/settings/school-setup') {
       return
     }
 
@@ -27,16 +27,16 @@ export const Route = createFileRoute('/_authenticated')({
       if (!teacherSchool) {
         // No school association - redirect to school setup
         throw redirect({
-          to: '/school-setup',
+          to: '/settings/school-setup',
         })
       }
-    } catch (error: any) {
-      // If not a redirect error, allow access (server error shouldn't block user)
-      if (error?.to !== '/school-setup') {
-        console.error('Failed to check teacher-school association:', error)
-      } else {
+    } catch (error) {
+      // Re-throw redirect errors (they should be handled by the router)
+      if (isRedirect(error)) {
         throw error
       }
+      // Log other errors but allow access (server error shouldn't block user)
+      console.error('Failed to check teacher-school association:', error)
     }
   },
   component: () => (

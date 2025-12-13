@@ -30,6 +30,14 @@ spring:
             - JwtAuthenticationFilter
             - RewritePath=/api/profile/(?<segment>.*), /api/profile/${segment}
 
+        # Teacher School Service (requires auth)
+        - id: teacher-school-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/teacher-school/**
+          filters:
+            - JwtAuthenticationFilter
+
         # Auth Service OpenAPI Docs
         - id: auth-service-openapi
           uri: lb://AUTH-SERVICE

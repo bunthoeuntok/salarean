@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchProvinces } from "@/services/location";
+import { fetchProvinces } from '@/services/location.service'
 import { useSchoolSetupStore } from "@/store/school-setup-store";
 import { Loader2 } from "lucide-react";
 
