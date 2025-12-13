@@ -7,7 +7,7 @@ import {
   Settings,
   HelpCircle,
   UserCog,
-  Bell,
+  Building2,
 } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { type SidebarData } from '../types'
@@ -65,14 +65,14 @@ export function useSidebarData(): SidebarData {
             icon: Settings,
             items: [
               {
-                title: t.nav.profile,
-                url: '/settings/profile',
-                icon: UserCog,
+                title: t.schoolSetup.title,
+                url: '/settings/school-setup',
+                icon: Building2,
               },
               {
-                title: t.nav.notifications,
-                url: '/settings/notifications',
-                icon: Bell,
+                title: t.nav.profile,
+                url: '/settings/accounts/profile',
+                icon: UserCog,
               },
             ],
           },

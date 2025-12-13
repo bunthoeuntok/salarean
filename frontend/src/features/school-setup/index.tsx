@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Check, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
+import { useLanguage } from '@/context/language-provider'
+import { Header } from '@/components/layout/header'
+import { Main } from '@/components/layout/main'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import {
   Form,
   FormControl,
@@ -18,196 +18,236 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
-import { ProvinceSelector } from "./components/province-selector";
-import { DistrictSelector } from "./components/district-selector";
-import { SchoolTable } from "./components/school-table";
-import { useSchoolSetupStore } from "@/store/school-setup-store";
+} from '@/components/ui/select'
+import { ProvinceSelector } from './components/province-selector'
+import { DistrictSelector } from './components/district-selector'
+import { SchoolTable } from './components/school-table'
+import { useSchoolSetupStore } from '@/store/school-setup-store'
 import { createTeacherSchool } from '@/services/school.service'
 import {
   teacherSchoolSchema,
   type TeacherSchoolFormData,
-} from "@/lib/validations/school-setup";
-import { Loader2, Building2 } from "lucide-react";
+} from '@/lib/validations/school-setup'
+
+const steps = [
+  { id: 1, name: 'Select School' },
+  { id: 2, name: 'Principal Info' },
+]
 
 export function SchoolSetupPage() {
-  const navigate = useNavigate();
-  const { selectedSchoolId, reset } = useSchoolSetupStore();
-  const [showPrincipalForm, setShowPrincipalForm] = useState(false);
+  const { t } = useLanguage()
+  const navigate = useNavigate()
+  const { selectedSchoolId, reset } = useSchoolSetupStore()
+  const [currentStep, setCurrentStep] = useState(1)
 
   const form = useForm<TeacherSchoolFormData>({
     resolver: zodResolver(teacherSchoolSchema),
     defaultValues: {
-      schoolId: "",
-      principalName: "",
+      schoolId: '',
+      principalName: '',
       principalGender: undefined,
     },
-  });
+  })
 
   const createMutation = useMutation({
     mutationFn: createTeacherSchool,
     onSuccess: () => {
-      toast.success("School setup completed successfully!");
-      reset();
-      navigate({ to: "/" });
+      toast.success(t.schoolSetup.success.setupComplete)
+      reset()
+      navigate({ to: '/' })
     },
-    onError: (error: any) => {
-      const errorCode = error.response?.data?.errorCode || "INTERNAL_ERROR";
-      toast.error(`Failed to complete school setup: ${errorCode}`);
+    onError: () => {
+      toast.error(t.schoolSetup.errors.setupFailed)
     },
-  });
+  })
 
   const handleContinue = () => {
     if (!selectedSchoolId) {
-      toast.error("Please select a school to continue");
-      return;
+      toast.error(t.schoolSetup.step1.selectSchoolError)
+      return
     }
 
-    form.setValue("schoolId", selectedSchoolId);
-    setShowPrincipalForm(true);
-  };
+    form.setValue('schoolId', selectedSchoolId)
+    setCurrentStep(2)
+  }
 
   const onSubmit = (data: TeacherSchoolFormData) => {
-    createMutation.mutate(data);
-  };
+    createMutation.mutate(data)
+  }
 
   return (
-    <div className="container max-w-5xl py-8">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6" />
-            <CardTitle>School Setup</CardTitle>
-          </div>
-          <CardDescription>
-            Complete your profile by selecting your school and providing
-            principal information
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {!showPrincipalForm ? (
-            <>
-              {/* Step 1: Select School */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  Step 1: Select Your School
-                </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <ProvinceSelector />
-                  <DistrictSelector />
-                </div>
-                <SchoolTable />
-              </div>
+    <>
+      <Header fixed />
 
-              <div className="flex justify-end pt-4 border-t">
+      <Main fixed>
+        {/* Page Header */}
+        <div className="space-y-0.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t.schoolSetup.title}
+          </h1>
+          <p className="text-muted-foreground">{t.schoolSetup.subtitle}</p>
+        </div>
+        <Separator className="my-4 lg:my-6" />
+
+        {/* Step Indicator */}
+        <nav aria-label="Progress" className="mb-8">
+          <ol className="flex items-center">
+            {steps.map((step, stepIdx) => (
+              <li
+                key={step.id}
+                className={cn(
+                  stepIdx !== steps.length - 1 ? 'flex-1' : '',
+                  'relative'
+                )}
+              >
+                <div className="flex items-center">
+                  <span
+                    className={cn(
+                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold',
+                      currentStep > step.id
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : currentStep === step.id
+                          ? 'border-primary text-primary'
+                          : 'border-muted-foreground/30 text-muted-foreground'
+                    )}
+                  >
+                    {currentStep > step.id ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      step.id
+                    )}
+                  </span>
+                  <span
+                    className={cn(
+                      'ml-3 text-sm font-medium',
+                      currentStep >= step.id
+                        ? 'text-foreground'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    {step.name}
+                  </span>
+                </div>
+                {stepIdx !== steps.length - 1 && (
+                  <div
+                    className={cn(
+                      'absolute left-5 top-5 -ml-px mt-0.5 h-0.5 w-full',
+                      currentStep > step.id ? 'bg-primary' : 'bg-muted-foreground/30'
+                    )}
+                    style={{ width: 'calc(100% - 2.5rem)', marginLeft: '2.5rem' }}
+                  />
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        {/* Step Content */}
+        <div className="max-w-4xl">
+          {currentStep === 1 ? (
+            <div className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <ProvinceSelector />
+                <DistrictSelector />
+              </div>
+              <SchoolTable />
+              <div className="flex justify-end pt-4">
                 <Button
                   onClick={handleContinue}
                   disabled={!selectedSchoolId}
                   size="lg"
                 >
-                  Continue
+                  {t.schoolSetup.step1.continueButton}
                 </Button>
               </div>
-            </>
+            </div>
           ) : (
-            <>
-              {/* Step 2: Principal Information */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">
-                    Step 2: Principal Information
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowPrincipalForm(false)}
-                  >
-                    Back to School Selection
-                  </Button>
-                </div>
+            <div className="space-y-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+                  <FormField
+                    control={form.control}
+                    name="principalName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.schoolSetup.step2.principalName}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t.schoolSetup.step2.principalNamePlaceholder}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="principalName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Principal Name</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="principalGender"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.schoolSetup.step2.principalGender}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
-                            <Input
-                              placeholder="Enter principal's full name"
-                              {...field}
-                            />
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t.schoolSetup.step2.principalGenderPlaceholder}
+                              />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                          <SelectContent>
+                            <SelectItem value="M">
+                              {t.schoolSetup.step2.genderMale}
+                            </SelectItem>
+                            <SelectItem value="F">
+                              {t.schoolSetup.step2.genderFemale}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="principalGender"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Principal Gender</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select gender" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="M">Male</SelectItem>
-                              <SelectItem value="F">Female</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
+                  <div className="flex justify-between pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep(1)}
+                    >
+                      {t.schoolSetup.step2.backButton}
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={createMutation.isPending}
+                      size="lg"
+                    >
+                      {createMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       )}
-                    />
-
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowPrincipalForm(false)}
-                      >
-                        Back
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={createMutation.isPending}
-                        size="lg"
-                      >
-                        {createMutation.isPending && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Complete Setup
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </div>
-            </>
+                      {createMutation.isPending
+                        ? t.schoolSetup.step2.completing
+                        : t.schoolSetup.step2.completeButton}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+        </div>
+      </Main>
+    </>
+  )
 }
