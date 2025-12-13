@@ -564,6 +564,10 @@ export interface UITranslations {
     success: {
       setupComplete: string
     }
+    warning?: {
+      title: string
+      description: string
+    }
   }
 }
 

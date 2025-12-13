@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, Loader2 } from 'lucide-react'
+import { Check, Loader2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/context/language-provider'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
+import type { SchoolSetupSearch } from '@/routes/_authenticated/settings/school-setup'
 import {
   Form,
   FormControl,
@@ -43,8 +44,10 @@ const steps = [
 export function SettingsSchoolSetup() {
   const { t } = useLanguage()
   const navigate = useNavigate()
+  const search = useSearch({ from: '/_authenticated/settings/school-setup' }) as SchoolSetupSearch
   const { selectedSchoolId, reset } = useSchoolSetupStore()
   const [currentStep, setCurrentStep] = useState(1)
+  const isRedirected = search.reason === 'required'
 
   const form = useForm<TeacherSchoolFormData>({
     resolver: zodResolver(teacherSchoolSchema),
@@ -83,6 +86,21 @@ export function SettingsSchoolSetup() {
 
   return (
     <div className="flex flex-1 flex-col">
+      {/* Warning Banner for Redirected Users */}
+      {isRedirected && (
+        <div className="mb-4 flex items-start gap-3 rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
+          <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-medium text-amber-500">
+              {t.schoolSetup.warning?.title || 'School Setup Required'}
+            </p>
+            <p className="text-muted-foreground mt-1">
+              {t.schoolSetup.warning?.description || 'You need to complete the school setup before accessing student and class management features.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="space-y-0.5">
         <h2 className="text-xl font-semibold tracking-tight">

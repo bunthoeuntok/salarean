@@ -3,6 +3,9 @@ import { useAuthStore } from '@/store/auth-store'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 import { fetchTeacherSchool } from '@/services/school.service'
 
+// Pages that require school setup to be completed
+const SCHOOL_SETUP_REQUIRED_PATHS = ['/students', '/classes']
+
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
     const { accessToken } = useAuthStore.getState()
@@ -15,8 +18,12 @@ export const Route = createFileRoute('/_authenticated')({
       })
     }
 
-    // Skip school setup check if already on school-setup page
-    if (location.pathname === '/settings/school-setup') {
+    // Only check school setup for specific pages (students, classes)
+    const requiresSchoolSetup = SCHOOL_SETUP_REQUIRED_PATHS.some(
+      (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
+    )
+
+    if (!requiresSchoolSetup) {
       return
     }
 
@@ -25,9 +32,10 @@ export const Route = createFileRoute('/_authenticated')({
       const teacherSchool = await fetchTeacherSchool()
 
       if (!teacherSchool) {
-        // No school association - redirect to school setup
+        // No school association - redirect to school setup with reason
         throw redirect({
           to: '/settings/school-setup',
+          search: { reason: 'required' },
         })
       }
     } catch (error) {

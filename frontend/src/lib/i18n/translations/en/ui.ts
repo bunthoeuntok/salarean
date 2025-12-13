@@ -537,5 +537,9 @@ export const uiEn: UITranslations = {
     success: {
       setupComplete: 'School setup completed successfully!',
     },
+    warning: {
+      title: 'School Setup Required',
+      description: 'You need to complete the school setup before accessing student and class management features.',
+    },
   },
 }
