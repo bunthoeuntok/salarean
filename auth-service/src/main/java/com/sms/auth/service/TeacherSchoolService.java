@@ -44,9 +44,6 @@ public class TeacherSchoolService implements ITeacherSchoolService {
             throw new UserNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "User not found with ID: " + userId);
         }
 
-        // Validate school exists via cross-service call
-        validateSchoolExists(request.getSchoolId());
-
         // Find existing association or create new one
         TeacherSchool teacherSchool = teacherSchoolRepository.findByUserId(userId)
                 .orElse(TeacherSchool.builder()
@@ -63,10 +60,7 @@ public class TeacherSchoolService implements ITeacherSchoolService {
 
         log.info("Teacher-school association saved with ID: {}", teacherSchool.getId());
 
-        // Enrich with school name
-        String schoolName = getSchoolName(request.getSchoolId());
-
-        return mapToResponse(teacherSchool, schoolName);
+        return mapToResponse(teacherSchool);
     }
 
     @Override
@@ -76,68 +70,16 @@ public class TeacherSchoolService implements ITeacherSchoolService {
 
         return teacherSchoolRepository.findByUserId(userId)
                 .map(teacherSchool -> {
-                    String schoolName = getSchoolName(teacherSchool.getSchoolId());
-                    return mapToResponse(teacherSchool, schoolName);
+                    return mapToResponse(teacherSchool);
                 })
                 .orElse(null);
     }
 
-    /**
-     * Validate that school exists in student-service via HTTP call.
-     *
-     * @param schoolId School UUID to validate
-     * @throws SchoolNotFoundException if school doesn't exist
-     */
-    private void validateSchoolExists(UUID schoolId) {
-        log.debug("Validating school exists: {}", schoolId);
-
-        String url = studentServiceUrl + "/api/schools/" + schoolId;
-
-        try {
-            @SuppressWarnings("rawtypes")
-            ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
-            log.debug("School validation successful for ID: {}", schoolId);
-        } catch (HttpClientErrorException.NotFound e) {
-            log.error("School not found in student-service: {}", schoolId);
-            throw new SchoolNotFoundException("School not found with ID: " + schoolId);
-        } catch (Exception e) {
-            log.error("Error validating school ID {}: {}", schoolId, e.getMessage());
-            throw new RuntimeException("Failed to validate school: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Get school name from student-service via HTTP call.
-     *
-     * @param schoolId School UUID
-     * @return School name or "Unknown School" if fetch fails
-     */
-    @SuppressWarnings("unchecked")
-    private String getSchoolName(UUID schoolId) {
-        log.debug("Fetching school name for ID: {}", schoolId);
-
-        String url = studentServiceUrl + "/api/schools/" + schoolId;
-
-        try {
-            @SuppressWarnings("rawtypes")
-            ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
-            if (response != null && response.getData() != null) {
-                Map<String, Object> schoolData = (Map<String, Object>) response.getData();
-                return (String) schoolData.get("name");
-            }
-        } catch (Exception e) {
-            log.warn("Failed to fetch school name for ID {}: {}", schoolId, e.getMessage());
-        }
-
-        return "Unknown School";
-    }
-
-    private TeacherSchoolResponse mapToResponse(TeacherSchool teacherSchool, String schoolName) {
+    private TeacherSchoolResponse mapToResponse(TeacherSchool teacherSchool) {
         return TeacherSchoolResponse.builder()
                 .id(teacherSchool.getId())
                 .userId(teacherSchool.getUserId())
                 .schoolId(teacherSchool.getSchoolId())
-                .schoolName(schoolName)
                 .principalName(teacherSchool.getPrincipalName())
                 .principalGender(teacherSchool.getPrincipalGender())
                 .createdAt(teacherSchool.getCreatedAt())

@@ -48,6 +48,9 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
+                        // Allow service-to-service calls for school lookup by ID
+                        .requestMatchers("/api/schools/*").permitAll()
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

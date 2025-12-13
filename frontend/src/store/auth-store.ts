@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import type { AuthUser } from '@/types/auth.types'
 import type { Language } from '@/lib/i18n/types'
 import { getBrowserLanguage } from '@/lib/i18n'
+import { invalidateTeacherSchoolCache } from '@/services/school.service'
 
 interface AuthState {
   user: AuthUser | null
@@ -72,22 +73,26 @@ export const useAuthStore = create<AuthStore>()(
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      logout: () =>
+      logout: () => {
+        invalidateTeacherSchoolCache()
         set({
           user: null,
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
-        }),
+        })
+      },
 
-      reset: () =>
+      reset: () => {
+        invalidateTeacherSchoolCache()
         set({
           user: null,
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
           isLoading: false,
-        }),
+        })
+      },
     }),
     {
       name: 'auth-storage',

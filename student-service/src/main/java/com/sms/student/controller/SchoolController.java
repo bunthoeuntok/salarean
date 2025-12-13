@@ -51,10 +51,9 @@ public class SchoolController {
     /**
      * Get school details by ID.
      * GET /api/schools/{id}
-     * Requires TEACHER role.
+     * Public endpoint (allows service-to-service calls without auth).
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<SchoolResponse>> getSchoolById(@PathVariable UUID id) {
         log.info("Received request to get school by ID: {}", id);
 

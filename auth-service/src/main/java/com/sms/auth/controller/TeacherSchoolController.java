@@ -28,21 +28,11 @@ public class TeacherSchoolController {
     private final ITeacherSchoolService teacherSchoolService;
 
     @Operation(summary = "Create or update teacher-school association")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Association updated successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Association created successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "School not found"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized")
-    })
     @PostMapping
     public ResponseEntity<ApiResponse<TeacherSchoolResponse>> createOrUpdateAssociation(
             @Valid @RequestBody TeacherSchoolRequest request) {
         UUID userId = extractUserIdFromToken();
-        log.info("POST /api/teacher-school - Creating/updating association for user: {}", userId);
-
         TeacherSchoolResponse response = teacherSchoolService.createOrUpdate(userId, request);
-
-        log.info("Teacher-school association saved for user: {}", userId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
