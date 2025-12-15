@@ -515,6 +515,7 @@ export const uiKm: UITranslations = {
       backButton: 'ត្រឡប់',
       completeButton: 'បញ្ចប់ការរៀបចំ',
       completing: 'កំពុងបញ្ចប់...',
+      updateButton: 'កែប្រែព័ត៌មាននាយក'
     },
     table: {
       schoolName: 'ឈ្មោះសាលា',
@@ -541,5 +542,9 @@ export const uiKm: UITranslations = {
       title: 'តម្រូវឱ្យរៀបចំសាលា',
       description: 'អ្នកត្រូវបញ្ចប់ការរៀបចំសាលារៀន មុនពេលចូលប្រើមុខងារគ្រប់គ្រងសិស្ស និងថ្នាក់រៀន។',
     },
+    currentSetup: {
+      description: 'អ្នកបានរៀបចំសាលារៀនរបស់អ្នក។',
+      editButton: 'កែប្រែព័ត៌មាននាយក'
+    }
   },
 }

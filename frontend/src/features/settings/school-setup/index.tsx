@@ -1,14 +1,15 @@
-import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, Loader2, AlertTriangle } from 'lucide-react'
+import { Check, Loader2, AlertTriangle, School } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/context/language-provider'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { SchoolSetupSearch } from '@/routes/_authenticated/settings/school-setup'
 import {
   Form,
@@ -30,7 +31,11 @@ import { ProvinceSelector } from '@/features/school-setup/components/province-se
 import { DistrictSelector } from '@/features/school-setup/components/district-selector'
 import { SchoolTable } from '@/features/school-setup/components/school-table'
 import { useSchoolSetupStore } from '@/store/school-setup-store'
-import { createTeacherSchool, teacherSchoolKeys } from '@/services/school.service'
+import {
+  createTeacherSchool,
+  teacherSchoolKeys,
+  teacherSchoolQueryOptions,
+} from '@/services/school.service'
 import {
   teacherSchoolSchema,
   type TeacherSchoolFormData,
@@ -46,9 +51,13 @@ export function SettingsSchoolSetup() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const search = useSearch({ from: '/_authenticated/settings/school-setup' }) as SchoolSetupSearch
-  const { selectedSchoolId, reset } = useSchoolSetupStore()
+  const { selectedSchoolId, setAllSelections, reset } = useSchoolSetupStore()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isEditing, setIsEditing] = useState(false)
   const isRedirected = search.reason === 'required'
+
+  // Fetch existing teacher-school data
+  const { data: existingData, isLoading } = useQuery(teacherSchoolQueryOptions)
 
   const form = useForm<TeacherSchoolFormData>({
     resolver: zodResolver(teacherSchoolSchema),
@@ -59,13 +68,46 @@ export function SettingsSchoolSetup() {
     },
   })
 
+  // Load existing data into form when available (for summary view)
+  useEffect(() => {
+    if (existingData && !isEditing) {
+      // Pre-populate form with existing data
+      form.reset({
+        schoolId: existingData.schoolId,
+        principalName: existingData.principalName,
+        principalGender: existingData.principalGender,
+      })
+    }
+  }, [existingData, isEditing, form])
+
+  // Populate store selections when entering edit mode
+  useEffect(() => {
+    if (isEditing && existingData) {
+      console.log('Edit mode - existingData:', {
+        provinceId: existingData.provinceId,
+        districtId: existingData.districtId,
+        schoolId: existingData.schoolId,
+      })
+      // Set store selections for province/district/school
+      if (existingData.provinceId && existingData.districtId) {
+        setAllSelections(
+          existingData.provinceId,
+          existingData.districtId,
+          existingData.schoolId
+        )
+      } else {
+        console.warn('Missing provinceId or districtId in existingData')
+      }
+    }
+  }, [isEditing, existingData, setAllSelections])
+
   const createMutation = useMutation({
     mutationFn: createTeacherSchool,
     onSuccess: () => {
-      // Invalidate teacher-school query to refetch fresh data
       queryClient.invalidateQueries({ queryKey: teacherSchoolKeys.all })
       toast.success(t.schoolSetup.success.setupComplete)
       reset()
+      setIsEditing(false)
       navigate({ to: '/' })
     },
     onError: () => {
@@ -83,8 +125,86 @@ export function SettingsSchoolSetup() {
     setCurrentStep(2)
   }
 
+  const handleEdit = () => {
+    setIsEditing(true)
+    setCurrentStep(1)
+  }
+
   const onSubmit = (data: TeacherSchoolFormData) => {
     createMutation.mutate(data)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  // Show existing setup summary if data exists and not editing
+  if (existingData && !isEditing) {
+    return (
+      <div className="flex flex-1 flex-col">
+        {/* Page Header */}
+        <div className="space-y-0.5">
+          <h2 className="text-xl font-semibold tracking-tight">
+            {t.schoolSetup.title}
+          </h2>
+          <p className="text-muted-foreground text-sm">{t.schoolSetup.subtitle}</p>
+        </div>
+        <Separator className="my-4" />
+
+        {/* Current Setup Card */}
+        <Card className="max-w-lg">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <School className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">{existingData.schoolName}</CardTitle>
+                <CardDescription>
+                  {t.schoolSetup.currentSetup?.description || 'Your current school setup'}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 text-sm">
+              {existingData.provinceName && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{t.schoolSetup.step1.province}</span>
+                  <span className="font-medium">{existingData.provinceName}</span>
+                </div>
+              )}
+              {existingData.districtName && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{t.schoolSetup.step1.district}</span>
+                  <span className="font-medium">{existingData.districtName}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t.schoolSetup.step2.principalName}</span>
+                <span className="font-medium">{existingData.principalName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t.schoolSetup.step2.principalGender}</span>
+                <span className="font-medium">
+                  {existingData.principalGender === 'M'
+                    ? t.schoolSetup.step2.genderMale
+                    : t.schoolSetup.step2.genderFemale}
+                </span>
+              </div>
+            </div>
+            <Separator />
+            <Button variant="outline" onClick={handleEdit} className="w-full">
+              {t.schoolSetup.currentSetup?.editButton || 'Edit Setup'}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -175,7 +295,25 @@ export function SettingsSchoolSetup() {
               <DistrictSelector />
             </div>
             <SchoolTable />
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end gap-2 pt-4">
+              {isEditing && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false)
+                    // Restore original selections
+                    if (existingData?.provinceId && existingData?.districtId) {
+                      setAllSelections(
+                        existingData.provinceId,
+                        existingData.districtId,
+                        existingData.schoolId
+                      )
+                    }
+                  }}
+                >
+                  {t.common?.cancel || 'Cancel'}
+                </Button>
+              )}
               <Button
                 onClick={handleContinue}
                 disabled={!selectedSchoolId}
@@ -213,7 +351,7 @@ export function SettingsSchoolSetup() {
                       <FormLabel>{t.schoolSetup.step2.principalGender}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -253,7 +391,9 @@ export function SettingsSchoolSetup() {
                     )}
                     {createMutation.isPending
                       ? t.schoolSetup.step2.completing
-                      : t.schoolSetup.step2.completeButton}
+                      : isEditing
+                        ? (t.schoolSetup.step2.updateButton || 'Update')
+                        : t.schoolSetup.step2.completeButton}
                   </Button>
                 </div>
               </form>

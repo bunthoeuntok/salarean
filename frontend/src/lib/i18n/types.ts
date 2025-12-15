@@ -541,7 +541,12 @@ export interface UITranslations {
       genderFemale: string
       backButton: string
       completeButton: string
+      updateButton: string
       completing: string
+    }
+    currentSetup: {
+      description: string
+      editButton: string
     }
     table: {
       schoolName: string

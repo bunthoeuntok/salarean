@@ -10,6 +10,7 @@ interface SchoolSetupState {
   setProvinceId: (id: string | null) => void;
   setDistrictId: (id: string | null) => void;
   setSchoolId: (id: string | null) => void;
+  setAllSelections: (provinceId: string, districtId: string, schoolId: string) => void;
   reset: () => void;
 }
 
@@ -40,6 +41,13 @@ export const useSchoolSetupStore = create<SchoolSetupState>((set) => ({
   setSchoolId: (id) =>
     set({
       selectedSchoolId: id,
+    }),
+
+  setAllSelections: (provinceId, districtId, schoolId) =>
+    set({
+      selectedProvinceId: provinceId,
+      selectedDistrictId: districtId,
+      selectedSchoolId: schoolId,
     }),
 
   reset: () =>

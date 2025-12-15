@@ -18,6 +18,10 @@ public class TeacherSchoolResponse {
     private UUID userId;
     private UUID schoolId;
     private String schoolName;
+    private UUID provinceId;
+    private String provinceName;
+    private UUID districtId;
+    private String districtName;
     private String principalName;
     private String principalGender;
     private LocalDateTime createdAt;

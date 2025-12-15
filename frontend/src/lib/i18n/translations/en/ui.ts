@@ -514,7 +514,12 @@ export const uiEn: UITranslations = {
       genderFemale: 'Female',
       backButton: 'Back',
       completeButton: 'Complete Setup',
+      updateButton: 'Update Setup',
       completing: 'Completing...',
+    },
+    currentSetup: {
+      description: 'Your current school setup',
+      editButton: 'Edit Setup',
     },
     table: {
       schoolName: 'School Name',

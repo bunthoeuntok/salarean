@@ -11,6 +11,10 @@ export interface TeacherSchoolResponse {
   userId: string
   schoolId: string
   schoolName: string
+  provinceId: string
+  provinceName: string | null
+  districtId: string
+  districtName: string | null
   principalName: string
   principalGender: 'M' | 'F'
   createdAt: string
