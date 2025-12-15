@@ -545,6 +545,22 @@ export const uiKm: UITranslations = {
     currentSetup: {
       description: 'អ្នកបានរៀបចំសាលារៀនរបស់អ្នក។',
       editButton: 'កែប្រែព័ត៌មាននាយក'
-    }
+    },
+    addSchool: {
+      title: 'បន្ថែមសាលារៀនថ្មី',
+      description: 'បញ្ចូលព័ត៌មានសាលារៀនដើម្បីបន្ថែមសាលារៀនថ្មីនៅក្នុងស្រុកនេះ។',
+      name: 'ឈ្មោះសាលារៀន (អង់គ្លេស)',
+      namePlaceholder: 'បញ្ចូលឈ្មោះសាលារៀនជាអង់គ្លេស',
+      nameKhmer: 'ឈ្មោះសាលារៀន (ខ្មែរ)',
+      nameKhmerPlaceholder: 'បញ្ចូលឈ្មោះសាលារៀនជាភាសាខ្មែរ',
+      type: 'ប្រភេទសាលារៀន',
+      typePlaceholder: 'ជ្រើសរើសប្រភេទសាលារៀន',
+      address: 'អាសយដ្ឋាន',
+      addressPlaceholder: 'បញ្ចូលអាសយដ្ឋានសាលារៀន',
+      createButton: 'បង្កើតសាលារៀន',
+      creating: 'កំពុងបង្កើត...',
+      success: 'បង្កើតសាលារៀនបានជោគជ័យ',
+      error: 'បរាជ័យក្នុងការបង្កើតសាលារៀន',
+    },
   },
 }

@@ -1,11 +1,14 @@
 package com.sms.student.controller;
 
 import com.sms.common.dto.ApiResponse;
+import com.sms.student.dto.SchoolRequest;
 import com.sms.student.dto.SchoolResponse;
 import com.sms.student.service.interfaces.ISchoolService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -62,5 +65,25 @@ public class SchoolController {
         log.info("Returning school: {}", school.getName());
 
         return ResponseEntity.ok(ApiResponse.success(school));
+    }
+
+    /**
+     * Create a new school.
+     * POST /api/schools
+     * Requires TEACHER role.
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<ApiResponse<SchoolResponse>> createSchool(
+            @Valid @RequestBody SchoolRequest request) {
+        log.info("Received request to create school: {} in district: {}",
+                request.getName(), request.getDistrictId());
+
+        SchoolResponse createdSchool = schoolService.createSchool(request);
+
+        log.info("School created successfully with ID: {}", createdSchool.getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(createdSchool));
     }
 }

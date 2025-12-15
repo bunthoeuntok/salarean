@@ -573,6 +573,22 @@ export interface UITranslations {
       title: string
       description: string
     }
+    addSchool?: {
+      title: string
+      description: string
+      name: string
+      namePlaceholder: string
+      nameKhmer: string
+      nameKhmerPlaceholder: string
+      type: string
+      typePlaceholder: string
+      address: string
+      addressPlaceholder: string
+      createButton: string
+      creating: string
+      success: string
+      error: string
+    }
   }
 }
 

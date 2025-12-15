@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button";
 import { fetchSchools } from '@/services/location.service'
 import { useSchoolSetupStore } from "@/store/school-setup-store";
 import { Loader2, Check } from "lucide-react";
+import { useLanguage } from "@/context/language-provider";
+import { AddSchoolDialog } from "./add-school-dialog";
 
 export function SchoolTable() {
-  const { selectedDistrictId, selectedSchoolId, setSchoolId } =
+  const { t } = useLanguage();
+  const { selectedProvinceId, selectedDistrictId, selectedSchoolId, setSchoolId } =
     useSchoolSetupStore();
 
   const {
@@ -65,14 +68,17 @@ export function SchoolTable() {
   if (schools && schools.length === 0) {
     return (
       <div className="space-y-2">
-        <h3 className="text-sm font-medium">Schools</h3>
+        <h3 className="text-sm font-medium">{t.schoolSetup.step1.schools}</h3>
         <div className="rounded-md border p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
-            No schools found in this district.
+            {t.schoolSetup.step1.noSchools}
           </p>
-          <Button variant="outline" size="sm">
-            Add New School
-          </Button>
+          {selectedProvinceId && selectedDistrictId && (
+            <AddSchoolDialog
+              provinceId={selectedProvinceId}
+              districtId={selectedDistrictId}
+            />
+          )}
         </div>
       </div>
     );
@@ -80,17 +86,25 @@ export function SchoolTable() {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium">
-        Schools ({schools?.length || 0})
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium">
+          {t.schoolSetup.step1.schoolsCount.replace('{count}', String(schools?.length || 0))}
+        </h3>
+        {selectedProvinceId && selectedDistrictId && (
+          <AddSchoolDialog
+            provinceId={selectedProvinceId}
+            districtId={selectedDistrictId}
+          />
+        )}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>School Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead className="w-[100px]">Action</TableHead>
+              <TableHead>{t.schoolSetup.table.schoolName}</TableHead>
+              <TableHead>{t.schoolSetup.table.type}</TableHead>
+              <TableHead>{t.schoolSetup.table.address}</TableHead>
+              <TableHead className="w-[100px]">{t.schoolSetup.table.action}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,7 +125,7 @@ export function SchoolTable() {
                 </TableCell>
                 <TableCell>
                   <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                    {school.type.replace("_", " ")}
+                    {t.schoolSetup.types[school.type as keyof typeof t.schoolSetup.types] || school.type.replace("_", " ")}
                   </span>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -121,7 +135,7 @@ export function SchoolTable() {
                   {selectedSchoolId === school.id ? (
                     <Button variant="outline" size="sm" disabled>
                       <Check className="mr-2 h-4 w-4" />
-                      Selected
+                      {t.schoolSetup.table.selectedButton}
                     </Button>
                   ) : (
                     <Button
@@ -129,7 +143,7 @@ export function SchoolTable() {
                       size="sm"
                       onClick={() => setSchoolId(school.id)}
                     >
-                      Select
+                      {t.schoolSetup.table.selectButton}
                     </Button>
                   )}
                 </TableCell>

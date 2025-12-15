@@ -1,7 +1,9 @@
 package com.sms.student.service;
 
+import com.sms.student.dto.SchoolRequest;
 import com.sms.student.dto.SchoolResponse;
 import com.sms.student.exception.DistrictNotFoundException;
+import com.sms.student.exception.ProvinceNotFoundException;
 import com.sms.student.exception.SchoolNotFoundException;
 import com.sms.student.model.District;
 import com.sms.student.model.Province;
@@ -81,6 +83,46 @@ public class SchoolService implements ISchoolService {
         return schools.stream()
                 .map(this::mapToSchoolResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public SchoolResponse createSchool(SchoolRequest request) {
+        log.info("Creating new school: {} in district: {}", request.getName(), request.getDistrictId());
+
+        // Validate province exists
+        Province province = provinceRepository.findById(request.getProvinceId())
+                .orElseThrow(() -> {
+                    log.error("Province not found: {}", request.getProvinceId());
+                    return new ProvinceNotFoundException("Province not found with ID: " + request.getProvinceId());
+                });
+
+        // Validate district exists and belongs to the province
+        District district = districtRepository.findById(request.getDistrictId())
+                .orElseThrow(() -> {
+                    log.error("District not found: {}", request.getDistrictId());
+                    return new DistrictNotFoundException("District not found with ID: " + request.getDistrictId());
+                });
+
+        // Build school entity
+        School school = School.builder()
+                .name(request.getName())
+                .nameKhmer(request.getNameKhmer())
+                .address(request.getAddress())
+                .provinceId(request.getProvinceId())
+                .districtId(request.getDistrictId())
+                .type(request.getType())
+                // Also set deprecated fields for backward compatibility
+                .province(province.getName())
+                .district(district.getName())
+                .build();
+
+        // Save school
+        School savedSchool = schoolRepository.save(school);
+
+        log.info("School created successfully with ID: {}", savedSchool.getId());
+
+        return mapToSchoolResponse(savedSchool);
     }
 
     /**
