@@ -27,12 +27,11 @@ import java.util.UUID;
 public class ClassCreateRequest {
 
     /**
-     * School ID (required).
-     * The school this class belongs to.
+     * School ID (optional - auto-determined from teacher's school association).
+     * If not provided, the school will be looked up from the authenticated teacher's school association.
      */
-    @NotNull(message = "School ID is required")
     @Schema(
-        description = "UUID of the school this class belongs to",
+        description = "UUID of the school this class belongs to (optional - auto-determined from teacher's school)",
         example = "550e8400-e29b-41d4-a716-446655440000"
     )
     private UUID schoolId;

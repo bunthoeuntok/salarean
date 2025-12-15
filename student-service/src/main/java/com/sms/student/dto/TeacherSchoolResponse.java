@@ -1,5 +1,6 @@
 package com.sms.student.dto;
 
+import com.sms.student.enums.SchoolType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class TeacherSchoolResponse {
     private UUID userId;
     private UUID schoolId;
     private String schoolName;
+    private SchoolType schoolType;
     private UUID provinceId;
     private String provinceName;
     private UUID districtId;

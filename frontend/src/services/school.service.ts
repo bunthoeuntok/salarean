@@ -4,6 +4,11 @@ import type { ApiResponse } from '@/types/api.types'
 import type { TeacherSchoolFormData } from '@/lib/validations/school-setup'
 
 /**
+ * School type enum
+ */
+export type SchoolType = 'PRIMARY' | 'SECONDARY' | 'HIGH_SCHOOL' | 'VOCATIONAL'
+
+/**
  * Teacher-school association response from API
  */
 export interface TeacherSchoolResponse {
@@ -11,6 +16,7 @@ export interface TeacherSchoolResponse {
   userId: string
   schoolId: string
   schoolName: string
+  schoolType: SchoolType
   provinceId: string
   provinceName: string | null
   districtId: string

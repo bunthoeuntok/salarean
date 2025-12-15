@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -32,24 +32,33 @@ import {
 } from '@/components/ui/select'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
+import { teacherSchoolQueryOptions, type SchoolType } from '@/services/school.service'
+import { useAcademicYearStore } from '@/store/academic-year-store'
 import { useClassFiltering } from '@/hooks/useClassFiltering'
 import type { CreateClassRequest, ClassLevel, ClassType } from '@/types/class.types'
 
-// Generate academic year options (current year and next 2 years)
-const generateAcademicYearOptions = () => {
-  const currentYear = new Date().getFullYear()
-  return Array.from({ length: 3 }, (_, i) => {
-    const startYear = currentYear + i
-    const endYear = startYear + 1
-    return {
-      label: `${startYear}-${endYear}`,
-      value: `${startYear}-${endYear}`,
-    }
-  })
+/**
+ * Maps school type to available class levels
+ * - PRIMARY school → only PRIMARY classes
+ * - SECONDARY school → only SECONDARY classes
+ * - HIGH_SCHOOL school → only HIGH_SCHOOL classes
+ * - VOCATIONAL or undefined → all standard class levels (fallback)
+ */
+const getAvailableLevelsForSchoolType = (schoolType: SchoolType | undefined): ClassLevel[] => {
+  switch (schoolType) {
+    case 'PRIMARY':
+      return ['PRIMARY']
+    case 'SECONDARY':
+      return ['SECONDARY']
+    case 'HIGH_SCHOOL':
+      return ['HIGH_SCHOOL']
+    default:
+      // Fallback: show all levels when school type is not available
+      return ['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL']
+  }
 }
 
 const baseClassSchema = z.object({
-  academicYear: z.string(),
   grade: z.string(),
   section: z.string().optional(),
   maxCapacity: z.number(),
@@ -68,12 +77,19 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
 
-  const academicYearOptions = useMemo(() => generateAcademicYearOptions(), [])
+  // Get academic year from store
+  const selectedAcademicYear = useAcademicYearStore((state) => state.selectedAcademicYear)
+
+  // Get teacher-school data to determine available levels
+  const { data: teacherSchool } = useQuery(teacherSchoolQueryOptions)
+  const availableLevels = useMemo(
+    () => getAvailableLevelsForSchoolType(teacherSchool?.schoolType),
+    [teacherSchool?.schoolType]
+  )
 
   // Create schema with translated messages
   const createClassSchema = useMemo(() => {
     return z.object({
-      academicYear: z.string().min(1, t.validation.required),
       grade: z.string().min(1, t.validation.required),
       section: z.string().max(10).optional(),
       maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
@@ -86,11 +102,15 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
     })
   }, [t])
 
-  const levelOptions: { value: ClassLevel; label: string }[] = [
-    { value: 'PRIMARY', label: t.classes.level.PRIMARY },
-    { value: 'SECONDARY', label: t.classes.level.SECONDARY },
-    { value: 'HIGH_SCHOOL', label: t.classes.level.HIGH_SCHOOL },
-  ]
+  // Filter level options based on school type
+  const levelOptions: { value: ClassLevel; label: string }[] = useMemo(() => {
+    const allLevels: { value: ClassLevel; label: string }[] = [
+      { value: 'PRIMARY', label: t.classes.level.PRIMARY },
+      { value: 'SECONDARY', label: t.classes.level.SECONDARY },
+      { value: 'HIGH_SCHOOL', label: t.classes.level.HIGH_SCHOOL },
+    ]
+    return allLevels.filter((option) => availableLevels.includes(option.value))
+  }, [t, availableLevels])
 
   const typeOptions: { value: ClassType; label: string }[] = [
     { value: 'NORMAL', label: t.classes.type.NORMAL },
@@ -98,14 +118,16 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
     { value: 'SOCIAL_SCIENCE', label: t.classes.type.SOCIAL_SCIENCE },
   ]
 
+  // Set default level based on available levels (first available level)
+  const defaultLevel = availableLevels[0] || 'PRIMARY'
+
   const form = useForm<FormData>({
     resolver: zodResolver(createClassSchema),
     defaultValues: {
-      academicYear: '',
       grade: '',
       section: '',
       maxCapacity: 30,
-      level: 'PRIMARY',
+      level: defaultLevel,
       type: 'NORMAL',
     },
   })
@@ -131,7 +153,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
 
   const onSubmit = (data: FormData) => {
     const request: CreateClassRequest = {
-      academicYear: data.academicYear,
+      academicYear: selectedAcademicYear,
       grade: Number(data.grade),
       section: data.section || undefined,
       maxCapacity: data.maxCapacity,
@@ -158,37 +180,11 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
             <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
-                name='academicYear'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.classes.modal.fields.academicYear} <span className='text-destructive'>*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue
-                            placeholder={t.classes.modal.fields.academicYearPlaceholder}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {academicYearOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name='level'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={levelOptions.length <= 1}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
                           <SelectValue
@@ -208,9 +204,6 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                   </FormItem>
                 )}
               />
-            </div>
-
-            <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='grade'
@@ -237,6 +230,9 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                   </FormItem>
                 )}
               />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='type'
@@ -263,9 +259,6 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                   </FormItem>
                 )}
               />
-            </div>
-
-            <div className='grid grid-cols-2 gap-4 pb-4'>
               <FormField
                 control={form.control}
                 name='section'
@@ -282,6 +275,9 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
                   </FormItem>
                 )}
               />
+            </div>
+
+            <div className='grid grid-cols-2 gap-4 pb-4'>
               <FormField
                 control={form.control}
                 name='maxCapacity'

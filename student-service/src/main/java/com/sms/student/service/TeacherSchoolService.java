@@ -94,6 +94,7 @@ public class TeacherSchoolService implements ITeacherSchoolService {
                 .userId(teacherSchool.getUserId())
                 .schoolId(school.getId())
                 .schoolName(school.getName())
+                .schoolType(school.getType())
                 .provinceId(school.getProvinceId())
                 .provinceName(provinceName)
                 .districtId(school.getDistrictId())

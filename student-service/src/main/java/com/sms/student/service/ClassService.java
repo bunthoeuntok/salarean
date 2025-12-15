@@ -14,9 +14,11 @@ import com.sms.student.exception.UnauthorizedClassAccessException;
 import com.sms.student.model.SchoolClass;
 import com.sms.student.model.Student;
 import com.sms.student.model.StudentClassEnrollment;
+import com.sms.student.model.TeacherSchool;
 import com.sms.student.repository.ClassRepository;
 import com.sms.student.repository.StudentClassEnrollmentRepository;
 import com.sms.student.repository.StudentRepository;
+import com.sms.student.repository.TeacherSchoolRepository;
 import com.sms.student.repository.specification.ClassSpecification;
 import com.sms.student.service.interfaces.IClassService;
 
@@ -50,6 +52,7 @@ public class ClassService implements IClassService {
     private final ClassRepository classRepository;
     private final StudentClassEnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
+    private final TeacherSchoolRepository teacherSchoolRepository;
     private final ClassCache classCacheService;
 
     @Override
@@ -482,16 +485,29 @@ public class ClassService implements IClassService {
         log.info("Creating new class for teacher: {}, grade: {}, section: {}, academicYear: {}",
                  teacherId, request.getGrade(), request.getSection(), request.getAcademicYear());
 
+        // Get schoolId from request or look up from teacher's school association
+        UUID schoolId = request.getSchoolId();
+        if (schoolId == null) {
+            // Look up teacher's school
+            TeacherSchool teacherSchool = teacherSchoolRepository.findByUserId(teacherId)
+                .orElseThrow(() -> {
+                    log.error("Teacher {} has not completed school setup", teacherId);
+                    return new IllegalStateException("Teacher has not completed school setup. Please configure your school first.");
+                });
+            schoolId = teacherSchool.getSchool().getId();
+            log.debug("Using teacher's school: {} ({})", teacherSchool.getSchool().getName(), schoolId);
+        }
+
         // Validate academic year format
         validateAcademicYear(request.getAcademicYear());
 
         // Check for duplicate class
-        checkDuplicateClass(request.getSchoolId(), request.getGrade(),
+        checkDuplicateClass(schoolId, request.getGrade(),
                            request.getSection(), request.getAcademicYear());
 
         // Create new class entity
         SchoolClass schoolClass = SchoolClass.builder()
-            .schoolId(request.getSchoolId())
+            .schoolId(schoolId)
             .teacherId(teacherId)
             .grade(request.getGrade())
             .section(request.getSection())
