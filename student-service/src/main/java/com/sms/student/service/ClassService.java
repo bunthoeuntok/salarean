@@ -144,8 +144,6 @@ public class ClassService implements IClassService {
     @Transactional(readOnly = true)
     public ClassListResponse listClassesWithFilters(UUID teacherId, String search, String status,
                                                      String academicYear, String grade, Pageable pageable) {
-        log.info("Fetching classes with filters for teacher: {} (search: {}, status: {}, academicYear: {}, grade: {})",
-                 teacherId, search, status, academicYear, grade);
 
         // Build specification with all filters
         Specification<SchoolClass> spec = Specification.where(ClassSpecification.hasTeacherId(teacherId))
@@ -337,10 +335,7 @@ public class ClassService implements IClassService {
      * @return class summary DTO
      */
     private ClassSummaryDto mapToSummaryDto(SchoolClass entity) {
-        // Build display name: "Grade X - Section Y" or just "Grade X" if no section
-        String displayName = entity.getSection() != null && !entity.getSection().isEmpty()
-            ? String.format("%d%s", entity.getGrade(), entity.getSection())
-            : String.format("Grade %d", entity.getGrade());
+        String displayName = String.format("%d%s", entity.getGrade(), entity.getSection());
 
         return ClassSummaryDto.builder()
             .id(entity.getId())
@@ -354,7 +349,6 @@ public class ClassService implements IClassService {
             .type(entity.getType())
             .status(entity.getStatus())
             .teacherId(entity.getTeacherId())
-            .teacherName(null) // TODO: Fetch from auth-service if needed
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .build();

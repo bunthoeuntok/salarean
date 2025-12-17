@@ -15,15 +15,6 @@ import java.util.UUID;
 public interface IStudentTransferService {
 
     /**
-     * Get eligible destination classes for transfer.
-     * Returns active classes with same grade level that have available capacity.
-     *
-     * @param sourceClassId the source class ID
-     * @return list of eligible destination classes
-     */
-    List<EligibleClassResponse> getEligibleDestinationClasses(UUID sourceClassId);
-
-    /**
      * Execute batch transfer of students to a destination class.
      *
      * @param sourceClassId the source class ID

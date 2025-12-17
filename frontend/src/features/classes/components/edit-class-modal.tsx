@@ -32,24 +32,12 @@ import {
 } from '@/components/ui/select'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
-import { useClassFiltering } from '@/hooks/useClassFiltering'
+import { useAcademicYearStore } from '@/store/academic-year-store'
+import { useClassFiltering } from '@/hooks/use-class-filtering'
+import { useAvailableLevels } from '@/hooks/use-available-levels'
 import type { Class, ClassStatus, ClassLevel, ClassType, UpdateClassRequest } from '@/types/class.types'
 
-// Generate academic year options (current year and next 2 years)
-const generateAcademicYearOptions = () => {
-  const currentYear = new Date().getFullYear()
-  return Array.from({ length: 5 }, (_, i) => {
-    const startYear = currentYear - 2 + i
-    const endYear = startYear + 1
-    return {
-      label: `${startYear}-${endYear}`,
-      value: `${startYear}-${endYear}`,
-    }
-  })
-}
-
 const baseClassSchema = z.object({
-  academicYear: z.string(),
   grade: z.string(),
   section: z.string().optional(),
   maxCapacity: z.number(),
@@ -77,12 +65,15 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
 
-  const academicYearOptions = useMemo(() => generateAcademicYearOptions(), [])
+  // Get academic year from store
+  const selectedAcademicYear = useAcademicYearStore((state) => state.selectedAcademicYear)
+
+  // Get available levels based on teacher's school type
+  const { availableLevels } = useAvailableLevels()
 
   // Create schema with translated messages
   const updateClassSchema = useMemo(() => {
     return z.object({
-      academicYear: z.string().min(1, t.validation.required),
       grade: z.string().min(1, t.validation.required),
       section: z.string().max(10).optional(),
       maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
@@ -92,11 +83,15 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
     })
   }, [t])
 
-  const levelOptions: { value: ClassLevel; label: string }[] = [
-    { value: 'PRIMARY', label: t.classes.level.PRIMARY },
-    { value: 'SECONDARY', label: t.classes.level.SECONDARY },
-    { value: 'HIGH_SCHOOL', label: t.classes.level.HIGH_SCHOOL },
-  ]
+  // Filter level options based on school type
+  const levelOptions: { value: ClassLevel; label: string }[] = useMemo(() => {
+    const allLevels: { value: ClassLevel; label: string }[] = [
+      { value: 'PRIMARY', label: t.classes.level.PRIMARY },
+      { value: 'SECONDARY', label: t.classes.level.SECONDARY },
+      { value: 'HIGH_SCHOOL', label: t.classes.level.HIGH_SCHOOL },
+    ]
+    return allLevels.filter((option) => availableLevels.includes(option.value))
+  }, [t, availableLevels])
 
   const typeOptions: { value: ClassType; label: string }[] = [
     { value: 'NORMAL', label: t.classes.type.NORMAL },
@@ -113,7 +108,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(updateClassSchema),
     defaultValues: {
-      academicYear: classData.academicYear,
       grade: String(classData.grade),
       section: classData.section || '',
       maxCapacity: classData.maxCapacity,
@@ -144,7 +138,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
 
   const onSubmit = (data: FormData) => {
     const request: UpdateClassRequest = {
-      academicYear: data.academicYear,
+      academicYear: selectedAcademicYear,
       grade: Number(data.grade),
       section: data.section || undefined,
       maxCapacity: data.maxCapacity,
@@ -161,37 +155,11 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
-            name='academicYear'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t.classes.modal.fields.academicYear} <span className='text-destructive'>*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue
-                        placeholder={t.classes.modal.fields.academicYearPlaceholder}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {academicYearOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name='level'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t.classes.modal.fields.level} <span className='text-destructive'>*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value} disabled={levelOptions.length <= 1}>
                   <FormControl>
                     <SelectTrigger className='w-full'>
                       <SelectValue
@@ -211,9 +179,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
               </FormItem>
             )}
           />
-        </div>
-
-        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='grade'
@@ -240,6 +205,9 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
               </FormItem>
             )}
           />
+        </div>
+
+        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='type'
@@ -266,9 +234,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
               </FormItem>
             )}
           />
-        </div>
-
-        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='section'
@@ -285,6 +250,9 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
               </FormItem>
             )}
           />
+        </div>
+
+        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='maxCapacity'
@@ -304,9 +272,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
               </FormItem>
             )}
           />
-        </div>
-
-        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='status'

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -32,31 +32,10 @@ import {
 } from '@/components/ui/select'
 import { useLanguage } from '@/context/language-provider'
 import { classService } from '@/services/class.service'
-import { teacherSchoolQueryOptions, type SchoolType } from '@/services/school.service'
 import { useAcademicYearStore } from '@/store/academic-year-store'
-import { useClassFiltering } from '@/hooks/useClassFiltering'
+import { useClassFiltering } from '@/hooks/use-class-filtering'
+import { useAvailableLevels } from '@/hooks/use-available-levels'
 import type { CreateClassRequest, ClassLevel, ClassType } from '@/types/class.types'
-
-/**
- * Maps school type to available class levels
- * - PRIMARY school → only PRIMARY classes
- * - SECONDARY school → only SECONDARY classes
- * - HIGH_SCHOOL school → only HIGH_SCHOOL classes
- * - VOCATIONAL or undefined → all standard class levels (fallback)
- */
-const getAvailableLevelsForSchoolType = (schoolType: SchoolType | undefined): ClassLevel[] => {
-  switch (schoolType) {
-    case 'PRIMARY':
-      return ['PRIMARY']
-    case 'SECONDARY':
-      return ['SECONDARY']
-    case 'HIGH_SCHOOL':
-      return ['HIGH_SCHOOL']
-    default:
-      // Fallback: show all levels when school type is not available
-      return ['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL']
-  }
-}
 
 const baseClassSchema = z.object({
   grade: z.string(),
@@ -80,12 +59,8 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
   // Get academic year from store
   const selectedAcademicYear = useAcademicYearStore((state) => state.selectedAcademicYear)
 
-  // Get teacher-school data to determine available levels
-  const { data: teacherSchool } = useQuery(teacherSchoolQueryOptions)
-  const availableLevels = useMemo(
-    () => getAvailableLevelsForSchoolType(teacherSchool?.schoolType),
-    [teacherSchool?.schoolType]
-  )
+  // Get available levels based on teacher's school type
+  const { availableLevels, defaultLevel } = useAvailableLevels()
 
   // Create schema with translated messages
   const createClassSchema = useMemo(() => {
@@ -117,9 +92,6 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
     { value: 'SCIENCE', label: t.classes.type.SCIENCE },
     { value: 'SOCIAL_SCIENCE', label: t.classes.type.SOCIAL_SCIENCE },
   ]
-
-  // Set default level based on available levels (first available level)
-  const defaultLevel = availableLevels[0] || 'PRIMARY'
 
   const form = useForm<FormData>({
     resolver: zodResolver(createClassSchema),

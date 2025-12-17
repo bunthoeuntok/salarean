@@ -41,43 +41,6 @@ public class StudentTransferService implements IStudentTransferService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<EligibleClassResponse> getEligibleDestinationClasses(UUID sourceClassId) {
-        log.debug("Getting eligible destination classes for source class: {}", sourceClassId);
-
-        // 1. Get source class and validate it exists
-        var sourceClass = classRepository.findById(sourceClassId)
-            .orElseThrow(() -> {
-                log.error("Source class not found: {}", sourceClassId);
-                return new RuntimeException("SOURCE_CLASS_NOT_FOUND");
-            });
-
-        log.debug("Source class found: grade={}, status={}", sourceClass.getGrade(), sourceClass.getStatus());
-
-        // 2. Find all active classes with same grade level, excluding source class
-        var eligibleClasses = classRepository.findAll().stream()
-            .filter(cls -> cls.getStatus() == com.sms.student.enums.ClassStatus.ACTIVE)
-            .filter(cls -> cls.getGrade().equals(sourceClass.getGrade()))
-            .filter(cls -> !cls.getId().equals(sourceClassId))
-            .filter(cls -> cls.hasCapacity()) // Filter by available capacity
-            .map(cls -> EligibleClassResponse.builder()
-                .id(cls.getId())
-                .name(String.format("Grade %d - %s", cls.getGrade(), cls.getSection()))
-                .code(cls.getSection())
-                .gradeLevel(cls.getGrade())
-                .capacity(cls.getMaxCapacity())
-                .currentEnrollment(cls.getStudentCount())
-                .teacherName("Teacher") // TODO: Fetch teacher name from auth-service in future
-                .build())
-            .toList();
-
-        log.debug("Found {} eligible destination classes for source class {}",
-            eligibleClasses.size(), sourceClassId);
-
-        return eligibleClasses;
-    }
-
-    @Override
     @Transactional
     public BatchTransferResponse batchTransfer(
         UUID sourceClassId,

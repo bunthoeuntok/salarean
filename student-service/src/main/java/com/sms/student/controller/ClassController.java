@@ -107,15 +107,9 @@ public class ClassController {
         // Extract teacher ID from JWT token
         UUID teacherId = extractTeacherIdFromRequest(request);
 
-        log.info("Fetching classes for teacher: {} (page: {}, size: {}, search: {}, status: {}, academicYear: {}, grade: {})",
-                 teacherId, page, size, search, status, academicYear, grade);
-
         Pageable pageable = createPageable(page, size, sort);
         ClassListResponse response = classService.listClassesWithFilters(
                 teacherId, search, status, academicYear, grade, pageable);
-
-        log.info("Found {} classes for teacher: {} (page {} of {})",
-                 response.getContent().size(), teacherId, page + 1, response.getTotalPages());
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -235,49 +229,6 @@ public class ClassController {
         log.info("Returning {} enrollment history records for class: {}", history.size(), id);
 
         return ResponseEntity.ok(ApiResponse.success(history));
-    }
-
-    /**
-     * Get eligible destination classes for batch student transfer.
-     *
-     * <p>GET /api/classes/{id}/eligible-destinations</p>
-     *
-     * <p>Returns a list of classes that are eligible as transfer destinations for students
-     * from the specified source class. Eligible classes must:
-     * <ul>
-     *   <li>Be in ACTIVE status</li>
-     *   <li>Have the same grade level as the source class</li>
-     *   <li>Not be the source class itself</li>
-     *   <li>Have available capacity (currentEnrollment < maxCapacity)</li>
-     * </ul>
-     * </p>
-     *
-     * <p>This endpoint is used by the batch transfer dialog to populate the destination
-     * class dropdown. Teacher name is currently a placeholder and will be fetched from
-     * auth-service in a future iteration.</p>
-     *
-     * @param id UUID of the source class
-     * @return list of eligible destination classes with enrollment details
-     */
-    @GetMapping("/{id}/eligible-destinations")
-    @PreAuthorize("hasRole('TEACHER')")
-    @Operation(
-        summary = "Get eligible destination classes for transfer",
-        description = "Retrieve all classes that are eligible as transfer destinations for students " +
-                      "from the specified source class. Only returns active classes with the same grade " +
-                      "level that have available capacity."
-    )
-    public ResponseEntity<ApiResponse<List<EligibleClassResponse>>> getEligibleDestinations(
-            @Parameter(description = "Source class UUID", required = true)
-            @PathVariable UUID id) {
-
-        log.info("Fetching eligible destination classes for source class: {}", id);
-
-        List<EligibleClassResponse> eligibleClasses = studentTransferService.getEligibleDestinationClasses(id);
-
-        log.info("Found {} eligible destination classes for source class: {}", eligibleClasses.size(), id);
-
-        return ResponseEntity.ok(ApiResponse.success(eligibleClasses));
     }
 
     /**
