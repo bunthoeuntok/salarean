@@ -235,13 +235,13 @@ export interface UITranslations {
     searchPlaceholder: string
     noClass: string
     columns: {
-      code: string
-      name: string
+      studentCode: string
+      fullName: string
       fullNameKhmer: string
       gender: string
       dateOfBirth: string
       contact: string
-      class: string
+      currentClassName: string
       status: string
       actions: string
     }

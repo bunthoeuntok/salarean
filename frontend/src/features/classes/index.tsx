@@ -52,7 +52,7 @@ export function ClassesPage() {
   // Column labels for view options
   const columnLabels = useMemo(
     () => ({
-      name: t.classes.columns.className,
+      className: t.classes.columns.className,
       grade: t.classes.columns.grade,
       academicYear: t.classes.columns.academicYear,
       level: t.classes.columns.level,

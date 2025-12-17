@@ -34,12 +34,12 @@ export const createStudentColumns = (
   t: {
     students: {
       columns: {
-        code: string
-        name: string
+        studentCode: string
+        fullName: string
         gender: string
         dateOfBirth: string
         contact: string
-        class: string
+        currentClassName: string
         status: string
         actions: string
       }
@@ -69,7 +69,7 @@ export const createStudentColumns = (
   {
     accessorKey: 'studentCode',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.students.columns.code} />
+      <DataTableColumnHeader column={column} title={t.students.columns.studentCode} />
     ),
     cell: ({ row }) => (
       <span className='font-medium'>{row.getValue('studentCode')}</span>
@@ -79,7 +79,7 @@ export const createStudentColumns = (
   {
     accessorKey: 'fullName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.students.columns.name} />
+      <DataTableColumnHeader column={column} title={t.students.columns.fullName} />
     ),
     cell: ({ row }) => {
       const student = row.original
@@ -152,7 +152,7 @@ export const createStudentColumns = (
   {
     accessorKey: 'currentClassName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.students.columns.class} />
+      <DataTableColumnHeader column={column} title={t.students.columns.currentClassName} />
     ),
     cell: ({ row }) => {
       const className = row.getValue('currentClassName') as string

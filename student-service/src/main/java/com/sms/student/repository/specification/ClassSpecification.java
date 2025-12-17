@@ -1,6 +1,8 @@
 package com.sms.student.repository.specification;
 
+import com.sms.student.enums.ClassLevel;
 import com.sms.student.enums.ClassStatus;
+import com.sms.student.enums.ClassType;
 import com.sms.student.model.SchoolClass;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -85,6 +87,40 @@ public class ClassSpecification {
             }
             String pattern = "%" + search.toLowerCase() + "%";
             return cb.like(cb.lower(root.get("section")), pattern);
+        };
+    }
+
+    /**
+     * Filter by class level.
+     */
+    public static Specification<SchoolClass> hasLevel(String levelFilter) {
+        return (root, query, cb) -> {
+            if (levelFilter == null || levelFilter.isBlank()) {
+                return cb.conjunction();
+            }
+            try {
+                ClassLevel level = ClassLevel.valueOf(levelFilter);
+                return cb.equal(root.get("level"), level);
+            } catch (IllegalArgumentException e) {
+                return cb.conjunction();
+            }
+        };
+    }
+
+    /**
+     * Filter by class type.
+     */
+    public static Specification<SchoolClass> hasType(String typeFilter) {
+        return (root, query, cb) -> {
+            if (typeFilter == null || typeFilter.isBlank()) {
+                return cb.conjunction();
+            }
+            try {
+                ClassType type = ClassType.valueOf(typeFilter);
+                return cb.equal(root.get("type"), type);
+            } catch (IllegalArgumentException e) {
+                return cb.conjunction();
+            }
         };
     }
 }

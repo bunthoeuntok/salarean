@@ -92,12 +92,12 @@ export function StudentsPage() {
   // Column labels for view options
   const columnLabels = useMemo(
     () => ({
-      code: t.students.columns.code,
-      name: t.students.columns.name,
+      studentCode: t.students.columns.studentCode,
+      fullName: t.students.columns.fullName,
       gender: t.students.columns.gender,
       dateOfBirth: t.students.columns.dateOfBirth,
       contact: t.students.columns.contact,
-      className: t.students.columns.class,
+      currentClassName: t.students.columns.currentClassName,
       status: t.students.columns.status,
       actions: t.students.columns.actions,
     }),
@@ -196,7 +196,7 @@ export function StudentsPage() {
       },
       {
         id: 'classId',
-        title: t.students.columns.class,
+        title: t.students.columns.currentClassName,
         options: filteredClassOptions,
         singleSelect: true,
       },

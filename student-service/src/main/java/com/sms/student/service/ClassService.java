@@ -143,13 +143,16 @@ public class ClassService implements IClassService {
     @Override
     @Transactional(readOnly = true)
     public ClassListResponse listClassesWithFilters(UUID teacherId, String search, String status,
-                                                     String academicYear, String grade, Pageable pageable) {
+                                                     String academicYear, String grade, String level,
+                                                     String type, Pageable pageable) {
 
         // Build specification with all filters
         Specification<SchoolClass> spec = Specification.where(ClassSpecification.hasTeacherId(teacherId))
                 .and(ClassSpecification.hasStatus(status))
                 .and(ClassSpecification.hasAcademicYear(academicYear))
                 .and(ClassSpecification.hasGrade(grade))
+                .and(ClassSpecification.hasLevel(level))
+                .and(ClassSpecification.hasType(type))
                 .and(ClassSpecification.searchBySection(search));
 
         // Fetch from database with specification

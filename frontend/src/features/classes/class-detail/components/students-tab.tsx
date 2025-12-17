@@ -125,8 +125,8 @@ export function StudentsTab({ classId }: StudentsTabProps) {
         enableColumnReordering
         showToolbar
         columnLabels={{
-          studentCode: t.students.columns.code,
-          fullName: t.students.columns.name,
+          studentCode: t.students.columns.studentCode,
+          fullName: t.students.columns.fullName,
           fullNameKhmer: t.students.columns.fullNameKhmer,
           gender: t.students.columns.gender,
           dateOfBirth: t.students.columns.dateOfBirth,

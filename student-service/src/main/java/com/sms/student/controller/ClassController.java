@@ -66,6 +66,8 @@ public class ClassController {
      *   <li>status (optional) - Filter by status (comma-separated: ACTIVE,INACTIVE,COMPLETED)</li>
      *   <li>academicYear (optional) - Filter by academic year</li>
      *   <li>grade (optional) - Filter by grade</li>
+     *   <li>level (optional) - Filter by class level (PRIMARY,SECONDARY,HIGH_SCHOOL)</li>
+     *   <li>type (optional) - Filter by class type (NORMAL,SCIENCE,SOCIAL_SCIENCE)</li>
      * </ul>
      * </p>
      *
@@ -78,6 +80,8 @@ public class ClassController {
      * @param status       filter by status (comma-separated)
      * @param academicYear filter by academic year
      * @param grade        filter by grade
+     * @param level        filter by class level
+     * @param type         filter by class type
      * @param request      HTTP request to extract JWT token
      * @return paginated list of class summaries
      */
@@ -102,6 +106,10 @@ public class ClassController {
             @RequestParam(required = false) String academicYear,
             @Parameter(description = "Filter by grade", example = "10")
             @RequestParam(required = false) String grade,
+            @Parameter(description = "Filter by class level (PRIMARY,SECONDARY,HIGH_SCHOOL)")
+            @RequestParam(required = false) String level,
+            @Parameter(description = "Filter by class type (NORMAL,SCIENCE,SOCIAL_SCIENCE)")
+            @RequestParam(required = false) String type,
             HttpServletRequest request) {
 
         // Extract teacher ID from JWT token
@@ -109,7 +117,7 @@ public class ClassController {
 
         Pageable pageable = createPageable(page, size, sort);
         ClassListResponse response = classService.listClassesWithFilters(
-                teacherId, search, status, academicYear, grade, pageable);
+                teacherId, search, status, academicYear, grade, level, type, pageable);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

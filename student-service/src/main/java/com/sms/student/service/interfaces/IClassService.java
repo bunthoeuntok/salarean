@@ -54,11 +54,14 @@ public interface IClassService {
      * @param status       filter by status, comma-separated (optional)
      * @param academicYear filter by academic year (optional)
      * @param grade        filter by grade (optional)
+     * @param level        filter by class level (optional)
+     * @param type         filter by class type (optional)
      * @param pageable     pagination parameters
      * @return paginated list of class summaries
      */
     ClassListResponse listClassesWithFilters(UUID teacherId, String search, String status,
-                                              String academicYear, String grade, Pageable pageable);
+                                              String academicYear, String grade, String level,
+                                              String type, Pageable pageable);
 
     /**
      * Get detailed information about a specific class.
