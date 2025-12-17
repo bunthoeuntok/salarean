@@ -107,6 +107,7 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
   // Use class filtering hook for level → grade filtering with form integration
   const { filteredGradeOptions } = useClassFiltering({
     initialLevel: form.watch('level'),
+    availableLevels,
     onGradeCleared: () => form.setValue('grade', ''),
   })
 

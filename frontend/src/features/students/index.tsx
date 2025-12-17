@@ -22,6 +22,7 @@ import { TransferStudentModal } from './components/transfer-student-modal'
 import { ViewStudentModal } from './components/view-student-modal'
 import { useClassFiltering } from '@/hooks/use-class-filtering'
 import { useClasses } from '@/hooks/use-classes'
+import { useAvailableLevels } from '@/hooks/use-available-levels'
 import { useAcademicYearStore } from '@/store/academic-year-store'
 import type { Student, StudentStatus, Gender } from '@/types/student.types'
 import type { ClassLevel } from '@/types/class.types'
@@ -122,6 +123,9 @@ export function StudentsPage() {
   // Fetch classes from global store
   const { classes: allClasses } = useClasses()
 
+  // Get available levels based on teacher's school type
+  const { availableLevels } = useAvailableLevels()
+
   // Use class filtering hook for level → grade → class filtering
   const {
     filteredGradeOptions,
@@ -131,6 +135,7 @@ export function StudentsPage() {
   } = useClassFiltering({
     initialLevel: filters.level?.[0] as ClassLevel | undefined,
     initialGrade: filters.grade?.[0],
+    availableLevels,
     classes: allClasses,
     includeNoClassOption: true,
     noClassLabel: t.students.noClass,
@@ -178,7 +183,7 @@ export function StudentsPage() {
           { label: t.classes.level.PRIMARY, value: 'PRIMARY' as ClassLevel },
           { label: t.classes.level.SECONDARY, value: 'SECONDARY' as ClassLevel },
           { label: t.classes.level.HIGH_SCHOOL, value: 'HIGH_SCHOOL' as ClassLevel },
-        ],
+        ].filter((option) => availableLevels.includes(option.value)),
         singleSelect: true,
         onFilterChange: handleLevelChange,
       },
@@ -212,7 +217,7 @@ export function StudentsPage() {
         ],
       }
     ],
-    [t, filteredGradeOptions, filteredClassOptions, handleLevelChange, handleGradeChange]
+    [t, filteredGradeOptions, filteredClassOptions, handleLevelChange, handleGradeChange, availableLevels]
   )
 
   const handlePaginationChange = (newPageIndex: number, newPageSize: number) => {

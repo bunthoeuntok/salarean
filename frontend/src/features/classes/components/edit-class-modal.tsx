@@ -120,6 +120,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   // Use class filtering hook for level → grade filtering with form integration
   const { filteredGradeOptions } = useClassFiltering({
     initialLevel: form.watch('level'),
+    availableLevels,
     onGradeCleared: () => form.setValue('grade', ''),
   })
 

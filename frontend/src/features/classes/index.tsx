@@ -20,6 +20,7 @@ import { AddClassModal } from './components/add-class-modal'
 import { EditClassModal } from './components/edit-class-modal'
 import { useClassFiltering } from '@/hooks/use-class-filtering'
 import { useClasses } from '@/hooks/use-classes'
+import { useAvailableLevels } from '@/hooks/use-available-levels'
 import { useAcademicYearStore } from '@/store/academic-year-store'
 import type { Class, ClassStatus, ClassLevel, ClassType } from '@/types/class.types'
 
@@ -79,9 +80,13 @@ export function ClassesPage() {
     defaultPageSize: getStoredPageSize('classes-table'),
   })
 
+  // Get available levels based on teacher's school type
+  const { availableLevels } = useAvailableLevels()
+
   // Use class filtering hook for level → grade filtering
   const { filteredGradeOptions, handleLevelChange } = useClassFiltering({
     initialLevel: filters.level?.[0] as ClassLevel | undefined,
+    availableLevels,
   })
 
   // Fetch classes data (automatically filtered by selected academic year)
@@ -137,7 +142,7 @@ export function ClassesPage() {
           { label: t.classes.level.PRIMARY, value: 'PRIMARY' as ClassLevel },
           { label: t.classes.level.SECONDARY, value: 'SECONDARY' as ClassLevel },
           { label: t.classes.level.HIGH_SCHOOL, value: 'HIGH_SCHOOL' as ClassLevel },
-        ],
+        ].filter((option) => availableLevels.includes(option.value)),
         singleSelect: true,
         onFilterChange: handleLevelChange,
       },
@@ -157,7 +162,7 @@ export function ClassesPage() {
         singleSelect: true,
       },
     ],
-    [t, filteredGradeOptions, handleLevelChange]
+    [t, filteredGradeOptions, handleLevelChange, availableLevels]
   )
 
   const handlePaginationChange = (newPageIndex: number, newPageSize: number) => {

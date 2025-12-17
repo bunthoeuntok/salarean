@@ -20,18 +20,33 @@ export const GRADE_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
 }))
 
 /**
- * Filter grade options based on selected level
+ * Filter grade options based on selected level and/or available levels
+ * @param level - Currently selected level (filters to specific level's grades)
+ * @param availableLevels - Available levels based on school type (restricts options when no level selected)
  */
-export function getFilteredGradeOptions(level?: ClassLevel) {
-  if (!level) {
-    return GRADE_OPTIONS
+export function getFilteredGradeOptions(level?: ClassLevel, availableLevels?: ClassLevel[]) {
+  if (level) {
+    // If specific level selected, show only that level's grades
+    const range = GRADE_RANGES[level]
+    return GRADE_OPTIONS.filter((option) => {
+      const grade = Number(option.value)
+      return grade >= range.min && grade <= range.max
+    })
   }
 
-  const range = GRADE_RANGES[level]
-  return GRADE_OPTIONS.filter((option) => {
-    const grade = Number(option.value)
-    return grade >= range.min && grade <= range.max
-  })
+  if (availableLevels && availableLevels.length > 0) {
+    // If no level selected but availableLevels provided, show grades for all available levels
+    return GRADE_OPTIONS.filter((option) => {
+      const grade = Number(option.value)
+      return availableLevels.some((lvl) => {
+        const range = GRADE_RANGES[lvl]
+        return grade >= range.min && grade <= range.max
+      })
+    })
+  }
+
+  // Fallback: show all grades
+  return GRADE_OPTIONS
 }
 
 /**

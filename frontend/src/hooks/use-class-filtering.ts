@@ -13,6 +13,10 @@ interface UseClassFilteringOptions {
    */
   initialGrade?: string
   /**
+   * Available levels based on teacher's school type (restricts grade options)
+   */
+  availableLevels?: ClassLevel[]
+  /**
    * Available classes to filter
    */
   classes?: Class[]
@@ -82,6 +86,7 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
   const {
     initialLevel,
     initialGrade,
+    availableLevels,
     classes = [],
     includeNoClassOption = false,
     noClassLabel = 'No Class',
@@ -102,10 +107,10 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
     setSelectedGrade(initialGrade)
   }, [initialGrade])
 
-  // Filter grade options based on selected level
+  // Filter grade options based on selected level and available levels
   const filteredGradeOptions = useMemo(() => {
-    return getFilteredGradeOptions(selectedLevel)
-  }, [selectedLevel])
+    return getFilteredGradeOptions(selectedLevel, availableLevels)
+  }, [selectedLevel, availableLevels])
 
   // Check if current grade is valid for selected level
   const isGradeValid = useCallback((grade: string): boolean => {
