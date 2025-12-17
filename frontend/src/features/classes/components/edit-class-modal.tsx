@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -35,15 +35,14 @@ import { classService } from '@/services/class.service'
 import { useAcademicYearStore } from '@/store/academic-year-store'
 import { useClassFiltering } from '@/hooks/use-class-filtering'
 import { useAvailableLevels } from '@/hooks/use-available-levels'
-import type { Class, ClassStatus, ClassLevel, ClassType, UpdateClassRequest } from '@/types/class.types'
+import type { Class, ClassLevel, ClassType, UpdateClassRequest } from '@/types/class.types'
 
 const baseClassSchema = z.object({
   grade: z.string(),
   section: z.string().optional(),
   maxCapacity: z.number(),
   level: z.enum(['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL'] as const),
-  type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'COMPLETED'] as const),
+  type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const)
 })
 
 type FormData = z.infer<typeof baseClassSchema>
@@ -78,8 +77,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       section: z.string().max(10).optional(),
       maxCapacity: z.coerce.number().min(1, t.validation.required).max(100),
       level: z.enum(['PRIMARY', 'SECONDARY', 'HIGH_SCHOOL'] as const),
-      type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const),
-      status: z.enum(['ACTIVE', 'INACTIVE', 'COMPLETED'] as const),
+      type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const)
     })
   }, [t])
 
@@ -93,18 +91,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
     return allLevels.filter((option) => availableLevels.includes(option.value))
   }, [t, availableLevels])
 
-  const typeOptions: { value: ClassType; label: string }[] = [
-    { value: 'NORMAL', label: t.classes.type.NORMAL },
-    { value: 'SCIENCE', label: t.classes.type.SCIENCE },
-    { value: 'SOCIAL_SCIENCE', label: t.classes.type.SOCIAL_SCIENCE },
-  ]
-
-  const statusOptions: { value: ClassStatus; label: string }[] = [
-    { value: 'ACTIVE', label: t.classes.status.ACTIVE },
-    { value: 'INACTIVE', label: t.classes.status.INACTIVE },
-    { value: 'COMPLETED', label: t.classes.status.COMPLETED },
-  ]
-
   const form = useForm<FormData>({
     resolver: zodResolver(updateClassSchema),
     defaultValues: {
@@ -113,9 +99,11 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       maxCapacity: classData.maxCapacity,
       level: classData.level,
       type: classData.type,
-      status: classData.status,
     },
   })
+
+  // Watch grade for type filtering
+  const selectedGrade = form.watch('grade')
 
   // Use class filtering hook for level → grade filtering with form integration
   const { filteredGradeOptions } = useClassFiltering({
@@ -123,6 +111,33 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
     availableLevels,
     onGradeCleared: () => form.setValue('grade', ''),
   })
+
+  // Filter type options based on grade (11-12 = SCIENCE/SOCIAL_SCIENCE, others = NORMAL only)
+  const typeOptions = useMemo(() => {
+    const gradeNum = Number(selectedGrade)
+    if (gradeNum === 11 || gradeNum === 12) {
+      return [
+        { value: 'SCIENCE' as ClassType, label: t.classes.type.SCIENCE },
+        { value: 'SOCIAL_SCIENCE' as ClassType, label: t.classes.type.SOCIAL_SCIENCE },
+      ]
+    }
+    return [{ value: 'NORMAL' as ClassType, label: t.classes.type.NORMAL }]
+  }, [selectedGrade, t])
+
+  // Auto-reset type when grade changes and current type is invalid
+  useEffect(() => {
+    const gradeNum = Number(selectedGrade)
+    const currentType = form.getValues('type')
+    if (gradeNum === 11 || gradeNum === 12) {
+      if (currentType === 'NORMAL') {
+        form.setValue('type', 'SCIENCE')
+      }
+    } else if (selectedGrade) {
+      if (currentType !== 'NORMAL') {
+        form.setValue('type', 'NORMAL')
+      }
+    }
+  }, [selectedGrade, form])
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateClassRequest) => classService.updateClass(classId, data),
@@ -144,8 +159,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
       section: data.section || undefined,
       maxCapacity: data.maxCapacity,
       level: data.level,
-      type: data.type,
-      status: data.status,
+      type: data.type
     }
     updateMutation.mutate(request)
   }
@@ -269,32 +283,6 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='status'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t.classes.modal.fields.status} <span className='text-destructive'>*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue
-                        placeholder={t.classes.modal.fields.statusPlaceholder}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {statusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}

@@ -30,7 +30,7 @@ export const createClassColumns = (
   t: {
     classes: {
       columns: {
-        name: string
+        className: string
         grade: string
         academicYear: string
         teacher: string
@@ -69,56 +69,6 @@ export const createClassColumns = (
   onManageStudents?: (classItem: Class) => void
 ): ColumnDef<Class>[] => [
   {
-    id: 'name',
-    accessorFn: (row) => `Grade ${row.grade}${row.section ? ` - ${row.section}` : ''}`,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.classes.columns.name} />
-    ),
-    cell: ({ row }) => {
-      const classItem = row.original
-      return (
-        <span className='font-medium'>
-          Grade {classItem.grade}{classItem.section ? ` - ${classItem.section}` : ''}
-        </span>
-      )
-    },
-    size: 200,
-  },
-  {
-    accessorKey: 'grade',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.classes.columns.grade} />
-    ),
-    cell: ({ row }) => {
-      const classItem = row.original
-      return (
-        <div className='flex items-center gap-2'>
-          <Badge variant='outline'>{classItem.grade}</Badge>
-          {classItem.section && (
-            <span className='text-muted-foreground'>- {classItem.section}</span>
-          )}
-        </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(String(row.getValue(id)))
-    },
-    size: 150,
-  },
-  {
-    accessorKey: 'academicYear',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.classes.columns.academicYear} />
-    ),
-    cell: ({ row }) => (
-      <span>{row.getValue('academicYear')}</span>
-    ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    size: 120,
-  },
-  {
     accessorKey: 'level',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={t.classes.columns.level} />
@@ -135,6 +85,40 @@ export const createClassColumns = (
       return value.includes(row.getValue(id))
     },
     size: 120,
+  },
+  {
+    accessorKey: 'grade',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.classes.columns.grade} />
+    ),
+    cell: ({ row }) => {
+      const classItem = row.original
+      return (
+        <div className=''>
+          <Badge variant='outline'>{classItem.grade}</Badge>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)))
+    },
+    size: 150,
+  },
+  {
+    id: 'className',
+    accessorFn: (row) => row.name,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={t.classes.columns.className} />
+    ),
+    cell: ({ row }) => {
+      const classItem = row.original
+      return (
+        <span className='font-medium'>
+          {classItem.name}
+        </span>
+      )
+    },
+    size: 200,
   },
   {
     accessorKey: 'type',

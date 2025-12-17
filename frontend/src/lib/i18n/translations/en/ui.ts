@@ -377,7 +377,7 @@ export const uiEn: UITranslations = {
     addClass: 'Add Class',
     searchPlaceholder: 'Search classes...',
     columns: {
-      name: 'Name',
+      className: 'Class Name',
       grade: 'Grade',
       academicYear: 'Academic Year',
       teacher: 'Teacher',

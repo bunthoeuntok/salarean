@@ -11,6 +11,7 @@ export interface Class {
   schoolId: string
   teacherId: string
   grade: number
+  name: string
   section?: string
   academicYear: string
   maxCapacity: number

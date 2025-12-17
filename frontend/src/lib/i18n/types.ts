@@ -403,7 +403,7 @@ export interface UITranslations {
     addClass: string
     searchPlaceholder: string
     columns: {
-      name: string
+      className: string
       grade: string
       academicYear: string
       teacher: string

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -87,12 +87,6 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
     return allLevels.filter((option) => availableLevels.includes(option.value))
   }, [t, availableLevels])
 
-  const typeOptions: { value: ClassType; label: string }[] = [
-    { value: 'NORMAL', label: t.classes.type.NORMAL },
-    { value: 'SCIENCE', label: t.classes.type.SCIENCE },
-    { value: 'SOCIAL_SCIENCE', label: t.classes.type.SOCIAL_SCIENCE },
-  ]
-
   const form = useForm<FormData>({
     resolver: zodResolver(createClassSchema),
     defaultValues: {
@@ -104,12 +98,42 @@ export function AddClassModal({ open, onOpenChange }: AddClassModalProps) {
     },
   })
 
+  // Watch grade for type filtering
+  const selectedGrade = form.watch('grade')
+
   // Use class filtering hook for level → grade filtering with form integration
   const { filteredGradeOptions } = useClassFiltering({
     initialLevel: form.watch('level'),
     availableLevels,
     onGradeCleared: () => form.setValue('grade', ''),
   })
+
+  // Filter type options based on grade (11-12 = SCIENCE/SOCIAL_SCIENCE, others = NORMAL only)
+  const typeOptions = useMemo(() => {
+    const gradeNum = Number(selectedGrade)
+    if (gradeNum === 11 || gradeNum === 12) {
+      return [
+        { value: 'SCIENCE' as ClassType, label: t.classes.type.SCIENCE },
+        { value: 'SOCIAL_SCIENCE' as ClassType, label: t.classes.type.SOCIAL_SCIENCE },
+      ]
+    }
+    return [{ value: 'NORMAL' as ClassType, label: t.classes.type.NORMAL }]
+  }, [selectedGrade, t])
+
+  // Auto-reset type when grade changes and current type is invalid
+  useEffect(() => {
+    const gradeNum = Number(selectedGrade)
+    const currentType = form.getValues('type')
+    if (gradeNum === 11 || gradeNum === 12) {
+      if (currentType === 'NORMAL') {
+        form.setValue('type', 'SCIENCE')
+      }
+    } else if (selectedGrade) {
+      if (currentType !== 'NORMAL') {
+        form.setValue('type', 'NORMAL')
+      }
+    }
+  }, [selectedGrade, form])
 
   const createMutation = useMutation({
     mutationFn: (data: CreateClassRequest) => classService.createClass(data),

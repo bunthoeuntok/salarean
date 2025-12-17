@@ -377,7 +377,7 @@ export const uiKm: UITranslations = {
     addClass: 'បន្ថែមថ្នាក់រៀន',
     searchPlaceholder: 'ស្វែងរកថ្នាក់រៀន...',
     columns: {
-      name: 'ឈ្មោះ',
+      className: 'ថ្នាក់រៀន',
       grade: 'កម្រិត',
       academicYear: 'ឆ្នាំសិក្សា',
       teacher: 'គ្រូបង្រៀន',
