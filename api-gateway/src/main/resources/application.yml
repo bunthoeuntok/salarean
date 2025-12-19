@@ -78,6 +78,14 @@ spring:
           filters:
             - JwtAuthenticationFilter
 
+        # Grade Service OpenAPI Docs
+        - id: grade-service-openapi
+          uri: lb://GRADE-SERVICE
+          predicates:
+            - Path=/grade-service/v3/api-docs/**
+          filters:
+            - RewritePath=/grade-service/v3/api-docs/(?<segment>.*), /v3/api-docs/${segment}
+
         # Report Service
         - id: report-service
           uri: lb://REPORT-SERVICE
@@ -118,5 +126,7 @@ springdoc:
         url: /auth-service/v3/api-docs
       - name: student-service
         url: /student-service/v3/api-docs
+      - name: grade-service
+        url: /grade-service/v3/api-docs
   api-docs:
     enabled: true
