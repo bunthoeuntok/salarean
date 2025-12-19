@@ -44,13 +44,13 @@ import { studentService } from '@/services/student.service'
 import { useClasses } from '@/hooks/use-classes'
 import type { Student, EnrollStudentRequest } from '@/types/student.types'
 
-const baseEnrollSchema = z.object({
+const _enrollSchema = z.object({
   classId: z.string(),
   enrollmentDate: z.date(),
   notes: z.string().optional(),
 })
 
-type FormData = z.infer<typeof baseEnrollSchema>
+type FormData = z.infer<typeof _enrollSchema>
 
 interface EnrollStudentModalProps {
   open: boolean

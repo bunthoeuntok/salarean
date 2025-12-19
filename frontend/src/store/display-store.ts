@@ -20,7 +20,7 @@ const applyTextSizeFromStorage = () => {
       // Apply default if no stored value
       document.documentElement.setAttribute('data-text-size', 'medium')
     }
-  } catch (error) {
+  } catch {
     // Apply default on error
     document.documentElement.setAttribute('data-text-size', 'medium')
   }

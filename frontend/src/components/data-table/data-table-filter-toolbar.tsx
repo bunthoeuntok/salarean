@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { Search, X, Filter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,15 +16,23 @@ export function DataTableFilterToolbar({
   resetLabel = 'Reset',
   toolbarActions,
 }: DataTableFilterToolbarProps) {
-  // Local state for pending changes
+  // Local state for pending changes + tracking previous prop values for sync
   const [search, setSearch] = useState(initialSearch)
   const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters)
+  const [prevInitialSearch, setPrevInitialSearch] = useState(initialSearch)
+  const [prevInitialFilters, setPrevInitialFilters] = useState(initialFilters)
 
-  // Sync local state when URL params change (e.g., browser back/forward)
-  useEffect(() => {
+  // Sync local state when props change (e.g., browser back/forward)
+  if (prevInitialSearch !== initialSearch) {
+    setPrevInitialSearch(initialSearch)
     setSearch(initialSearch)
+  }
+  const initialFiltersStr = JSON.stringify(initialFilters)
+  const prevFiltersStr = JSON.stringify(prevInitialFilters)
+  if (prevFiltersStr !== initialFiltersStr) {
+    setPrevInitialFilters(initialFilters)
     setFilters(initialFilters)
-  }, [initialSearch, initialFilters])
+  }
 
   // Check if there are any active filters
   const hasActiveFilters =

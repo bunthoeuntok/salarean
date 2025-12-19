@@ -37,7 +37,7 @@ import { useClassFiltering } from '@/hooks/use-class-filtering'
 import { useAvailableLevels } from '@/hooks/use-available-levels'
 import type { Class, ClassLevel, ClassType, UpdateClassRequest } from '@/types/class.types'
 
-const baseClassSchema = z.object({
+const _baseClassSchema = z.object({
   grade: z.string(),
   section: z.string().optional(),
   maxCapacity: z.number(),
@@ -45,7 +45,7 @@ const baseClassSchema = z.object({
   type: z.enum(['NORMAL', 'SCIENCE', 'SOCIAL_SCIENCE'] as const)
 })
 
-type FormData = z.infer<typeof baseClassSchema>
+type FormData = z.infer<typeof _baseClassSchema>
 
 interface EditClassModalProps {
   open: boolean
@@ -103,6 +103,7 @@ function EditClassForm({ classData, onClose, classId }: EditClassFormProps) {
   })
 
   // Watch grade for type filtering
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedGrade = form.watch('grade')
 
   // Use class filtering hook for level → grade filtering with form integration

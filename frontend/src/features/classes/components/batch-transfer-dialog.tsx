@@ -39,11 +39,11 @@ import { classService } from '@/services/class.service'
 import { useClasses } from '@/hooks/use-classes'
 import type { StudentEnrollmentItem } from '@/types/class.types'
 
-const baseTransferSchema = z.object({
+const _baseTransferSchema = z.object({
   destinationClassId: z.string(),
 })
 
-type FormData = z.infer<typeof baseTransferSchema>
+type FormData = z.infer<typeof _baseTransferSchema>
 
 interface BatchTransferDialogProps {
   open: boolean
@@ -99,6 +99,7 @@ export function BatchTransferDialog({
 
       // Store transfer info in session storage for undo capability (5 minute window)
       // Calculate expiration time from current client time (not server time)
+      // eslint-disable-next-line react-hooks/purity -- Date.now() is in callback, not render
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
 
       const undoInfo = {

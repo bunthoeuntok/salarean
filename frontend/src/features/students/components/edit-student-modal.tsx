@@ -47,14 +47,14 @@ import { studentService } from '@/services/student.service'
 import type { Student, Gender, Relationship, UpdateStudentRequest } from '@/types/student.types'
 
 // Schema type for type inference
-const baseParentContactSchema = z.object({
+const _baseParentContactSchema = z.object({
   fullName: z.string(),
   phoneNumber: z.string(),
   relationship: z.enum(['MOTHER', 'FATHER', 'GUARDIAN', 'OTHER'] as const),
   isPrimary: z.boolean(),
 })
 
-const baseStudentSchema = z.object({
+const _baseStudentSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   firstNameKhmer: z.string().optional(),
@@ -62,10 +62,10 @@ const baseStudentSchema = z.object({
   dateOfBirth: z.date(),
   gender: z.enum(['M', 'F'] as const),
   address: z.string().optional(),
-  parentContacts: z.array(baseParentContactSchema),
+  parentContacts: z.array(_baseParentContactSchema),
 })
 
-type FormData = z.infer<typeof baseStudentSchema>
+type FormData = z.infer<typeof _baseStudentSchema>
 
 interface EditStudentModalProps {
   open: boolean

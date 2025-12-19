@@ -35,8 +35,12 @@ export function useCountdown({
   onComplete,
   interval = 1000,
 }: UseCountdownOptions): CountdownReturn {
-  const [remainingMs, setRemainingMs] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
+  // Calculate initial remaining time synchronously
+  const getInitialRemaining = () => Math.max(0, targetTimestamp - Date.now());
+
+  const [remainingMs, setRemainingMs] = useState(getInitialRemaining);
+  const [isComplete, setIsComplete] = useState(() => getInitialRemaining() === 0);
+  const [prevTarget, setPrevTarget] = useState(targetTimestamp);
   const onCompleteRef = useRef(onComplete);
 
   // Update ref to latest callback
@@ -51,19 +55,24 @@ export function useCountdown({
     return remaining;
   }, [targetTimestamp]);
 
-  // Initialize and update countdown
-  useEffect(() => {
-    // Initial calculation
-    const remaining = calculateRemaining();
+  // Sync state when target changes (using state to track previous value)
+  if (prevTarget !== targetTimestamp) {
+    setPrevTarget(targetTimestamp);
+    // eslint-disable-next-line react-hooks/purity -- Date.now() is intentional for countdown sync
+    const remaining = Math.max(0, targetTimestamp - Date.now());
     setRemainingMs(remaining);
+    setIsComplete(remaining === 0);
+  }
+
+  // Set up interval for updates
+  useEffect(() => {
+    const remaining = calculateRemaining();
 
     if (remaining === 0) {
-      setIsComplete(true);
       onCompleteRef.current?.();
       return;
     }
 
-    // Set up interval for updates
     const intervalId = setInterval(() => {
       const newRemaining = calculateRemaining();
       setRemainingMs(newRemaining);

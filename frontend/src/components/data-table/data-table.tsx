@@ -170,6 +170,7 @@ export function DataTable<TData, TValue>({
     return columnOrder
   }, [columnOrder, enableRowSelection])
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns: columnsWithSelection,

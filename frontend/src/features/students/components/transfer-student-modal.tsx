@@ -45,13 +45,13 @@ import { studentService } from '@/services/student.service'
 import { useClasses } from '@/hooks/use-classes'
 import type { Student, TransferStudentRequest } from '@/types/student.types'
 
-const baseTransferSchema = z.object({
+const _transferSchema = z.object({
   targetClassId: z.string(),
   transferDate: z.date(),
   reason: z.string(),
 })
 
-type FormData = z.infer<typeof baseTransferSchema>
+type FormData = z.infer<typeof _transferSchema>
 
 interface TransferStudentModalProps {
   open: boolean
@@ -116,7 +116,7 @@ export function TransferStudentModal({ open, onOpenChange, student }: TransferSt
   const availableClasses = useMemo(() => {
     if (!student?.currentClassId) return []
     return getEligibleDestinations(student.currentClassId)
-  }, [getEligibleDestinations, student?.currentClassId])
+  }, [getEligibleDestinations, student])
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

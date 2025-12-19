@@ -20,6 +20,7 @@ export function NavigationProgress() {
 }
 
 // Hook to manually control progress bar
+// eslint-disable-next-line react-refresh/only-export-components
 export function useNavigationProgress() {
   return {
     start: () => NProgress.start(),

@@ -18,13 +18,15 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
 
-  // Local state for immediate UI updates
+  // Local state for immediate UI updates + tracking previous prop for sync
   const [localSearchValue, setLocalSearchValue] = useState(searchValue ?? '')
+  const [prevSearchValue, setPrevSearchValue] = useState(searchValue)
 
   // Sync local state when prop changes (e.g., from URL navigation)
-  useEffect(() => {
+  if (prevSearchValue !== searchValue) {
+    setPrevSearchValue(searchValue)
     setLocalSearchValue(searchValue ?? '')
-  }, [searchValue])
+  }
 
   // Debounce the search value before updating URL (300ms delay)
   const debouncedSearchValue = useDebouncedValue(localSearchValue, 300)

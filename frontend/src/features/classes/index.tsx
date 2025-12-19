@@ -90,14 +90,16 @@ export function ClassesPage() {
   })
 
   // Fetch classes data (automatically filtered by selected academic year)
+  const sortField = sorting.length > 0 ? sorting[0].id : undefined
+  const sortDesc = sorting.length > 0 ? sorting[0].desc : undefined
   const { data, isLoading } = useQuery({
-    queryKey: ['classes', pageIndex, pageSize, searchValue, sorting, filters, selectedAcademicYear],
+    queryKey: ['classes', pageIndex, pageSize, searchValue, sorting.length, sortField, sortDesc, filters, selectedAcademicYear],
     queryFn: () =>
       classService.getClasses({
         page: pageIndex,
         size: pageSize,
         search: searchValue || undefined,
-        sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
+        sort: sortField ? `${sortField},${sortDesc ? 'desc' : 'asc'}` : undefined,
         status: filters.status?.join(',') || undefined,
         grade: filters.grade?.[0] ? Number(filters.grade[0]) : undefined,
         level: filters.level?.[0] as ClassLevel | undefined,
@@ -106,10 +108,6 @@ export function ClassesPage() {
       }),
   })
 
-  const handleViewClass = (classItem: Class) => {
-    navigate({ to: '/classes/$id', params: { id: classItem.id } })
-  }
-
   // Create columns with translations
   const columns = useMemo(
     () =>
@@ -117,7 +115,7 @@ export function ClassesPage() {
         t,
         handleEditClass,
         (classItem) => console.log('Delete class:', classItem),
-        handleViewClass,
+        (classItem: Class) => navigate({ to: '/classes/$id', params: { id: classItem.id } }),
         (classItem) => console.log('Manage students:', classItem)
       ),
     [t, navigate]

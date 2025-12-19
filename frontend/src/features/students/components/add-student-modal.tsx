@@ -48,14 +48,14 @@ import { useClasses } from '@/hooks/use-classes'
 import type { Gender, Relationship, CreateStudentRequest } from '@/types/student.types'
 
 // Schema type for type inference
-const baseParentContactSchema = z.object({
+const _baseParentContactSchema = z.object({
   fullName: z.string(),
   phoneNumber: z.string(),
   relationship: z.enum(['MOTHER', 'FATHER', 'GUARDIAN', 'OTHER'] as const),
   isPrimary: z.boolean(),
 })
 
-const baseStudentSchema = z.object({
+const _baseStudentSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   firstNameKhmer: z.string().optional(),
@@ -66,10 +66,10 @@ const baseStudentSchema = z.object({
   enrollmentDate: z.date().optional(),
   address: z.string().optional(),
   emergencyContact: z.string().optional(),
-  parentContacts: z.array(baseParentContactSchema).optional(),
+  parentContacts: z.array(_baseParentContactSchema).optional(),
 })
 
-type FormData = z.infer<typeof baseStudentSchema>
+type FormData = z.infer<typeof _baseStudentSchema>
 
 interface AddStudentModalProps {
   open: boolean

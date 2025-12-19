@@ -53,8 +53,8 @@ function AuthLayoutContent({ children }: AuthLayoutProps) {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "Empowering educators with modern tools for student management,
-              attendance tracking, and academic excellence."
+              &ldquo;Empowering educators with modern tools for student management,
+              attendance tracking, and academic excellence.&rdquo;
             </p>
             <footer className="text-sm opacity-80">School Management System</footer>
           </blockquote>

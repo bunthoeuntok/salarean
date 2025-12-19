@@ -142,14 +142,16 @@ export function StudentsPage() {
   })
 
   // Fetch students data (automatically filtered by selected academic year)
+  const sortField = sorting.length > 0 ? sorting[0].id : undefined
+  const sortDesc = sorting.length > 0 ? sorting[0].desc : undefined
   const { data, isLoading } = useQuery({
-    queryKey: ['students', pageIndex, pageSize, searchValue, sorting, filters, selectedAcademicYear],
+    queryKey: ['students', pageIndex, pageSize, searchValue, sorting.length, sortField, sortDesc, filters, selectedAcademicYear],
     queryFn: () =>
       studentService.getStudents({
         page: pageIndex,
         size: pageSize,
         search: searchValue || undefined,
-        sort: sorting.length > 0 ? `${sorting[0].id},${sorting[0].desc ? 'desc' : 'asc'}` : undefined,
+        sort: sortField ? `${sortField},${sortDesc ? 'desc' : 'asc'}` : undefined,
         status: filters.status?.join(',') || undefined,
         gender: filters.gender?.join(',') || undefined,
         level: filters.level?.[0] || undefined,
