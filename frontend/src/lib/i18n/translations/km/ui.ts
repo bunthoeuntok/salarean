@@ -85,6 +85,7 @@ export const uiKm: UITranslations = {
     and: 'និង',
     comingSoon: 'មកដល់ឆាប់ៗនេះ',
     active: 'សកម្ម',
+    grade: 'ថ្នាក់ទី',
   },
   validation: {
     required: 'ត្រូវការបំពេញព័ត៌មាននេះ',

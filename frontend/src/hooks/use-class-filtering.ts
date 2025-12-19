@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import type { ClassLevel } from '@/types/class.types'
 import type { Class } from '@/types/class.types'
 import { getFilteredGradeOptions, isGradeValidForLevel } from '@/lib/utils/class-filters'
+import { useLanguage } from '@/context/language-provider'
 
 interface UseClassFilteringOptions {
   /**
@@ -95,6 +96,7 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
     onGradeCleared,
   } = options
 
+  const { t } = useLanguage()
   const [selectedLevel, setSelectedLevel] = useState<ClassLevel | undefined>(initialLevel)
   const [selectedGrade, setSelectedGrade] = useState<string | undefined>(initialGrade)
 
@@ -109,8 +111,8 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
 
   // Filter grade options based on selected level and available levels
   const filteredGradeOptions = useMemo(() => {
-    return getFilteredGradeOptions(selectedLevel, availableLevels)
-  }, [selectedLevel, availableLevels])
+    return getFilteredGradeOptions(t.common.grade, selectedLevel, availableLevels)
+  }, [t.common.grade, selectedLevel, availableLevels])
 
   // Check if current grade is valid for selected level
   const isGradeValid = useCallback((grade: string): boolean => {
@@ -152,7 +154,7 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
     }
 
     const options = filtered.map((c) => ({
-      label: `Grade ${c.grade}${c.section ? ` - ${c.section}` : ''}`,
+      label: `${t.common.grade} ${c.grade}${c.section ? ` - ${c.section}` : ''}`,
       value: c.id,
     }))
 
@@ -162,7 +164,7 @@ export function useClassFiltering(options: UseClassFilteringOptions = {}): UseCl
     }
 
     return options
-  }, [classes, selectedLevel, selectedGrade, includeNoClassOption, noClassLabel])
+  }, [classes, selectedLevel, selectedGrade, includeNoClassOption, noClassLabel, t.common.grade])
 
   // Level change handler
   const handleLevelChange = useCallback((values: string[]) => {

@@ -73,7 +73,7 @@ export function TransferStudentModal({ open, onOpenChange, student }: TransferSt
   }, [t])
 
   // Fetch classes from global store
-  const { classes: allClasses } = useClasses()
+  const { getEligibleDestinations } = useClasses()
 
   const form = useForm<FormData>({
     resolver: zodResolver(transferSchema),
@@ -111,18 +111,12 @@ export function TransferStudentModal({ open, onOpenChange, student }: TransferSt
     form.reset()
   }
 
-  // Filter ACTIVE classes and exclude current class
+  // Get eligible destination classes using the store function
+  // Filters: ACTIVE status, same grade level, has capacity, not source class
   const availableClasses = useMemo(() => {
-    return allClasses.filter((cls) => {
-      // Must be ACTIVE
-      if (cls.status !== 'ACTIVE') return false
-
-      // Cannot transfer to same class
-      if (student?.currentClassId && cls.id === student.currentClassId) return false
-
-      return true
-    })
-  }, [allClasses, student?.currentClassId])
+    if (!student?.currentClassId) return []
+    return getEligibleDestinations(student.currentClassId)
+  }, [getEligibleDestinations, student?.currentClassId])
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -168,7 +162,7 @@ export function TransferStudentModal({ open, onOpenChange, student }: TransferSt
                       <SelectContent>
                         {availableClasses.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
-                            Grade {cls.grade}{cls.section ? ` - ${cls.section}` : ''} ({cls.academicYear})
+                            {t.common.grade} {cls.grade}{cls.section ? ` - ${cls.section}` : ''} ({cls.academicYear})
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -27,8 +27,8 @@ export const createStudentEnrollmentColumns = (
   t: {
     students: {
       columns: {
-        code: string
-        name: string
+        studentCode: string
+        fullName: string
         fullNameKhmer: string
         gender: string
         dateOfBirth: string
@@ -92,7 +92,7 @@ export const createStudentEnrollmentColumns = (
   {
     accessorKey: 'studentCode',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.students.columns.code} />
+      <DataTableColumnHeader column={column} title={t.students.columns.studentCode} />
     ),
     cell: ({ row }) => (
       <span className="font-medium">{row.getValue('studentCode')}</span>
@@ -102,7 +102,7 @@ export const createStudentEnrollmentColumns = (
   {
     accessorKey: 'fullName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.students.columns.name} />
+      <DataTableColumnHeader column={column} title={t.students.columns.fullName} />
     ),
     cell: ({ row }) => {
       const student = row.original

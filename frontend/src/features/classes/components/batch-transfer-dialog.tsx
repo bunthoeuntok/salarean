@@ -278,7 +278,7 @@ export function BatchTransferDialog({
                           <SelectItem key={cls.id} value={cls.id}>
                             <div className="flex items-center justify-between w-full gap-4">
                               <span className="font-medium">
-                                Grade {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
+                                {t.common.grade} {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
                               </span>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <span>

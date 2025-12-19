@@ -85,6 +85,7 @@ export const uiEn: UITranslations = {
     and: 'and',
     comingSoon: 'Coming soon',
     active: 'Active',
+    grade: 'Grade',
   },
   validation: {
     required: 'This field is required',
