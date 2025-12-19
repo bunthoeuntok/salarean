@@ -71,11 +71,11 @@ export interface CreateStudentRequest {
   lastNameKhmer?: string
   dateOfBirth: string
   gender: Gender
-  classId: string
+  classId?: string
   address?: string
   emergencyContact?: string
-  enrollmentDate: string
-  parentContacts: ParentContactRequest[]
+  enrollmentDate?: string
+  parentContacts?: ParentContactRequest[]
 }
 
 /**
@@ -90,7 +90,7 @@ export interface UpdateStudentRequest {
   dateOfBirth: string
   gender: Gender
   address?: string
-  parentContacts: ParentContactRequest[]
+  parentContacts?: ParentContactRequest[]
 }
 
 /**

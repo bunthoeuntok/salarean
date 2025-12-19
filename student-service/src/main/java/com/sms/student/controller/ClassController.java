@@ -124,6 +124,7 @@ public class ClassController {
 
     /**
      * Helper method to create Pageable with sorting.
+     * Maps frontend sort field names to database column names.
      */
     private Pageable createPageable(int page, int size, String sortParam) {
         String[] sortParts = sortParam.split(",");
@@ -132,7 +133,22 @@ public class ClassController {
                 ? Sort.Direction.DESC
                 : Sort.Direction.ASC;
 
-        return PageRequest.of(page, size, Sort.by(direction, sortField));
+        // Map computed/virtual fields to actual database columns
+        Sort sort = mapSortField(sortField, direction);
+
+        return PageRequest.of(page, size, sort);
+    }
+
+    /**
+     * Map frontend sort field names to database column names.
+     * Handles computed fields like className that don't exist as DB columns.
+     */
+    private Sort mapSortField(String sortField, Sort.Direction direction) {
+        return switch (sortField) {
+            // className is computed from grade + section (e.g., "Grade 5A")
+            case "className" -> Sort.by(direction, "grade").and(Sort.by(direction, "section"));
+            default -> Sort.by(direction, sortField);
+        };
     }
 
     /**

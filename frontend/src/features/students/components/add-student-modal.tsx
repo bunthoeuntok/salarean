@@ -62,11 +62,11 @@ const baseStudentSchema = z.object({
   lastNameKhmer: z.string().optional(),
   dateOfBirth: z.date(),
   gender: z.enum(['M', 'F'] as const),
-  classId: z.string(),
-  enrollmentDate: z.date(),
+  classId: z.string().optional(),
+  enrollmentDate: z.date().optional(),
   address: z.string().optional(),
   emergencyContact: z.string().optional(),
-  parentContacts: z.array(baseParentContactSchema),
+  parentContacts: z.array(baseParentContactSchema).optional(),
 })
 
 type FormData = z.infer<typeof baseStudentSchema>
@@ -100,13 +100,11 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
       lastNameKhmer: z.string().max(100).optional(),
       dateOfBirth: z.date({ required_error: t.validation.required }),
       gender: z.enum(['M', 'F'] as const, { required_error: t.validation.required }),
-      classId: z.string().min(1, t.validation.required),
-      enrollmentDate: z.date({ required_error: t.validation.required }),
+      classId: z.string().optional(),
+      enrollmentDate: z.date().optional(),
       address: z.string().max(500).optional(),
       emergencyContact: z.string().max(20).optional(),
-      parentContacts: z
-        .array(parentContactSchema)
-        .min(1, t.students.modal.parentContact.atLeastOne),
+      parentContacts: z.array(parentContactSchema).optional(),
     })
   }, [t])
 
@@ -126,17 +124,11 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
       firstNameKhmer: '',
       lastNameKhmer: '',
       gender: undefined,
-      classId: '',
+      classId: undefined,
+      enrollmentDate: undefined,
       address: '',
       emergencyContact: '',
-      parentContacts: [
-        {
-          fullName: '',
-          phoneNumber: '+855',
-          relationship: 'MOTHER',
-          isPrimary: true,
-        },
-      ],
+      parentContacts: [],
     },
   })
 
@@ -161,13 +153,17 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
 
   const onSubmit = (data: FormData) => {
     const request: CreateStudentRequest = {
-      ...data,
+      firstName: data.firstName,
+      lastName: data.lastName,
       dateOfBirth: format(data.dateOfBirth, 'yyyy-MM-dd'),
-      enrollmentDate: format(data.enrollmentDate, 'yyyy-MM-dd'),
+      gender: data.gender,
       firstNameKhmer: data.firstNameKhmer || undefined,
       lastNameKhmer: data.lastNameKhmer || undefined,
+      classId: data.classId || undefined,
+      enrollmentDate: data.enrollmentDate ? format(data.enrollmentDate, 'yyyy-MM-dd') : undefined,
       address: data.address || undefined,
       emergencyContact: data.emergencyContact || undefined,
+      parentContacts: data.parentContacts && data.parentContacts.length > 0 ? data.parentContacts : undefined,
     }
     createMutation.mutate(request)
   }
@@ -433,7 +429,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='classId'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t.students.modal.fields.class} <span className='text-destructive'>*</span></FormLabel>
+                        <FormLabel>{t.students.modal.fields.class}</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className='w-full'>
@@ -445,7 +441,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                           <SelectContent>
                             {activeClasses.map((cls) => (
                               <SelectItem key={cls.id} value={cls.id}>
-                                Grade {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
+                                {t.common.grade} {cls.grade}{cls.section ? ` - ${cls.section}` : ''}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -459,7 +455,7 @@ export function AddStudentModal({ open, onOpenChange }: AddStudentModalProps) {
                     name='enrollmentDate'
                     render={({ field }) => (
                       <FormItem className='flex flex-col'>
-                        <FormLabel>{t.students.modal.fields.enrollmentDate} <span className='text-destructive'>*</span></FormLabel>
+                        <FormLabel>{t.students.modal.fields.enrollmentDate}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>

@@ -46,7 +46,6 @@ public class StudentUpdateRequest {
     @Size(max = 500, message = "Address must not exceed 500 characters")
     private String address;
 
-    @NotEmpty(message = "At least one parent contact is required")
     @Valid
     private List<ParentContactRequest> parentContacts;
 }

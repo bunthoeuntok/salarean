@@ -158,6 +158,7 @@ public class StudentController {
 
     /**
      * Helper method to create Pageable with sorting.
+     * Maps frontend sort field names to database column names.
      */
     private Pageable createPageable(int page, int size, String sortParam) {
         String[] sortParts = sortParam.split(",");
@@ -166,6 +167,23 @@ public class StudentController {
                 ? Sort.Direction.DESC
                 : Sort.Direction.ASC;
 
-        return PageRequest.of(page, size, Sort.by(direction, sortField));
+        // Map computed/virtual fields to actual database columns
+        Sort sort = mapSortField(sortField, direction);
+
+        return PageRequest.of(page, size, sort);
+    }
+
+    /**
+     * Map frontend sort field names to database column names.
+     * Handles computed fields like fullName that don't exist as DB columns.
+     */
+    private Sort mapSortField(String sortField, Sort.Direction direction) {
+        return switch (sortField) {
+            case "fullName" -> Sort.by(direction, "lastName").and(Sort.by(direction, "firstName"));
+            case "fullNameKhmer" -> Sort.by(direction, "lastNameKhmer").and(Sort.by(direction, "firstNameKhmer"));
+            // currentClassName is derived from enrollment join - sort by name as fallback
+            case "currentClassName" -> Sort.by(direction, "lastName").and(Sort.by(direction, "firstName"));
+            default -> Sort.by(direction, sortField);
+        };
     }
 }

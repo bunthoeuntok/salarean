@@ -53,20 +53,19 @@ public class StudentService implements IStudentService {
     public StudentResponse createStudent(StudentRequest request) {
         UUID teacherId = TeacherContextHolder.getTeacherId();
 
-        // Validate at least one parent contact exists
-        if (request.getParentContacts() == null || request.getParentContacts().isEmpty()) {
-            throw new InvalidStudentDataException("At least one parent contact is required");
-        }
-
-        // Validate only one primary contact
-        long primaryCount = request.getParentContacts().stream()
-                .filter(ParentContactRequest::getIsPrimary)
-                .count();
-        if (primaryCount == 0) {
-            throw new InvalidStudentDataException("At least one parent contact must be marked as primary");
-        }
-        if (primaryCount > 1) {
-            throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
+        // Validate parent contacts if provided
+        List<ParentContact> contacts = new ArrayList<>();
+        if (request.getParentContacts() != null && !request.getParentContacts().isEmpty()) {
+            // Validate only one primary contact
+            long primaryCount = request.getParentContacts().stream()
+                    .filter(ParentContactRequest::getIsPrimary)
+                    .count();
+            if (primaryCount == 0) {
+                throw new InvalidStudentDataException("At least one parent contact must be marked as primary");
+            }
+            if (primaryCount > 1) {
+                throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
+            }
         }
 
         // Validate and check class capacity if classId provided
@@ -121,28 +120,30 @@ public class StudentService implements IStudentService {
         // Save student first to get ID
         student = studentRepository.save(student);
 
-        // Create parent contacts
-        final Student savedStudent = student;
-        List<ParentContact> contacts = request.getParentContacts().stream()
-                .map(contactReq -> ParentContact.builder()
-                        .student(savedStudent)
-                        .fullName(contactReq.getFullName())
-                        .phoneNumber(contactReq.getPhoneNumber())
-                        .relationship(contactReq.getRelationship())
-                        .isPrimary(contactReq.getIsPrimary())
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .build())
-                .collect(Collectors.toList());
+        // Create parent contacts if provided
+        if (request.getParentContacts() != null && !request.getParentContacts().isEmpty()) {
+            final Student savedStudent = student;
+            contacts = request.getParentContacts().stream()
+                    .map(contactReq -> ParentContact.builder()
+                            .student(savedStudent)
+                            .fullName(contactReq.getFullName())
+                            .phoneNumber(contactReq.getPhoneNumber())
+                            .relationship(contactReq.getRelationship())
+                            .isPrimary(contactReq.getIsPrimary())
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
+                            .build())
+                    .collect(Collectors.toList());
 
-        parentContactRepository.saveAll(contacts);
+            parentContactRepository.saveAll(contacts);
+        }
 
         // Create enrollment record if class provided
         if (schoolClass != null) {
             StudentClassEnrollment enrollment = StudentClassEnrollment.builder()
                     .studentId(student.getId())
                     .classId(schoolClass.getId())
-                    .enrollmentDate(LocalDate.now())
+                    .enrollmentDate(request.getEnrollmentDate() != null ? request.getEnrollmentDate() : LocalDate.now())
                     .reason(EnrollmentReason.NEW)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
@@ -171,20 +172,18 @@ public class StudentService implements IStudentService {
                     return new UnauthorizedAccessException("You are not authorized to update this student");
                 });
 
-        // Validate at least one parent contact exists
-        if (request.getParentContacts() == null || request.getParentContacts().isEmpty()) {
-            throw new InvalidStudentDataException("At least one parent contact is required");
-        }
-
-        // Validate only one primary contact
-        long primaryCount = request.getParentContacts().stream()
-                .filter(ParentContactRequest::getIsPrimary)
-                .count();
-        if (primaryCount == 0) {
-            throw new InvalidStudentDataException("At least one parent contact must be marked as primary");
-        }
-        if (primaryCount > 1) {
-            throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
+        // Validate parent contacts if provided
+        if (request.getParentContacts() != null && !request.getParentContacts().isEmpty()) {
+            // Validate only one primary contact
+            long primaryCount = request.getParentContacts().stream()
+                    .filter(ParentContactRequest::getIsPrimary)
+                    .count();
+            if (primaryCount == 0) {
+                throw new InvalidStudentDataException("At least one parent contact must be marked as primary");
+            }
+            if (primaryCount > 1) {
+                throw new InvalidStudentDataException("Only one parent contact can be marked as primary");
+            }
         }
 
         // Update basic fields (student code, enrollment date, class, and teacher_id are immutable via this endpoint)
@@ -206,21 +205,24 @@ public class StudentService implements IStudentService {
             parentContactRepository.deleteAll(existingContacts);
         }
 
-        // Create new parent contacts from request
-        final Student savedStudent = student;
-        List<ParentContact> newContacts = request.getParentContacts().stream()
-                .map(contactReq -> ParentContact.builder()
-                        .student(savedStudent)
-                        .fullName(contactReq.getFullName())
-                        .phoneNumber(contactReq.getPhoneNumber())
-                        .relationship(contactReq.getRelationship())
-                        .isPrimary(contactReq.getIsPrimary())
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
-                        .build())
-                .collect(Collectors.toList());
+        // Create new parent contacts from request if provided
+        List<ParentContact> newContacts = new ArrayList<>();
+        if (request.getParentContacts() != null && !request.getParentContacts().isEmpty()) {
+            final Student savedStudent = student;
+            newContacts = request.getParentContacts().stream()
+                    .map(contactReq -> ParentContact.builder()
+                            .student(savedStudent)
+                            .fullName(contactReq.getFullName())
+                            .phoneNumber(contactReq.getPhoneNumber())
+                            .relationship(contactReq.getRelationship())
+                            .isPrimary(contactReq.getIsPrimary())
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
+                            .build())
+                    .collect(Collectors.toList());
 
-        parentContactRepository.saveAll(newContacts);
+            parentContactRepository.saveAll(newContacts);
+        }
 
         // Save student changes
         student = studentRepository.save(student);

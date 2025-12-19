@@ -5,8 +5,8 @@ import com.sms.student.enums.StudentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "students")
-@Where(clause = "status = 'ACTIVE'")
+@SQLRestriction("status = 'ACTIVE'")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -60,7 +60,7 @@ public class Student {
     @Column(name = "emergency_contact", length = 20)
     private String emergencyContact;
 
-    @Column(name = "enrollment_date", nullable = false)
+    @Column(name = "enrollment_date")
     private LocalDate enrollmentDate;
 
     @Enumerated(EnumType.STRING)

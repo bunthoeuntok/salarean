@@ -39,7 +39,6 @@ public class StudentRequest {
     @NotNull(message = "Gender is required")
     private Gender gender;
 
-    @NotNull(message = "Class ID is required")
     private UUID classId;
 
     @Size(max = 500, message = "Address must not exceed 500 characters")
@@ -48,10 +47,8 @@ public class StudentRequest {
     @Size(max = 20, message = "Emergency contact must not exceed 20 characters")
     private String emergencyContact;
 
-    @NotNull(message = "Enrollment date is required")
     private LocalDate enrollmentDate;
 
-    @NotEmpty(message = "At least one parent contact is required")
     @Valid
     private List<ParentContactRequest> parentContacts;
 }
