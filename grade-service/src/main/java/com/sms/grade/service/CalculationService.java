@@ -3,7 +3,6 @@ package com.sms.grade.service;
 import com.sms.grade.dto.CalculationResult;
 import com.sms.grade.dto.RankingResponse;
 import com.sms.grade.dto.TeacherAssessmentConfigResponse;
-import com.sms.grade.enums.AssessmentCategory;
 import com.sms.grade.enums.AverageType;
 import com.sms.grade.exception.CalculationException;
 import com.sms.grade.exception.InsufficientGradesException;

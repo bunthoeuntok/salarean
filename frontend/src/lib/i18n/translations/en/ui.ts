@@ -114,6 +114,7 @@ export const uiEn: UITranslations = {
     dashboard: 'Dashboard',
     students: 'Students',
     classes: 'Classes',
+    subjects: 'Subjects',
     attendance: 'Attendance',
     schedule: 'Schedule',
     settings: 'Settings',
@@ -562,6 +563,18 @@ export const uiEn: UITranslations = {
       creating: 'Creating...',
       success: 'School created successfully',
       error: 'Failed to create school',
+    },
+  },
+  subjects: {
+    title: 'Subjects',
+    description: 'View available subjects for each grade level.',
+    searchPlaceholder: 'Search subjects...',
+    columns: {
+      name: 'Subject Name',
+      nameKhmer: 'Subject Name (Khmer)',
+      code: 'Code',
+      gradeLevels: 'Grade Levels',
+      isCore: 'Core Subject',
     },
   },
 }

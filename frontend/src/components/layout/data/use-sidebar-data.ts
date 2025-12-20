@@ -8,6 +8,7 @@ import {
   HelpCircle,
   UserCog,
   Building2,
+  BookOpen,
 } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { type SidebarData } from '../types'
@@ -44,6 +45,11 @@ export function useSidebarData(): SidebarData {
             title: t.nav.classes,
             url: '/classes',
             icon: Users,
+          },
+          {
+            title: t.nav.subjects,
+            url: '/subjects',
+            icon: BookOpen,
           },
           {
             title: t.nav.attendance,

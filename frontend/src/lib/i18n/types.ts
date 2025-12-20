@@ -134,6 +134,7 @@ export interface UITranslations {
     dashboard: string
     students: string
     classes: string
+    subjects: string
     attendance: string
     schedule: string
     settings: string
@@ -589,6 +590,19 @@ export interface UITranslations {
       creating: string
       success: string
       error: string
+    }
+  }
+  // Subjects
+  subjects: {
+    title: string
+    description: string
+    searchPlaceholder: string
+    columns: {
+      name: string
+      nameKhmer: string
+      code: string
+      gradeLevels: string
+      isCore: string
     }
   }
 }

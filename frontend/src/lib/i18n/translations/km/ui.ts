@@ -114,6 +114,7 @@ export const uiKm: UITranslations = {
     dashboard: 'ផ្ទាំងគ្រប់គ្រង',
     students: 'សិស្ស',
     classes: 'ថ្នាក់រៀន',
+    subjects: 'Subjects', // TODO: Translate
     attendance: 'វត្តមាន',
     schedule: 'កាលវិភាគ',
     settings: 'ការកំណត់',
@@ -562,6 +563,18 @@ export const uiKm: UITranslations = {
       creating: 'កំពុងបង្កើត...',
       success: 'បង្កើតសាលារៀនបានជោគជ័យ',
       error: 'បរាជ័យក្នុងការបង្កើតសាលារៀន',
+    },
+  },
+  subjects: {
+    title: 'មុខវិជ្ជា',
+    description: 'មើលមុខវិជ្ជាដែលមានសម្រាប់កម្រិតថ្នាក់នីមួយៗ។',
+    searchPlaceholder: 'ស្វែងរកមុខវិជ្ជា...',
+    columns: {
+      name: 'ឈ្មោះមុខវិជ្ជា',
+      nameKhmer: 'ឈ្មោះមុខវិជ្ជា (ខ្មែរ)',
+      code: 'កូដ',
+      gradeLevels: 'កម្រិតថ្នាក់',
+      isCore: 'មុខវិជ្ជាសំខាន់',
     },
   },
 }
