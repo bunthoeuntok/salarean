@@ -22,7 +22,6 @@ export interface UpdateSubjectRequest {
   nameKhmer: string
   code: string
   description?: string
-  isCore: boolean
   displayOrder?: number
   gradeLevels: number[]
 }

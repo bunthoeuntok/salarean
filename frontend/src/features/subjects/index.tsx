@@ -75,6 +75,14 @@ export function SubjectsPage() {
   // Get the selected grade filter (only one can be selected)
   const selectedGrade = filters.grade?.[0] ? Number(filters.grade[0]) : undefined
 
+  // Compute available grades based on teacher's school levels
+  const availableGrades = useMemo(() => {
+    return availableLevels.flatMap((level) => {
+      const range = GRADE_RANGES[level]
+      return Array.from({ length: range.max - range.min + 1 }, (_, i) => range.min + i)
+    })
+  }, [availableLevels])
+
   // Fetch all subjects
   const { data: allSubjects = [], isLoading } = useQuery({
     queryKey: ['subjects'],
@@ -85,10 +93,6 @@ export function SubjectsPage() {
   const filteredSubjects = useMemo(() => {
     if (!selectedGrade) {
       // If no grade selected, show subjects that apply to any available grade
-      const availableGrades = availableLevels.flatMap((level) => {
-        const range = GRADE_RANGES[level]
-        return Array.from({ length: range.max - range.min + 1 }, (_, i) => range.min + i)
-      })
       return allSubjects.filter(
         (subject) =>
           subject.gradeLevels?.some((g) => availableGrades.includes(g)) ?? false
@@ -97,7 +101,7 @@ export function SubjectsPage() {
     return allSubjects.filter(
       (subject) => subject.gradeLevels?.includes(selectedGrade) ?? false
     )
-  }, [allSubjects, selectedGrade, availableLevels])
+  }, [allSubjects, selectedGrade, availableGrades])
 
   // Further filter by search
   const searchedSubjects = useMemo(() => {
@@ -121,8 +125,8 @@ export function SubjectsPage() {
 
   // Create columns with translations
   const columns = useMemo(
-    () => createSubjectColumns({ t, gradeLabel, onEdit: handleEditSubject }),
-    [t, gradeLabel, handleEditSubject]
+    () => createSubjectColumns({ t, gradeLabel, availableGrades, onEdit: handleEditSubject }),
+    [t, gradeLabel, availableGrades, handleEditSubject]
   )
 
   // Grade filter options based on school type

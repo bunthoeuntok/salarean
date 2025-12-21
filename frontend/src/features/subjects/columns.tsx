@@ -1,10 +1,17 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { Check, X, GraduationCap, Pencil, MoreHorizontal } from 'lucide-react'
+import { GraduationCap, Pencil, MoreHorizontal } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/data-table'
 import type { Subject } from '@/types/subject.types'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 interface SubjectColumnsProps {
   t: {
@@ -26,12 +33,14 @@ interface SubjectColumnsProps {
     }
   }
   gradeLabel: string
+  availableGrades: number[]
   onEdit: (subject: Subject) => void
 }
 
 export const createSubjectColumns = ({
   t,
   gradeLabel,
+  availableGrades,
   onEdit,
 }: SubjectColumnsProps): ColumnDef<Subject>[] => [
   {
@@ -86,9 +95,14 @@ export const createSubjectColumns = ({
       if (!levels || levels.length === 0) {
         return <span className="text-muted-foreground">-</span>
       }
+      // Filter to only show grades within the teacher's school level
+      const filteredLevels = levels.filter((level) => availableGrades.includes(level))
+      if (filteredLevels.length === 0) {
+        return <span className="text-muted-foreground">-</span>
+      }
       return (
         <div className="flex flex-wrap gap-1">
-          {levels.map((level) => (
+          {filteredLevels.map((level) => (
             <Badge key={level} variant="secondary" className="text-xs">
               <GraduationCap className="mr-1 h-3 w-3" />
               {gradeLabel} {level}
@@ -98,25 +112,6 @@ export const createSubjectColumns = ({
       )
     },
     size: 300,
-  },
-  {
-    accessorKey: 'isCore',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t.subjects.columns.isCore} />
-    ),
-    cell: ({ row }) => {
-      const isCore = row.original.isCore
-      return (
-        <div className="flex justify-center">
-          {isCore ? (
-            <Check className="h-5 w-5 text-green-600" />
-          ) : (
-            <X className="h-5 w-5 text-muted-foreground" />
-          )}
-        </div>
-      )
-    },
-    size: 100,
   },
   {
     id: 'actions',

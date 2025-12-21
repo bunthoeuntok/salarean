@@ -34,9 +34,6 @@ public class UpdateSubjectRequest {
     @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
 
-    @NotNull(message = "isCore is required")
-    private Boolean isCore;
-
     private Integer displayOrder;
 
     @NotNull(message = "Grade levels are required")

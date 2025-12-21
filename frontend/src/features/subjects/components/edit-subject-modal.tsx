@@ -34,7 +34,6 @@ const _baseSubjectSchema = z.object({
   name: z.string(),
   nameKhmer: z.string(),
   code: z.string(),
-  isCore: z.boolean(),
   displayOrder: z.number(),
   gradeLevels: z.array(z.number()),
 })
@@ -79,7 +78,6 @@ function EditSubjectForm({ subjectData, onClose, subjectId }: EditSubjectFormPro
       name: z.string().min(1, t.validation.required).max(100),
       nameKhmer: z.string().min(1, t.validation.required).max(100),
       code: z.string().min(1, t.validation.required).max(20),
-      isCore: z.boolean(),
       displayOrder: z.coerce.number().min(1),
       gradeLevels: z.array(z.number()).min(1, t.validation.required),
     })
@@ -91,7 +89,6 @@ function EditSubjectForm({ subjectData, onClose, subjectId }: EditSubjectFormPro
       name: subjectData.name,
       nameKhmer: subjectData.nameKhmer,
       code: subjectData.code,
-      isCore: subjectData.isCore,
       displayOrder: subjectData.displayOrder,
       gradeLevels: subjectData.gradeLevels || [],
     },
@@ -115,7 +112,6 @@ function EditSubjectForm({ subjectData, onClose, subjectId }: EditSubjectFormPro
       name: data.name,
       nameKhmer: data.nameKhmer,
       code: data.code,
-      isCore: data.isCore,
       displayOrder: data.displayOrder,
       gradeLevels: data.gradeLevels,
     }
@@ -208,33 +204,16 @@ function EditSubjectForm({ subjectData, onClose, subjectId }: EditSubjectFormPro
 
         <FormField
           control={form.control}
-          name='isCore'
-          render={({ field }) => (
-            <FormItem className='flex flex-row items-center space-x-3 space-y-0'>
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormLabel className='font-normal cursor-pointer'>
-                {t.subjects.columns.isCore}
-              </FormLabel>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name='gradeLevels'
           render={() => (
             <FormItem>
               <FormLabel>{t.subjects.columns.gradeLevels} <span className='text-destructive'>*</span></FormLabel>
-              <div className='flex flex-wrap gap-4 mt-2'>
+              <div className='flex flex-col space-y-2 mt-2'>
                 {gradeOptions.map((grade) => (
                   <div key={grade} className='flex items-center space-x-2'>
                     <Checkbox
                       id={`grade-${grade}`}
+                      // eslint-disable-next-line react-hooks/incompatible-library
                       checked={form.watch('gradeLevels').includes(grade)}
                       onCheckedChange={(checked) => handleGradeLevelChange(grade, !!checked)}
                     />
