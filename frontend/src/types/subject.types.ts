@@ -16,3 +16,13 @@ export interface SubjectListParams {
   gradeLevel?: number
   isCore?: boolean
 }
+
+export interface UpdateSubjectRequest {
+  name: string
+  nameKhmer: string
+  code: string
+  description?: string
+  isCore: boolean
+  displayOrder?: number
+  gradeLevels: number[]
+}

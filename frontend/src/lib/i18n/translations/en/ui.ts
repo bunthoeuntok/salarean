@@ -86,6 +86,13 @@ export const uiEn: UITranslations = {
     comingSoon: 'Coming soon',
     active: 'Active',
     grade: 'Grade',
+    action: 'Action',
+    actions: {
+      view: 'View',
+      add: 'Add',
+      edit: 'Edit',
+      delete: 'Delete'
+    }
   },
   validation: {
     required: 'This field is required',
@@ -575,6 +582,28 @@ export const uiEn: UITranslations = {
       code: 'Code',
       gradeLevels: 'Grade Levels',
       isCore: 'Core Subject',
+      actions: 'Actions',
+    },
+    actions: {
+      edit: 'Edit',
+    },
+    modal: {
+      editTitle: 'Edit Subject',
+      fields: {
+        namePlaceholder: 'Enter subject name',
+        nameKhmerPlaceholder: 'Enter subject name in Khmer',
+        codePlaceholder: 'Enter subject code',
+        displayOrder: 'Display Order',
+        displayOrderPlaceholder: 'Enter display order',
+      },
+      buttons: {
+        cancel: 'Cancel',
+        save: 'Save Subject',
+        saving: 'Saving...',
+      },
+      success: {
+        updated: 'Subject updated successfully',
+      },
     },
   },
 }

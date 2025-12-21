@@ -86,6 +86,13 @@ export const uiKm: UITranslations = {
     comingSoon: 'មកដល់ឆាប់ៗនេះ',
     active: 'សកម្ម',
     grade: 'ថ្នាក់ទី',
+    action: 'សកម្មភាព',
+    actions: {
+      view: 'បង្ហាញ',
+      add: 'បន្ថែម',
+      edit: 'កែប្រែ',
+      delete: 'លុប'
+    }
   },
   validation: {
     required: 'ត្រូវការបំពេញព័ត៌មាននេះ',
@@ -575,6 +582,28 @@ export const uiKm: UITranslations = {
       code: 'កូដ',
       gradeLevels: 'កម្រិតថ្នាក់',
       isCore: 'មុខវិជ្ជាសំខាន់',
+      actions: 'សកម្មភាព',
+    },
+    actions: {
+      edit: 'កែសម្រួល',
+    },
+    modal: {
+      editTitle: 'កែសម្រួលមុខវិជ្ជា',
+      fields: {
+        namePlaceholder: 'បញ្ចូលឈ្មោះមុខវិជ្ជា',
+        nameKhmerPlaceholder: 'បញ្ចូលឈ្មោះមុខវិជ្ជាជាភាសាខ្មែរ',
+        codePlaceholder: 'បញ្ចូលកូដមុខវិជ្ជា',
+        displayOrder: 'លំដាប់បង្ហាញ',
+        displayOrderPlaceholder: 'បញ្ចូលលំដាប់បង្ហាញ',
+      },
+      buttons: {
+        cancel: 'បោះបង់',
+        save: 'រក្សាទុកមុខវិជ្ជា',
+        saving: 'កំពុងរក្សាទុក...',
+      },
+      success: {
+        updated: 'កែសម្រួលមុខវិជ្ជាបានជោគជ័យ',
+      },
     },
   },
 }

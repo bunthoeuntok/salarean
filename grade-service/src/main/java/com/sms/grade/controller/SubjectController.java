@@ -2,10 +2,12 @@ package com.sms.grade.controller;
 
 import com.sms.common.dto.ApiResponse;
 import com.sms.grade.dto.SubjectResponse;
+import com.sms.grade.dto.UpdateSubjectRequest;
 import com.sms.grade.model.Subject;
 import com.sms.grade.repository.SubjectRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +75,28 @@ public class SubjectController {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update a subject")
+    public ResponseEntity<ApiResponse<SubjectResponse>> updateSubject(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateSubjectRequest request) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        subject.setName(request.getName());
+        subject.setNameKhmer(request.getNameKhmer());
+        subject.setCode(request.getCode());
+        subject.setDescription(request.getDescription());
+        subject.setIsCore(request.getIsCore());
+        subject.setDisplayOrder(request.getDisplayOrder());
+        subject.setGradeLevels(request.getGradeLevels());
+
+        Subject savedSubject = subjectRepository.save(subject);
+        log.info("Updated subject: {}", savedSubject.getId());
+
+        return ResponseEntity.ok(ApiResponse.success(mapToResponse(savedSubject)));
     }
 
     private SubjectResponse mapToResponse(Subject subject) {

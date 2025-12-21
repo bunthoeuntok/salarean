@@ -100,7 +100,14 @@ export interface UITranslations {
     and: string
     comingSoon: string
     active: string,
-    grade: string
+    grade: string,
+    action: string,
+    actions: {
+      view: string,
+      add: string,
+      edit: string,
+      delete: string,
+    }
   }
   // Validation messages
   validation: {
@@ -603,6 +610,28 @@ export interface UITranslations {
       code: string
       gradeLevels: string
       isCore: string
+      actions: string
+    }
+    actions: {
+      edit: string
+    }
+    modal: {
+      editTitle: string
+      fields: {
+        namePlaceholder: string
+        nameKhmerPlaceholder: string
+        codePlaceholder: string
+        displayOrder: string
+        displayOrderPlaceholder: string
+      }
+      buttons: {
+        cancel: string
+        save: string
+        saving: string
+      }
+      success: {
+        updated: string
+      }
     }
   }
 }

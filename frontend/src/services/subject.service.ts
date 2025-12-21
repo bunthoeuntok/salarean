@@ -1,5 +1,5 @@
 import api, { apiRequest } from '@/lib/api'
-import type { Subject } from '@/types/subject.types'
+import type { Subject, UpdateSubjectRequest } from '@/types/subject.types'
 
 /**
  * Subject service for grade-service subject API calls
@@ -38,5 +38,12 @@ export const subjectService = {
    */
   async getSubjectsForGrade(gradeLevel: number): Promise<Subject[]> {
     return apiRequest<Subject[]>(api.get(`/api/subjects/grade/${gradeLevel}`))
+  },
+
+  /**
+   * Update a subject
+   */
+  async updateSubject(id: string, data: UpdateSubjectRequest): Promise<Subject> {
+    return apiRequest<Subject>(api.put(`/api/subjects/${id}`, data))
   },
 }

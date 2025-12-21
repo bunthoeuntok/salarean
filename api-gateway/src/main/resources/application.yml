@@ -70,11 +70,17 @@ spring:
           filters:
             - JwtAuthenticationFilter
 
-        # Grade Service
+        # Grade Service - Public endpoints (reference data)
+        - id: grade-service-public
+          uri: lb://GRADE-SERVICE
+          predicates:
+            - Path=/api/subjects/**,/api/assessment-types/**
+
+        # Grade Service - Protected endpoints
         - id: grade-service
           uri: lb://GRADE-SERVICE
           predicates:
-            - Path=/api/grades/**,/api/subjects/**,/api/assessment-types/**
+            - Path=/api/grades/**
           filters:
             - JwtAuthenticationFilter
 

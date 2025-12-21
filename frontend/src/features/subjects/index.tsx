@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type { Table } from '@tanstack/react-table'
 import { GraduationCap } from 'lucide-react'
@@ -14,6 +14,7 @@ import {
 } from '@/components/data-table'
 import { subjectService } from '@/services/subject.service'
 import { createSubjectColumns } from './columns'
+import { EditSubjectModal } from './components/edit-subject-modal'
 import { useAvailableLevels } from '@/hooks/use-available-levels'
 import { GRADE_RANGES, getFilteredGradeOptions } from '@/lib/utils/class-filters'
 import type { Subject } from '@/types/subject.types'
@@ -21,6 +22,8 @@ import type { Subject } from '@/types/subject.types'
 export function SubjectsPage() {
   const { t } = useLanguage()
   const [tableInstance, setTableInstance] = useState<Table<Subject> | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editSubjectId, setEditSubjectId] = useState<string | null>(null)
 
   // Get available levels based on teacher's school type
   const { availableLevels } = useAvailableLevels()
@@ -37,9 +40,21 @@ export function SubjectsPage() {
       nameKhmer: t.subjects.columns.nameKhmer,
       gradeLevels: t.subjects.columns.gradeLevels,
       isCore: t.subjects.columns.isCore,
+      actions: t.subjects.columns.actions,
     }),
     [t]
   )
+
+  // Edit handlers
+  const handleEditSubject = useCallback((subject: Subject) => {
+    setEditSubjectId(subject.id)
+    setIsEditModalOpen(true)
+  }, [])
+
+  const handleEditModalClose = useCallback((open: boolean) => {
+    setIsEditModalOpen(open)
+    if (!open) setEditSubjectId(null)
+  }, [])
 
   // Use URL params for table state
   const {
@@ -106,8 +121,8 @@ export function SubjectsPage() {
 
   // Create columns with translations
   const columns = useMemo(
-    () => createSubjectColumns(t, gradeLabel),
-    [t, gradeLabel]
+    () => createSubjectColumns({ t, gradeLabel, onEdit: handleEditSubject }),
+    [t, gradeLabel, handleEditSubject]
   )
 
   // Grade filter options based on school type
@@ -191,6 +206,13 @@ export function SubjectsPage() {
           />
         </div>
       </Main>
+
+      {/* Edit Subject Modal */}
+      <EditSubjectModal
+        open={isEditModalOpen}
+        onOpenChange={handleEditModalClose}
+        subjectId={editSubjectId}
+      />
     </>
   )
 }
