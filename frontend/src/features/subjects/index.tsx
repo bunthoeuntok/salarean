@@ -1,10 +1,11 @@
 import { useMemo, useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type { Table } from '@tanstack/react-table'
-import { GraduationCap } from 'lucide-react'
+import { GraduationCap, Plus } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { Button } from '@/components/ui/button'
 import {
   DataTable,
   DataTableFilterToolbar,
@@ -15,8 +16,9 @@ import {
 import { subjectService } from '@/services/subject.service'
 import { createSubjectColumns } from './columns'
 import { EditSubjectModal } from './components/edit-subject-modal'
+import { AddSubjectModal } from './components/add-subject-modal'
 import { useAvailableLevels } from '@/hooks/use-available-levels'
-import { GRADE_RANGES, getFilteredGradeOptions } from '@/lib/utils/class-filters'
+import { getFilteredGradeOptions } from '@/lib/utils/class-filters'
 import type { Subject } from '@/types/subject.types'
 
 export function SubjectsPage() {
@@ -24,9 +26,10 @@ export function SubjectsPage() {
   const [tableInstance, setTableInstance] = useState<Table<Subject> | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editSubjectId, setEditSubjectId] = useState<string | null>(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  // Get available levels based on teacher's school type
-  const { availableLevels } = useAvailableLevels()
+  // Get available levels and grades based on teacher's school type
+  const { availableLevels, availableGrades } = useAvailableLevels()
 
   // Grade label for display
   const gradeLabel = t.common.grade
@@ -74,14 +77,6 @@ export function SubjectsPage() {
 
   // Get the selected grade filter (only one can be selected)
   const selectedGrade = filters.grade?.[0] ? Number(filters.grade[0]) : undefined
-
-  // Compute available grades based on teacher's school levels
-  const availableGrades = useMemo(() => {
-    return availableLevels.flatMap((level) => {
-      const range = GRADE_RANGES[level]
-      return Array.from({ length: range.max - range.min + 1 }, (_, i) => range.min + i)
-    })
-  }, [availableLevels])
 
   // Fetch all subjects
   const { data: allSubjects = [], isLoading } = useQuery({
@@ -169,6 +164,10 @@ export function SubjectsPage() {
             <h2 className="text-2xl font-bold tracking-tight">{t.subjects.title}</h2>
             <p className="text-muted-foreground">{t.subjects.description}</p>
           </div>
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t.subjects.addSubject}
+          </Button>
         </div>
 
         {/* Filter toolbar */}
@@ -216,6 +215,12 @@ export function SubjectsPage() {
         open={isEditModalOpen}
         onOpenChange={handleEditModalClose}
         subjectId={editSubjectId}
+      />
+
+      {/* Add Subject Modal */}
+      <AddSubjectModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
       />
     </>
   )

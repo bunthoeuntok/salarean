@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { teacherSchoolQueryOptions, type SchoolType } from '@/services/school.service'
 import type { ClassLevel } from '@/types/class.types'
+import { GRADE_RANGES } from '@/lib/utils/class-filters'
 
 /**
  * Maps school type to available class levels
@@ -35,10 +36,19 @@ export function useAvailableLevels() {
     [teacherSchool?.schoolType]
   )
 
+  // Compute available grade numbers based on available levels
+  const availableGrades = useMemo(() => {
+    return availableLevels.flatMap((level) => {
+      const range = GRADE_RANGES[level]
+      return Array.from({ length: range.max - range.min + 1 }, (_, i) => range.min + i)
+    })
+  }, [availableLevels])
+
   const defaultLevel = availableLevels[0] || 'PRIMARY'
 
   return {
     availableLevels,
+    availableGrades,
     defaultLevel,
     isLoading,
     schoolType: teacherSchool?.schoolType,

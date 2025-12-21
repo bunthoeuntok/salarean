@@ -1,6 +1,7 @@
 package com.sms.grade.controller;
 
 import com.sms.common.dto.ApiResponse;
+import com.sms.grade.dto.CreateSubjectRequest;
 import com.sms.grade.dto.SubjectResponse;
 import com.sms.grade.dto.UpdateSubjectRequest;
 import com.sms.grade.service.interfaces.ISubjectService;
@@ -62,5 +63,12 @@ public class SubjectController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateSubjectRequest request) {
         return ResponseEntity.ok(ApiResponse.success(subjectService.updateSubject(id, request)));
+    }
+
+    @PostMapping
+    @Operation(summary = "Create a new subject")
+    public ResponseEntity<ApiResponse<SubjectResponse>> createSubject(
+            @Valid @RequestBody CreateSubjectRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(subjectService.createSubject(request)));
     }
 }

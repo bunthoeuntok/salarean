@@ -121,7 +121,7 @@ export const uiKm: UITranslations = {
     dashboard: 'ផ្ទាំងគ្រប់គ្រង',
     students: 'សិស្ស',
     classes: 'ថ្នាក់រៀន',
-    subjects: 'Subjects', // TODO: Translate
+    subjects: 'មុខវិជ្ជា',
     attendance: 'វត្តមាន',
     schedule: 'កាលវិភាគ',
     settings: 'ការកំណត់',
@@ -575,6 +575,7 @@ export const uiKm: UITranslations = {
   subjects: {
     title: 'មុខវិជ្ជា',
     description: 'មើលមុខវិជ្ជាដែលមានសម្រាប់កម្រិតថ្នាក់នីមួយៗ។',
+    addSubject: 'បន្ថែមមុខវិជ្ជា',
     searchPlaceholder: 'ស្វែងរកមុខវិជ្ជា...',
     columns: {
       name: 'ឈ្មោះមុខវិជ្ជា',
@@ -588,6 +589,7 @@ export const uiKm: UITranslations = {
       edit: 'កែសម្រួល',
     },
     modal: {
+      addTitle: 'បន្ថែមមុខវិជ្ជាថ្មី',
       editTitle: 'កែសម្រួលមុខវិជ្ជា',
       fields: {
         namePlaceholder: 'បញ្ចូលឈ្មោះមុខវិជ្ជា',
@@ -595,6 +597,9 @@ export const uiKm: UITranslations = {
         codePlaceholder: 'បញ្ចូលកូដមុខវិជ្ជា',
         displayOrder: 'លំដាប់បង្ហាញ',
         displayOrderPlaceholder: 'បញ្ចូលលំដាប់បង្ហាញ',
+        isCore: 'មុខវិជ្ជាសំខាន់',
+        description: 'ការពិពណ៌នា',
+        descriptionPlaceholder: 'បញ្ចូលការពិពណ៌នាមុខវិជ្ជា',
       },
       buttons: {
         cancel: 'បោះបង់',
@@ -602,6 +607,7 @@ export const uiKm: UITranslations = {
         saving: 'កំពុងរក្សាទុក...',
       },
       success: {
+        created: 'បង្កើតមុខវិជ្ជាបានជោគជ័យ',
         updated: 'កែសម្រួលមុខវិជ្ជាបានជោគជ័យ',
       },
     },

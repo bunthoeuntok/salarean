@@ -1,5 +1,6 @@
 package com.sms.grade.service.interfaces;
 
+import com.sms.grade.dto.CreateSubjectRequest;
 import com.sms.grade.dto.SubjectResponse;
 import com.sms.grade.dto.UpdateSubjectRequest;
 
@@ -40,4 +41,9 @@ public interface ISubjectService {
      * Update a subject.
      */
     SubjectResponse updateSubject(UUID id, UpdateSubjectRequest request);
+
+    /**
+     * Create a new subject.
+     */
+    SubjectResponse createSubject(CreateSubjectRequest request);
 }

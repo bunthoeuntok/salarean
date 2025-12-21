@@ -25,3 +25,12 @@ export interface UpdateSubjectRequest {
   displayOrder?: number
   gradeLevels: number[]
 }
+
+export interface CreateSubjectRequest {
+  name: string
+  nameKhmer: string
+  code: string
+  description?: string
+  displayOrder?: number
+  gradeLevels: number[]
+}

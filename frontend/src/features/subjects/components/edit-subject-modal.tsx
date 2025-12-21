@@ -27,7 +27,6 @@ import {
 import { useLanguage } from '@/context/language-provider'
 import { subjectService } from '@/services/subject.service'
 import { useAvailableLevels } from '@/hooks/use-available-levels'
-import { GRADE_RANGES } from '@/lib/utils/class-filters'
 import type { Subject, UpdateSubjectRequest } from '@/types/subject.types'
 
 const _baseSubjectSchema = z.object({
@@ -57,20 +56,8 @@ function EditSubjectForm({ subjectData, onClose, subjectId }: EditSubjectFormPro
   const { t, translateError } = useLanguage()
   const queryClient = useQueryClient()
 
-  // Get available levels based on teacher's school type
-  const { availableLevels } = useAvailableLevels()
-
-  // Generate grade options based on available levels
-  const gradeOptions = useMemo(() => {
-    const grades: number[] = []
-    availableLevels.forEach((level) => {
-      const range = GRADE_RANGES[level]
-      for (let i = range.min; i <= range.max; i++) {
-        grades.push(i)
-      }
-    })
-    return grades.sort((a, b) => a - b)
-  }, [availableLevels])
+  // Get available grades based on teacher's school type
+  const { availableGrades } = useAvailableLevels()
 
   // Create schema with translated messages
   const updateSubjectSchema = useMemo(() => {
@@ -208,8 +195,8 @@ function EditSubjectForm({ subjectData, onClose, subjectId }: EditSubjectFormPro
           render={() => (
             <FormItem>
               <FormLabel>{t.subjects.columns.gradeLevels} <span className='text-destructive'>*</span></FormLabel>
-              <div className='flex flex-col space-y-2 mt-2'>
-                {gradeOptions.map((grade) => (
+              <div className='grid grid-cols-2 space-y-2 mt-2'>
+                {availableGrades.map((grade) => (
                   <div key={grade} className='flex items-center space-x-2'>
                     <Checkbox
                       id={`grade-${grade}`}

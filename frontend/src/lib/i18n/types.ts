@@ -603,6 +603,7 @@ export interface UITranslations {
   subjects: {
     title: string
     description: string
+    addSubject: string
     searchPlaceholder: string
     columns: {
       name: string
@@ -616,6 +617,7 @@ export interface UITranslations {
       edit: string
     }
     modal: {
+      addTitle: string
       editTitle: string
       fields: {
         namePlaceholder: string
@@ -623,6 +625,9 @@ export interface UITranslations {
         codePlaceholder: string
         displayOrder: string
         displayOrderPlaceholder: string
+        isCore: string
+        description: string
+        descriptionPlaceholder: string
       }
       buttons: {
         cancel: string
@@ -630,6 +635,7 @@ export interface UITranslations {
         saving: string
       }
       success: {
+        created: string
         updated: string
       }
     }

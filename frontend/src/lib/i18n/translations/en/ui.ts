@@ -576,6 +576,7 @@ export const uiEn: UITranslations = {
     title: 'Subjects',
     description: 'View available subjects for each grade level.',
     searchPlaceholder: 'Search subjects...',
+    addSubject: 'Add Subject',
     columns: {
       name: 'Subject Name',
       nameKhmer: 'Subject Name (Khmer)',
@@ -588,6 +589,7 @@ export const uiEn: UITranslations = {
       edit: 'Edit',
     },
     modal: {
+      addTitle: 'Add New Subject',
       editTitle: 'Edit Subject',
       fields: {
         namePlaceholder: 'Enter subject name',
@@ -595,6 +597,9 @@ export const uiEn: UITranslations = {
         codePlaceholder: 'Enter subject code',
         displayOrder: 'Display Order',
         displayOrderPlaceholder: 'Enter display order',
+        isCore: 'Core Subject',
+        description: 'Description',
+        descriptionPlaceholder: 'Enter subject description',
       },
       buttons: {
         cancel: 'Cancel',
@@ -602,6 +607,7 @@ export const uiEn: UITranslations = {
         saving: 'Saving...',
       },
       success: {
+        created: 'Subject created successfully',
         updated: 'Subject updated successfully',
       },
     },

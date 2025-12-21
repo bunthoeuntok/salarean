@@ -1,5 +1,6 @@
 package com.sms.grade.service;
 
+import com.sms.grade.dto.CreateSubjectRequest;
 import com.sms.grade.dto.SubjectResponse;
 import com.sms.grade.dto.UpdateSubjectRequest;
 import com.sms.grade.model.Subject;
@@ -78,6 +79,30 @@ public class SubjectService implements ISubjectService {
 
         Subject savedSubject = subjectRepository.save(subject);
         log.info("Updated subject: {}", savedSubject.getId());
+
+        return mapToResponse(savedSubject);
+    }
+
+    @Override
+    @Transactional
+    public SubjectResponse createSubject(CreateSubjectRequest request) {
+        // Check if code already exists
+        if (subjectRepository.findByCode(request.getCode()).isPresent()) {
+            throw new RuntimeException("Subject with code " + request.getCode() + " already exists");
+        }
+
+        Subject subject = Subject.builder()
+                .name(request.getName())
+                .nameKhmer(request.getNameKhmer())
+                .code(request.getCode())
+                .description(request.getDescription())
+                .isCore(request.getIsCore())
+                .displayOrder(request.getDisplayOrder())
+                .gradeLevels(request.getGradeLevels())
+                .build();
+
+        Subject savedSubject = subjectRepository.save(subject);
+        log.info("Created subject: {}", savedSubject.getId());
 
         return mapToResponse(savedSubject);
     }
