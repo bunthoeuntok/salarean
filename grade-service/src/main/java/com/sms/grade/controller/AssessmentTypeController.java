@@ -1,12 +1,14 @@
 package com.sms.grade.controller;
 
 import com.sms.common.dto.ApiResponse;
+import com.sms.grade.dto.AssessmentTypeRequest;
 import com.sms.grade.dto.AssessmentTypeResponse;
 import com.sms.grade.enums.AssessmentCategory;
 import com.sms.grade.model.AssessmentType;
 import com.sms.grade.repository.AssessmentTypeRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -85,6 +87,64 @@ public class AssessmentTypeController {
             throw new RuntimeException("Semester exam type not found");
         }
         return ResponseEntity.ok(ApiResponse.success(mapToResponse(types.get(0))));
+    }
+
+    @PostMapping
+    @Operation(summary = "Create a new assessment type")
+    public ResponseEntity<ApiResponse<AssessmentTypeResponse>> createAssessmentType(
+            @Valid @RequestBody AssessmentTypeRequest request) {
+        log.info("Creating assessment type with code: {}", request.getCode());
+
+        // Check for duplicate code
+        if (assessmentTypeRepository.findByCode(request.getCode()).isPresent()) {
+            throw new RuntimeException("Assessment type with code '" + request.getCode() + "' already exists");
+        }
+
+        AssessmentType assessmentType = AssessmentType.builder()
+                .name(request.getName())
+                .nameKhmer(request.getNameKhmer())
+                .code(request.getCode())
+                .category(request.getCategory())
+                .defaultWeight(request.getDefaultWeight())
+                .maxScore(request.getMaxScore())
+                .displayOrder(request.getDisplayOrder())
+                .build();
+
+        AssessmentType saved = assessmentTypeRepository.save(assessmentType);
+        log.info("Created assessment type with ID: {}", saved.getId());
+
+        return ResponseEntity.ok(ApiResponse.success(mapToResponse(saved)));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing assessment type")
+    public ResponseEntity<ApiResponse<AssessmentTypeResponse>> updateAssessmentType(
+            @PathVariable UUID id,
+            @Valid @RequestBody AssessmentTypeRequest request) {
+        log.info("Updating assessment type with ID: {}", id);
+
+        AssessmentType existing = assessmentTypeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Assessment type not found"));
+
+        // Check for duplicate code (excluding current)
+        assessmentTypeRepository.findByCode(request.getCode())
+                .filter(type -> !type.getId().equals(id))
+                .ifPresent(type -> {
+                    throw new RuntimeException("Assessment type with code '" + request.getCode() + "' already exists");
+                });
+
+        existing.setName(request.getName());
+        existing.setNameKhmer(request.getNameKhmer());
+        existing.setCode(request.getCode());
+        existing.setCategory(request.getCategory());
+        existing.setDefaultWeight(request.getDefaultWeight());
+        existing.setMaxScore(request.getMaxScore());
+        existing.setDisplayOrder(request.getDisplayOrder());
+
+        AssessmentType updated = assessmentTypeRepository.save(existing);
+        log.info("Updated assessment type with ID: {}", updated.getId());
+
+        return ResponseEntity.ok(ApiResponse.success(mapToResponse(updated)));
     }
 
     private AssessmentTypeResponse mapToResponse(AssessmentType type) {

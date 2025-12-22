@@ -129,6 +129,7 @@ export const uiKm: UITranslations = {
     notifications: 'ការជូនដំណឹង',
     help: 'ជំនួយ',
     signOut: 'ចេញពីគណនី',
+    assessmentTypes: 'ការប្រលង'
   },
   search: {
     placeholder: 'ស្វែងរក...',
@@ -612,4 +613,49 @@ export const uiKm: UITranslations = {
       },
     },
   },
+  assessmentTypes: {
+    title: "ប្រភេទការវាយតម្លៃ",
+    description: "គ្រប់គ្រងប្រភេទប្រឡង និងការវាយតម្លៃសម្រាប់ការដាក់ពិន្ទុ។",
+    searchPlaceholder: "ស្វែងរកប្រភេទការវាយតម្លៃ...",
+    addAssessmentType: "បន្ថែមប្រភេទការវាយតម្លៃ",
+    columns: {
+      name: "ឈ្មោះ",
+      nameKhmer: "ឈ្មោះ (ភាសាខ្មែរ)",
+      code: "កូដ",
+      category: "ប្រភេទ",
+      defaultWeight: "ទម្ងន់លំនាំដើម",
+      maxScore: "ពិន្ទុអតិបរមា",
+      actions: "សកម្មភាព"
+    },
+    actions: {
+      edit: "កែប្រែ"
+    },
+    categories: {
+      MONTHLY_EXAM: "ប្រឡងប្រចាំខែ",
+      SEMESTER_EXAM: "ប្រឡងឆមាស"
+    },
+    modal: {
+      addTitle: "បន្ថែមប្រភេទការវាយតម្លៃថ្មី",
+      editTitle: "កែប្រែប្រភេទការវាយតម្លៃ",
+      fields: {
+        namePlaceholder: "បញ្ចូលឈ្មោះ",
+        nameKhmerPlaceholder: "បញ្ចូលឈ្មោះជាភាសាខ្មែរ",
+        codePlaceholder: "បញ្ចូលកូដ",
+        categoryPlaceholder: "ជ្រើសរើសប្រភេទ",
+        defaultWeightPlaceholder: "បញ្ចូលទម្ងន់ (%)",
+        maxScorePlaceholder: "បញ្ចូលពិន្ទុអតិបរមា",
+        displayOrder: "លំដាប់បង្ហាញ",
+        displayOrderPlaceholder: "បញ្ចូលលំដាប់បង្ហាញ"
+      },
+      buttons: {
+        cancel: "បោះបង់",
+        save: "រក្សាទុកប្រភេទការវាយតម្លៃ",
+        saving: "កំពុងរក្សាទុក..."
+      },
+      success: {
+        created: "បានបង្កើតប្រភេទការវាយតម្លៃដោយជោគជ័យ",
+        updated: "បានធ្វើបច្ចុប្បន្នភាពប្រភេទការវាយតម្លៃដោយជោគជ័យ"
+      }
+    }
+  }
 }

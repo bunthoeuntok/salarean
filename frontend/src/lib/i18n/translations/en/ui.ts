@@ -129,6 +129,7 @@ export const uiEn: UITranslations = {
     notifications: 'Notifications',
     help: 'Help',
     signOut: 'Sign Out',
+    assessmentTypes: 'Assessment Type'
   },
   search: {
     placeholder: 'search...',
@@ -609,6 +610,51 @@ export const uiEn: UITranslations = {
       success: {
         created: 'Subject created successfully',
         updated: 'Subject updated successfully',
+      },
+    },
+  },
+  assessmentTypes: {
+    title: 'Assessment Types',
+    description: 'Manage exam and assessment types for grading.',
+    searchPlaceholder: 'Search assessment types...',
+    addAssessmentType: 'Add Assessment Type',
+    columns: {
+      name: 'Name',
+      nameKhmer: 'Name (Khmer)',
+      code: 'Code',
+      category: 'Category',
+      defaultWeight: 'Default Weight',
+      maxScore: 'Max Score',
+      actions: 'Actions',
+    },
+    actions: {
+      edit: 'Edit',
+    },
+    categories: {
+      MONTHLY_EXAM: 'Monthly Exam',
+      SEMESTER_EXAM: 'Semester Exam',
+    },
+    modal: {
+      addTitle: 'Add New Assessment Type',
+      editTitle: 'Edit Assessment Type',
+      fields: {
+        namePlaceholder: 'Enter name',
+        nameKhmerPlaceholder: 'Enter name in Khmer',
+        codePlaceholder: 'Enter code',
+        categoryPlaceholder: 'Select category',
+        defaultWeightPlaceholder: 'Enter weight (%)',
+        maxScorePlaceholder: 'Enter max score',
+        displayOrder: 'Display Order',
+        displayOrderPlaceholder: 'Enter display order',
+      },
+      buttons: {
+        cancel: 'Cancel',
+        save: 'Save Assessment Type',
+        saving: 'Saving...',
+      },
+      success: {
+        created: 'Assessment type created successfully',
+        updated: 'Assessment type updated successfully',
       },
     },
   },

@@ -52,6 +52,11 @@ export function useSidebarData(): SidebarData {
             icon: BookOpen,
           },
           {
+            title: t.nav.assessmentTypes,
+            url: '/assessment-types',
+            icon: BookOpen,
+          },
+          {
             title: t.nav.attendance,
             url: '/attendance',
             icon: ClipboardList,

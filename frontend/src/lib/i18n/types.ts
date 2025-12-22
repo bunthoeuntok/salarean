@@ -142,6 +142,7 @@ export interface UITranslations {
     students: string
     classes: string
     subjects: string
+    assessmentTypes: string
     attendance: string
     schedule: string
     settings: string
@@ -628,6 +629,52 @@ export interface UITranslations {
         isCore: string
         description: string
         descriptionPlaceholder: string
+      }
+      buttons: {
+        cancel: string
+        save: string
+        saving: string
+      }
+      success: {
+        created: string
+        updated: string
+      }
+    }
+  }
+  // Assessment Types
+  assessmentTypes: {
+    title: string
+    description: string
+    addAssessmentType: string
+    searchPlaceholder: string
+    columns: {
+      name: string
+      nameKhmer: string
+      code: string
+      category: string
+      defaultWeight: string
+      maxScore: string
+      actions: string
+    }
+    actions: {
+      edit: string
+    }
+    categories: {
+      MONTHLY_EXAM: string
+      SEMESTER_EXAM: string
+    }
+    modal: {
+      addTitle: string
+      editTitle: string
+      fields: {
+        namePlaceholder: string
+        nameKhmerPlaceholder: string
+        codePlaceholder: string
+        categoryPlaceholder: string
+        defaultWeightPlaceholder: string
+        maxScorePlaceholder: string
+        displayOrder: string
+        displayOrderPlaceholder: string
       }
       buttons: {
         cancel: string
