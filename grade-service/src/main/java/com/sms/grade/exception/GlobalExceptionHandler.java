@@ -43,13 +43,6 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(GradeErrorCode.ASSESSMENT_TYPE_NOT_FOUND));
     }
 
-    @ExceptionHandler(ConfigNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConfigNotFound(ConfigNotFoundException ex) {
-        log.warn("Config not found: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(GradeErrorCode.CONFIG_NOT_FOUND));
-    }
-
     @ExceptionHandler(DuplicateGradeException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateGrade(DuplicateGradeException ex) {
         log.warn("Duplicate grade: {}", ex.getMessage());
@@ -62,13 +55,6 @@ public class GlobalExceptionHandler {
         log.warn("Invalid grade data: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(GradeErrorCode.SCORE_OUT_OF_RANGE));
-    }
-
-    @ExceptionHandler(InvalidConfigException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidConfig(InvalidConfigException ex) {
-        log.warn("Invalid config: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(GradeErrorCode.INVALID_CONFIG));
     }
 
     @ExceptionHandler(InsufficientGradesException.class)

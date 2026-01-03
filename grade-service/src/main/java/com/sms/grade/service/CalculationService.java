@@ -2,7 +2,6 @@ package com.sms.grade.service;
 
 import com.sms.grade.dto.CalculationResult;
 import com.sms.grade.dto.RankingResponse;
-import com.sms.grade.dto.TeacherAssessmentConfigResponse;
 import com.sms.grade.enums.AverageType;
 import com.sms.grade.exception.CalculationException;
 import com.sms.grade.exception.InsufficientGradesException;
@@ -14,7 +13,6 @@ import com.sms.grade.repository.GradeRepository;
 import com.sms.grade.repository.SubjectRepository;
 import com.sms.grade.security.TeacherContextHolder;
 import com.sms.grade.service.interfaces.ICalculationService;
-import com.sms.grade.service.interfaces.IConfigurationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,10 +34,13 @@ public class CalculationService implements ICalculationService {
     private final GradeRepository gradeRepository;
     private final GradeAverageRepository gradeAverageRepository;
     private final SubjectRepository subjectRepository;
-    private final IConfigurationService configurationService;
 
     private static final int SCALE = 2;
     private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
+
+    // Default grade calculation weights (50% monthly, 50% semester exam)
+    private static final BigDecimal DEFAULT_MONTHLY_WEIGHT = new BigDecimal("50.00");
+    private static final BigDecimal DEFAULT_SEMESTER_WEIGHT = new BigDecimal("50.00");
 
     @Override
     @Transactional
@@ -56,10 +57,6 @@ public class CalculationService implements ICalculationService {
         if (monthlyGrades.isEmpty()) {
             throw new InsufficientGradesException("No monthly exam grades found");
         }
-
-        // Get config for expected exam count
-        TeacherAssessmentConfigResponse config = configurationService.getConfig(
-                monthlyGrades.get(0).getClassId(), subjectId, semester, academicYear);
 
         // Calculate average
         BigDecimal sum = monthlyGrades.stream()
@@ -116,12 +113,9 @@ public class CalculationService implements ICalculationService {
                         teacherId, studentId, subjectId, semester, academicYear)
                 .orElseThrow(() -> new InsufficientGradesException("Semester exam grade not found"));
 
-        // Get config for weights
-        TeacherAssessmentConfigResponse config = configurationService.getConfig(
-                semesterExam.getClassId(), subjectId, semester, academicYear);
-
-        BigDecimal monthlyWeight = config.getMonthlyWeight().divide(BigDecimal.valueOf(100), 4, ROUNDING_MODE);
-        BigDecimal semesterWeight = config.getSemesterExamWeight().divide(BigDecimal.valueOf(100), 4, ROUNDING_MODE);
+        // Use default weights (50% monthly, 50% semester)
+        BigDecimal monthlyWeight = DEFAULT_MONTHLY_WEIGHT.divide(BigDecimal.valueOf(100), 4, ROUNDING_MODE);
+        BigDecimal semesterWeight = DEFAULT_SEMESTER_WEIGHT.divide(BigDecimal.valueOf(100), 4, ROUNDING_MODE);
 
         // Calculate weighted average
         BigDecimal weightedMonthly = monthlyAvg.multiply(monthlyWeight);
@@ -150,14 +144,14 @@ public class CalculationService implements ICalculationService {
                                 .maxScore(semesterExam.getAssessmentType().getMaxScore())
                                 .percentage(semesterExam.getPercentage())
                                 .build())
-                        .monthlyWeight(config.getMonthlyWeight())
-                        .semesterWeight(config.getSemesterExamWeight())
+                        .monthlyWeight(DEFAULT_MONTHLY_WEIGHT)
+                        .semesterWeight(DEFAULT_SEMESTER_WEIGHT)
                         .monthlyAverage(monthlyAvg)
                         .weightedMonthly(weightedMonthly.setScale(SCALE, ROUNDING_MODE))
                         .weightedSemester(weightedSemester.setScale(SCALE, ROUNDING_MODE))
                         .formula(String.format("(%s × %s%%) + (%s × %s%%)",
-                                monthlyAvg, config.getMonthlyWeight(),
-                                semesterExam.getScore(), config.getSemesterExamWeight()))
+                                monthlyAvg, DEFAULT_MONTHLY_WEIGHT,
+                                semesterExam.getScore(), DEFAULT_SEMESTER_WEIGHT))
                         .build())
                 .build();
     }

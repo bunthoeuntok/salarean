@@ -3,7 +3,6 @@ package com.sms.grade.controller;
 import com.sms.common.dto.ApiResponse;
 import com.sms.grade.dto.*;
 import com.sms.grade.service.interfaces.ICalculationService;
-import com.sms.grade.service.interfaces.IConfigurationService;
 import com.sms.grade.service.interfaces.IGradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +27,6 @@ public class GradeController {
 
     private final IGradeService gradeService;
     private final ICalculationService calculationService;
-    private final IConfigurationService configurationService;
 
     // =============================================
     // CRUD Operations
@@ -246,49 +244,5 @@ public class GradeController {
         RankingResponse rankings = calculationService.calculateSubjectRankings(
                 classId, subjectId, semester, academicYear);
         return ResponseEntity.ok(ApiResponse.success(rankings));
-    }
-
-    // =============================================
-    // Configuration Operations
-    // =============================================
-
-    @GetMapping("/config/{classId}/subject/{subjectId}/semester/{semester}")
-    @Operation(summary = "Get grading configuration")
-    public ResponseEntity<ApiResponse<TeacherAssessmentConfigResponse>> getConfig(
-            @PathVariable UUID classId,
-            @PathVariable UUID subjectId,
-            @PathVariable Integer semester,
-            @RequestParam String academicYear) {
-        TeacherAssessmentConfigResponse config = configurationService.getConfig(
-                classId, subjectId, semester, academicYear);
-        return ResponseEntity.ok(ApiResponse.success(config));
-    }
-
-    @PutMapping("/config")
-    @Operation(summary = "Update grading configuration")
-    public ResponseEntity<ApiResponse<TeacherAssessmentConfigResponse>> saveConfig(
-            @Valid @RequestBody GradeConfigRequest request) {
-        log.info("Saving config for class {} subject {}", request.getClassId(), request.getSubjectId());
-        TeacherAssessmentConfigResponse config = configurationService.saveConfig(request);
-        return ResponseEntity.ok(ApiResponse.success(config));
-    }
-
-    @GetMapping("/config/{classId}/semester/{semester}")
-    @Operation(summary = "Get all configurations for a class")
-    public ResponseEntity<ApiResponse<List<TeacherAssessmentConfigResponse>>> getClassConfigs(
-            @PathVariable UUID classId,
-            @PathVariable Integer semester,
-            @RequestParam String academicYear) {
-        List<TeacherAssessmentConfigResponse> configs = configurationService.getClassConfigs(
-                classId, semester, academicYear);
-        return ResponseEntity.ok(ApiResponse.success(configs));
-    }
-
-    @DeleteMapping("/config/{configId}")
-    @Operation(summary = "Delete a configuration")
-    public ResponseEntity<ApiResponse<Void>> deleteConfig(@PathVariable UUID configId) {
-        log.info("Deleting config {}", configId);
-        configurationService.deleteConfig(configId);
-        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
