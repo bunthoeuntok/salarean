@@ -43,6 +43,13 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(GradeErrorCode.ASSESSMENT_TYPE_NOT_FOUND));
     }
 
+    @ExceptionHandler(SemesterConfigNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleSemesterConfigNotFound(SemesterConfigNotFoundException ex) {
+        log.warn("Semester config not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(GradeErrorCode.SEMESTER_CONFIG_NOT_FOUND));
+    }
+
     @ExceptionHandler(DuplicateGradeException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateGrade(DuplicateGradeException ex) {
         log.warn("Duplicate grade: {}", ex.getMessage());

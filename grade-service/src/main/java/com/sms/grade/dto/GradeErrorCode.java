@@ -23,6 +23,9 @@ public enum GradeErrorCode {
     ASSESSMENT_TYPE_NOT_FOUND,
     INVALID_ASSESSMENT_TYPE,
 
+    // Semester Config Errors
+    SEMESTER_CONFIG_NOT_FOUND,
+
     // Calculation Errors
     INSUFFICIENT_GRADES_FOR_CALCULATION,
     CALCULATION_ERROR,
