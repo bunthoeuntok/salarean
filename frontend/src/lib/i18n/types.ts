@@ -687,6 +687,24 @@ export interface UITranslations {
       }
     }
   }
+  // Semester Config
+  semesterConfig?: {
+    title: string
+    description: string
+    academicYear: string
+    customConfig: string
+    availableExams: string
+    dragInstruction: string
+    allAssigned: string
+    monthlyExams: string
+    dropHere: string
+    resetToDefault: string
+    saveChanges: string
+    saveSuccess: string
+    saveError: string
+    resetSuccess: string
+    resetError: string
+  }
 }
 
 /**

@@ -20,11 +20,7 @@ import java.util.UUID;
  * Teachers can override with their own configuration.
  */
 @Entity
-@Table(name = "semester_configs",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_semester_config",
-                columnNames = {"teacher_id", "academic_year", "semester_exam_code"}
-        ))
+@Table(name = "semester_configs")
 @Getter
 @Setter
 @NoArgsConstructor

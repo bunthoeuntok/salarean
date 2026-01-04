@@ -21,6 +21,7 @@ import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authen
 import { Route as AuthenticatedSubjectsIndexRouteImport } from './routes/_authenticated/subjects.index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes.index'
 import { Route as AuthenticatedAssessmentTypesIndexRouteImport } from './routes/_authenticated/assessment-types.index'
+import { Route as AuthenticatedSettingsSemesterConfigRouteImport } from './routes/_authenticated/settings/semester-config'
 import { Route as AuthenticatedSettingsSchoolSetupRouteImport } from './routes/_authenticated/settings/school-setup'
 import { Route as AuthenticatedClassesIdRouteImport } from './routes/_authenticated/classes.$id'
 import { Route as AuthenticatedSettingsAccountsRouteRouteImport } from './routes/_authenticated/settings/accounts/route'
@@ -91,6 +92,12 @@ const AuthenticatedAssessmentTypesIndexRoute =
     path: '/assessment-types/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSettingsSemesterConfigRoute =
+  AuthenticatedSettingsSemesterConfigRouteImport.update({
+    id: '/semester-config',
+    path: '/semester-config',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
 const AuthenticatedSettingsSchoolSetupRoute =
   AuthenticatedSettingsSchoolSetupRouteImport.update({
     id: '/school-setup',
@@ -139,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/settings/accounts': typeof AuthenticatedSettingsAccountsRouteRouteWithChildren
   '/classes/$id': typeof AuthenticatedClassesIdRoute
   '/settings/school-setup': typeof AuthenticatedSettingsSchoolSetupRoute
+  '/settings/semester-config': typeof AuthenticatedSettingsSemesterConfigRoute
   '/assessment-types': typeof AuthenticatedAssessmentTypesIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/subjects': typeof AuthenticatedSubjectsIndexRoute
@@ -158,6 +166,7 @@ export interface FileRoutesByTo {
   '/settings/accounts': typeof AuthenticatedSettingsAccountsRouteRouteWithChildren
   '/classes/$id': typeof AuthenticatedClassesIdRoute
   '/settings/school-setup': typeof AuthenticatedSettingsSchoolSetupRoute
+  '/settings/semester-config': typeof AuthenticatedSettingsSemesterConfigRoute
   '/assessment-types': typeof AuthenticatedAssessmentTypesIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/subjects': typeof AuthenticatedSubjectsIndexRoute
@@ -179,6 +188,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/accounts': typeof AuthenticatedSettingsAccountsRouteRouteWithChildren
   '/_authenticated/classes/$id': typeof AuthenticatedClassesIdRoute
   '/_authenticated/settings/school-setup': typeof AuthenticatedSettingsSchoolSetupRoute
+  '/_authenticated/settings/semester-config': typeof AuthenticatedSettingsSemesterConfigRoute
   '/_authenticated/assessment-types/': typeof AuthenticatedAssessmentTypesIndexRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/subjects/': typeof AuthenticatedSubjectsIndexRoute
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/settings/accounts'
     | '/classes/$id'
     | '/settings/school-setup'
+    | '/settings/semester-config'
     | '/assessment-types'
     | '/classes'
     | '/subjects'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/settings/accounts'
     | '/classes/$id'
     | '/settings/school-setup'
+    | '/settings/semester-config'
     | '/assessment-types'
     | '/classes'
     | '/subjects'
@@ -239,6 +251,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/accounts'
     | '/_authenticated/classes/$id'
     | '/_authenticated/settings/school-setup'
+    | '/_authenticated/settings/semester-config'
     | '/_authenticated/assessment-types/'
     | '/_authenticated/classes/'
     | '/_authenticated/subjects/'
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssessmentTypesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings/semester-config': {
+      id: '/_authenticated/settings/semester-config'
+      path: '/semester-config'
+      fullPath: '/settings/semester-config'
+      preLoaderRoute: typeof AuthenticatedSettingsSemesterConfigRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
     '/_authenticated/settings/school-setup': {
       id: '/_authenticated/settings/school-setup'
       path: '/school-setup'
@@ -411,6 +431,7 @@ const AuthenticatedSettingsAccountsRouteRouteWithChildren =
 interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAccountsRouteRoute: typeof AuthenticatedSettingsAccountsRouteRouteWithChildren
   AuthenticatedSettingsSchoolSetupRoute: typeof AuthenticatedSettingsSchoolSetupRoute
+  AuthenticatedSettingsSemesterConfigRoute: typeof AuthenticatedSettingsSemesterConfigRoute
 }
 
 const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteChildren =
@@ -419,6 +440,8 @@ const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteCh
       AuthenticatedSettingsAccountsRouteRouteWithChildren,
     AuthenticatedSettingsSchoolSetupRoute:
       AuthenticatedSettingsSchoolSetupRoute,
+    AuthenticatedSettingsSemesterConfigRoute:
+      AuthenticatedSettingsSemesterConfigRoute,
   }
 
 const AuthenticatedSettingsRouteRouteWithChildren =

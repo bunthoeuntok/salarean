@@ -20,26 +20,27 @@ VALUES ('Semester 2 Exam', 'ប្រឡងឆមាស ២', 'SEMESTER_2', 'SEM
 -- Semester configuration table
 CREATE TABLE IF NOT EXISTS semester_configs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    teacher_id UUID,  -- NULL means default/system config
+    teacher_id UUID,
     academic_year VARCHAR(20) NOT NULL,
-    semester_exam_code VARCHAR(30) NOT NULL,  -- References assessment_types.code (SEMESTER_1, SEMESTER_2)
+    semester_exam_code VARCHAR(30) NOT NULL,
     exam_schedule JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-    -- Unique constraint: one config per teacher/academic_year/semester_exam_code
-    -- Uses COALESCE to handle NULL teacher_id (default configs)
-    CONSTRAINT uk_semester_config UNIQUE (
-        COALESCE(teacher_id, '00000000-0000-0000-0000-000000000000'),
-        academic_year,
-        semester_exam_code
-    )
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- Indexes for performance
+-- Unique index for teacher-specific configs
+CREATE UNIQUE INDEX idx_semester_config_teacher_unique
+ON semester_configs(teacher_id, academic_year, semester_exam_code)
+WHERE teacher_id IS NOT NULL;
+
+-- Unique index for default configs (where teacher_id is NULL)
+CREATE UNIQUE INDEX idx_semester_config_default_unique
+ON semester_configs(academic_year, semester_exam_code)
+WHERE teacher_id IS NULL;
+
+-- Other indexes for performance
 CREATE INDEX idx_semester_config_teacher ON semester_configs(teacher_id) WHERE teacher_id IS NOT NULL;
 CREATE INDEX idx_semester_config_academic_year ON semester_configs(academic_year);
-CREATE INDEX idx_semester_config_default ON semester_configs(academic_year, semester_exam_code) WHERE teacher_id IS NULL;
 
 -- Comments
 COMMENT ON TABLE semester_configs IS 'Semester exam schedule configuration per academic year';
@@ -52,31 +53,19 @@ COMMENT ON COLUMN semester_configs.exam_schedule IS 'JSON array of exam schedule
 -- Semester 1: November - March (exams in Nov, Dec, Jan, Feb, semester exam in Mar)
 INSERT INTO semester_configs (teacher_id, academic_year, semester_exam_code, exam_schedule)
 VALUES (
-    NULL,  -- Default config
+    NULL,
     '2024-2025',
     'SEMESTER_1',
-    '[
-        {"assessmentCode": "MONTHLY_1", "month": 11, "displayOrder": 1},
-        {"assessmentCode": "MONTHLY_2", "month": 12, "displayOrder": 2},
-        {"assessmentCode": "MONTHLY_3", "month": 1, "displayOrder": 3},
-        {"assessmentCode": "MONTHLY_4", "month": 2, "displayOrder": 4},
-        {"assessmentCode": "SEMESTER_1", "month": 3, "displayOrder": 5}
-    ]'::jsonb
+    '[{"assessmentCode": "MONTHLY_1", "month": 11, "displayOrder": 1}, {"assessmentCode": "MONTHLY_2", "month": 12, "displayOrder": 2}, {"assessmentCode": "MONTHLY_3", "month": 1, "displayOrder": 3}, {"assessmentCode": "MONTHLY_4", "month": 2, "displayOrder": 4}, {"assessmentCode": "SEMESTER_1", "month": 3, "displayOrder": 5}]'::jsonb
 );
 
 -- Semester 2: April - August (exams in Apr, May, Jun, Jul, semester exam in Aug)
 INSERT INTO semester_configs (teacher_id, academic_year, semester_exam_code, exam_schedule)
 VALUES (
-    NULL,  -- Default config
+    NULL,
     '2024-2025',
     'SEMESTER_2',
-    '[
-        {"assessmentCode": "MONTHLY_1", "month": 4, "displayOrder": 1},
-        {"assessmentCode": "MONTHLY_2", "month": 5, "displayOrder": 2},
-        {"assessmentCode": "MONTHLY_3", "month": 6, "displayOrder": 3},
-        {"assessmentCode": "MONTHLY_4", "month": 7, "displayOrder": 4},
-        {"assessmentCode": "SEMESTER_2", "month": 8, "displayOrder": 5}
-    ]'::jsonb
+    '[{"assessmentCode": "MONTHLY_1", "month": 4, "displayOrder": 1}, {"assessmentCode": "MONTHLY_2", "month": 5, "displayOrder": 2}, {"assessmentCode": "MONTHLY_3", "month": 6, "displayOrder": 3}, {"assessmentCode": "MONTHLY_4", "month": 7, "displayOrder": 4}, {"assessmentCode": "SEMESTER_2", "month": 8, "displayOrder": 5}]'::jsonb
 );
 
 -- Insert default configurations for 2025-2026 academic year
@@ -85,13 +74,7 @@ VALUES (
     NULL,
     '2025-2026',
     'SEMESTER_1',
-    '[
-        {"assessmentCode": "MONTHLY_1", "month": 11, "displayOrder": 1},
-        {"assessmentCode": "MONTHLY_2", "month": 12, "displayOrder": 2},
-        {"assessmentCode": "MONTHLY_3", "month": 1, "displayOrder": 3},
-        {"assessmentCode": "MONTHLY_4", "month": 2, "displayOrder": 4},
-        {"assessmentCode": "SEMESTER_1", "month": 3, "displayOrder": 5}
-    ]'::jsonb
+    '[{"assessmentCode": "MONTHLY_1", "month": 11, "displayOrder": 1}, {"assessmentCode": "MONTHLY_2", "month": 12, "displayOrder": 2}, {"assessmentCode": "MONTHLY_3", "month": 1, "displayOrder": 3}, {"assessmentCode": "MONTHLY_4", "month": 2, "displayOrder": 4}, {"assessmentCode": "SEMESTER_1", "month": 3, "displayOrder": 5}]'::jsonb
 );
 
 INSERT INTO semester_configs (teacher_id, academic_year, semester_exam_code, exam_schedule)
@@ -99,13 +82,7 @@ VALUES (
     NULL,
     '2025-2026',
     'SEMESTER_2',
-    '[
-        {"assessmentCode": "MONTHLY_1", "month": 4, "displayOrder": 1},
-        {"assessmentCode": "MONTHLY_2", "month": 5, "displayOrder": 2},
-        {"assessmentCode": "MONTHLY_3", "month": 6, "displayOrder": 3},
-        {"assessmentCode": "MONTHLY_4", "month": 7, "displayOrder": 4},
-        {"assessmentCode": "SEMESTER_2", "month": 8, "displayOrder": 5}
-    ]'::jsonb
+    '[{"assessmentCode": "MONTHLY_1", "month": 4, "displayOrder": 1}, {"assessmentCode": "MONTHLY_2", "month": 5, "displayOrder": 2}, {"assessmentCode": "MONTHLY_3", "month": 6, "displayOrder": 3}, {"assessmentCode": "MONTHLY_4", "month": 7, "displayOrder": 4}, {"assessmentCode": "SEMESTER_2", "month": 8, "displayOrder": 5}]'::jsonb
 );
 
 COMMIT;

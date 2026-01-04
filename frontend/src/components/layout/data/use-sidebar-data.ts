@@ -9,6 +9,7 @@ import {
   UserCog,
   Building2,
   BookOpen,
+  CalendarCog,
 } from 'lucide-react'
 import { useLanguage } from '@/context/language-provider'
 import { type SidebarData } from '../types'
@@ -79,6 +80,11 @@ export function useSidebarData(): SidebarData {
                 title: t.schoolSetup.title,
                 url: '/settings/school-setup',
                 icon: Building2,
+              },
+              {
+                title: t.semesterConfig?.title || 'Semester Config',
+                url: '/settings/semester-config',
+                icon: CalendarCog,
               },
               {
                 title: t.nav.profile,

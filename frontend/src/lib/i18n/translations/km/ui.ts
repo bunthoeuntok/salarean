@@ -657,5 +657,22 @@ export const uiKm: UITranslations = {
         updated: "បានធ្វើបច្ចុប្បន្នភាពប្រភេទការវាយតម្លៃដោយជោគជ័យ"
       }
     }
-  }
+  },
+  semesterConfig: {
+    title: 'ការកំណត់ឆមាស',
+    description: 'កំណត់កាលវិភាគប្រឡងសម្រាប់ឆមាសនីមួយៗ',
+    academicYear: 'ឆ្នាំសិក្សា',
+    customConfig: 'ផ្ទាល់ខ្លួន',
+    availableExams: 'ប្រឡងដែលមាន',
+    dragInstruction: 'អូសប្រឡងដើម្បីបញ្ជូនទៅឆមាស',
+    allAssigned: 'ប្រឡងទាំងអស់ត្រូវបានបញ្ជូន',
+    monthlyExams: 'ប្រឡងប្រចាំខែ',
+    dropHere: 'ទម្លាក់ប្រឡងនៅទីនេះ',
+    resetToDefault: 'កំណត់ឡើងវិញទៅលំនាំដើម',
+    saveChanges: 'រក្សាទុកការផ្លាស់ប្តូរ',
+    saveSuccess: 'រក្សាទុកការកំណត់បានជោគជ័យ',
+    saveError: 'បរាជ័យក្នុងការរក្សាទុកការកំណត់',
+    resetSuccess: 'កំណត់ឡើងវិញទៅលំនាំដើមបានជោគជ័យ',
+    resetError: 'បរាជ័យក្នុងការកំណត់ឡើងវិញ',
+  },
 }
