@@ -56,7 +56,7 @@ export interface CreateTimeSlotTemplateRequest {
   name: string
   nameKm?: string
   shift: ClassShift
-  slots: Omit<TimeSlot, 'label' | 'labelKm'> & { label?: string; labelKm?: string }[]
+  slots: TimeSlot[]
 }
 
 export interface CreateClassScheduleRequest {

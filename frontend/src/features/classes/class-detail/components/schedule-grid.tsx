@@ -85,11 +85,11 @@ export function ScheduleGrid({ classId, schedule }: ScheduleGridProps) {
     return map
   }, [schedule.entries])
 
-  // Get effective time slots (custom or from template)
-  const timeSlots = schedule.effectiveSlots || []
-
-  // Get only period slots (not breaks)
-  const periodSlots = timeSlots.filter((slot) => !slot.isBreak && slot.periodNumber)
+  // Get effective time slots (custom or from template) sorted by start time
+  const timeSlots = useMemo(() => {
+    const slots = schedule.effectiveSlots || []
+    return [...slots].sort((a, b) => a.startTime.localeCompare(b.startTime))
+  }, [schedule.effectiveSlots])
 
   // Days of the week (1-6 = Mon-Sat)
   const days = [1, 2, 3, 4, 5, 6]
@@ -124,38 +124,10 @@ export function ScheduleGrid({ classId, schedule }: ScheduleGridProps) {
             </tr>
           </thead>
           <tbody>
-            {periodSlots.map((slot) => (
-              <tr key={slot.periodNumber} className="border-t">
-                <td className="border-r bg-muted/30 p-2">
-                  <div className="text-xs font-medium">
-                    {language === 'km' ? slot.labelKm : slot.label}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    {slot.startTime} - {slot.endTime}
-                  </div>
-                </td>
-                {days.map((day) => {
-                  const entry = entryMap[`${day}-${slot.periodNumber}`]
-                  return (
-                    <td key={day} className="border-r p-1 last:border-r-0">
-                      <ScheduleCell
-                        dayOfWeek={day}
-                        periodNumber={slot.periodNumber!}
-                        entry={entry}
-                        subjectName={entry ? subjectMap[entry.subjectId] || null : null}
-                        onClick={() => handleCellClick(day, slot.periodNumber!)}
-                      />
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-
-            {/* Show break rows */}
-            {timeSlots
-              .filter((slot) => slot.isBreak)
-              .map((slot, index) => (
-                <tr key={`break-${index}`} className="border-t bg-amber-50/50 dark:bg-amber-950/20">
+            {timeSlots.map((slot, index) => (
+              slot.isBreak ? (
+                // Break row - spans all columns
+                <tr key={`slot-${index}`} className="border-t bg-amber-50/50 dark:bg-amber-950/20">
                   <td className="border-r p-2" colSpan={7}>
                     <div className="flex items-center justify-center gap-2 text-xs text-amber-700 dark:text-amber-400">
                       <span>{language === 'km' ? slot.labelKm : slot.label}</span>
@@ -163,7 +135,34 @@ export function ScheduleGrid({ classId, schedule }: ScheduleGridProps) {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                // Period row - clickable cells for each day
+                <tr key={`slot-${index}`} className="border-t">
+                  <td className="border-r bg-muted/30 p-2">
+                    <div className="text-xs font-medium">
+                      {language === 'km' ? slot.labelKm : slot.label}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {slot.startTime} - {slot.endTime}
+                    </div>
+                  </td>
+                  {days.map((day) => {
+                    const entry = entryMap[`${day}-${slot.periodNumber}`]
+                    return (
+                      <td key={day} className="border-r p-1 last:border-r-0">
+                        <ScheduleCell
+                          dayOfWeek={day}
+                          periodNumber={slot.periodNumber!}
+                          entry={entry}
+                          subjectName={entry ? subjectMap[entry.subjectId] || null : null}
+                          onClick={() => handleCellClick(day, slot.periodNumber!)}
+                        />
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            ))}
           </tbody>
         </table>
       </div>

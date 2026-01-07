@@ -14,6 +14,7 @@ import { classService } from '@/services/class.service'
 import { ScheduleGrid } from './schedule-grid'
 import { CreateScheduleDialog } from './create-schedule-dialog'
 import { CopyScheduleDialog } from './copy-schedule-dialog'
+import type { TimeSlot } from '@/types/schedule.types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,12 +52,13 @@ export function ScheduleTab({ classId }: ScheduleTabProps) {
   const deleteSchedule = useDeleteClassSchedule(classId)
   const clearEntries = useClearScheduleEntries(classId)
 
-  const handleCreateSchedule = async (templateId?: string) => {
+  const handleCreateSchedule = async (templateId?: string, customSlots?: TimeSlot[]) => {
     if (!classData) return
 
     await createSchedule.mutateAsync({
       classId,
       timeSlotTemplateId: templateId,
+      customSlots,
       academicYear: classData.academicYear,
     })
     setShowCreateDialog(false)
