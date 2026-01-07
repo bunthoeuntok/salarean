@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   DndContext,
@@ -20,14 +20,12 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { semesterConfigService } from '@/services/semester-config.service'
+import { assessmentTypeService } from '@/services/assessment-type.service'
 import type { ExamScheduleItem } from '@/types/semester-config'
 import { ASSESSMENT_NAMES } from '@/types/semester-config'
 import { SemesterDropZone } from './components/semester-drop-zone'
 import { AvailableExamsZone } from './components/available-exams-zone'
 import { useAcademicYearStore } from '@/store/academic-year-store'
-
-// All available monthly exam codes
-const ALL_MONTHLY_EXAMS = ['MONTHLY_1', 'MONTHLY_2', 'MONTHLY_3', 'MONTHLY_4', 'MONTHLY_5', 'MONTHLY_6']
 
 // Query key factory
 const semesterConfigKeys = {
@@ -46,8 +44,29 @@ export function SettingsSemesterConfig() {
   const [hasChanges, setHasChanges] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
 
-  // Store titles from database (assessmentCode -> title mapping)
-  const [titleMap, setTitleMap] = useState<Record<string, string>>({})
+  // Fetch all assessment types to get monthly exams and their titles
+  const { data: assessmentTypes, isLoading: loadingAssessmentTypes } = useQuery({
+    queryKey: ['monthly-assessment-types'],
+    queryFn: () => assessmentTypeService.getAssessmentTypesByCategory('MONTHLY_EXAM'),
+  })
+
+  // Get all monthly exam codes from API
+  const allMonthlyExamCodes = useMemo(() => {
+    if (!assessmentTypes) return []
+    return assessmentTypes
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((at) => at.code)
+  }, [assessmentTypes])
+
+  // Build title map from assessment types (using nameKhmer) - derived state with useMemo
+  const titleMap = useMemo(() => {
+    if (!assessmentTypes) return {}
+    const map: Record<string, string> = {}
+    assessmentTypes.forEach((at) => {
+      map[at.code] = at.nameKhmer
+    })
+    return map
+  }, [assessmentTypes])
 
   // Sensors for drag and drop
   const sensors = useSensors(
@@ -74,40 +93,30 @@ export function SettingsSemesterConfig() {
     enabled: !!academicYear,
   })
 
-  const isLoading = loading1 || loading2
+  const isLoading = loading1 || loading2 || loadingAssessmentTypes
 
-  // Initialize state from configs and build title map from database
-  useEffect(() => {
-    if (semester1Config?.examSchedule) {
-      const monthlyExams = semester1Config.examSchedule.filter(
-        (item) => item.assessmentCode.startsWith('MONTHLY_')
-      )
-      setSemester1Items(monthlyExams)
+  // Track previous config IDs to detect when server data changes
+  const [prevConfigIds, setPrevConfigIds] = useState<{ s1?: string; s2?: string }>({})
 
-      // Build title map from API response (database values)
-      const newTitles: Record<string, string> = {}
-      semester1Config.examSchedule.forEach((item) => {
-        newTitles[item.assessmentCode] = item.title
-      })
-      setTitleMap((prev) => ({ ...prev, ...newTitles }))
-    }
-  }, [semester1Config])
+  // Initialize state from configs using React's recommended pattern for updating state during render
+  // See: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  if (semester1Config?.id && semester1Config.id !== prevConfigIds.s1) {
+    setPrevConfigIds((prev) => ({ ...prev, s1: semester1Config.id }))
+    const monthlyExams = semester1Config.examSchedule?.filter(
+      (item) => item.assessmentCode.startsWith('MONTHLY_')
+    ) ?? []
+    setSemester1Items(monthlyExams)
+    setHasChanges(false)
+  }
 
-  useEffect(() => {
-    if (semester2Config?.examSchedule) {
-      const monthlyExams = semester2Config.examSchedule.filter(
-        (item) => item.assessmentCode.startsWith('MONTHLY_')
-      )
-      setSemester2Items(monthlyExams)
-
-      // Build title map from API response (database values)
-      const newTitles: Record<string, string> = {}
-      semester2Config.examSchedule.forEach((item) => {
-        newTitles[item.assessmentCode] = item.title
-      })
-      setTitleMap((prev) => ({ ...prev, ...newTitles }))
-    }
-  }, [semester2Config])
+  if (semester2Config?.id && semester2Config.id !== prevConfigIds.s2) {
+    setPrevConfigIds((prev) => ({ ...prev, s2: semester2Config.id }))
+    const monthlyExams = semester2Config.examSchedule?.filter(
+      (item) => item.assessmentCode.startsWith('MONTHLY_')
+    ) ?? []
+    setSemester2Items(monthlyExams)
+    setHasChanges(false)
+  }
 
   // Compute available exams (not assigned to any semester)
   const availableExams = useMemo(() => {
@@ -115,8 +124,8 @@ export function SettingsSemesterConfig() {
       ...semester1Items.map((i) => i.assessmentCode),
       ...semester2Items.map((i) => i.assessmentCode),
     ]
-    return ALL_MONTHLY_EXAMS.filter((code) => !usedCodes.includes(code))
-  }, [semester1Items, semester2Items])
+    return allMonthlyExamCodes.filter((code) => !usedCodes.includes(code))
+  }, [semester1Items, semester2Items, allMonthlyExamCodes])
 
   // Save mutation for Semester 1
   const saveSemester1 = useMutation({
@@ -319,7 +328,7 @@ export function SettingsSemesterConfig() {
 
   // Get active item for drag overlay
   const activeItem = activeId
-    ? ALL_MONTHLY_EXAMS.includes(activeId)
+    ? allMonthlyExamCodes.includes(activeId)
       ? activeId
       : semester1Items.find((i) => i.assessmentCode === activeId)?.assessmentCode ||
         semester2Items.find((i) => i.assessmentCode === activeId)?.assessmentCode
