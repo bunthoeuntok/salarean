@@ -22,6 +22,12 @@ const StudentsTab = lazy(() =>
   }))
 )
 
+const ScheduleTab = lazy(() =>
+  import('./components/schedule-tab').then((module) => ({
+    default: module.ScheduleTab,
+  }))
+)
+
 function TabLoadingFallback() {
   return (
     <div className="space-y-2">
@@ -191,7 +197,9 @@ function ClassDetailContent() {
             aria-labelledby="tab-schedule"
             className="mt-4"
           >
-            <ComingSoonTab featureName={t.classes.tabs?.schedule ?? 'Schedule'} />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <ScheduleTab classId={id} />
+            </Suspense>
           </TabsContent>
 
           <TabsContent

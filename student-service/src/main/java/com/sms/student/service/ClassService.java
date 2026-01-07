@@ -7,6 +7,7 @@ import com.sms.student.dto.ClassSummaryDto;
 import com.sms.student.dto.StudentEnrollmentItem;
 import com.sms.student.dto.StudentEnrollmentListResponse;
 import com.sms.student.dto.StudentRosterItemDto;
+import com.sms.student.enums.ClassShift;
 import com.sms.student.enums.ClassStatus;
 import com.sms.student.enums.EnrollmentStatus;
 import com.sms.student.exception.ClassNotFoundException;
@@ -350,6 +351,7 @@ public class ClassService implements IClassService {
             .studentCount(entity.getStudentCount())
             .level(entity.getLevel())
             .type(entity.getType())
+            .shift(entity.getShift())
             .status(entity.getStatus())
             .teacherId(entity.getTeacherId())
             .createdAt(entity.getCreatedAt())
@@ -376,6 +378,7 @@ public class ClassService implements IClassService {
             .studentCount(entity.getStudentCount())
             .level(entity.getLevel())
             .type(entity.getType())
+            .shift(entity.getShift())
             .status(entity.getStatus())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
@@ -512,6 +515,7 @@ public class ClassService implements IClassService {
             .maxCapacity(request.getMaxCapacity())
             .level(request.getLevel())
             .type(request.getType())
+            .shift(request.getShift() != null ? request.getShift() : ClassShift.MORNING)
             .studentCount(0)
             .status(ClassStatus.ACTIVE)
             .build();
@@ -658,6 +662,12 @@ public class ClassService implements IClassService {
         if (request.getType() != null && !request.getType().equals(schoolClass.getType())) {
             log.debug("Updating type from {} to {}", schoolClass.getType(), request.getType());
             schoolClass.setType(request.getType());
+        }
+
+        // Update shift if provided
+        if (request.getShift() != null && !request.getShift().equals(schoolClass.getShift())) {
+            log.debug("Updating shift from {} to {}", schoolClass.getShift(), request.getShift());
+            schoolClass.setShift(request.getShift());
         }
 
         // Save updated class

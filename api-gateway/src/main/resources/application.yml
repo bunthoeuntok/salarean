@@ -58,7 +58,7 @@ spring:
         - id: student-service
           uri: lb://STUDENT-SERVICE
           predicates:
-            - Path=/api/students/**,/api/classes/**,/api/schools/**
+            - Path=/api/students/**,/api/classes/**,/api/schools/**,/api/schedules/**
           filters:
             - JwtAuthenticationFilter
 

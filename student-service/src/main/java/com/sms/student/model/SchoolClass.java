@@ -1,6 +1,7 @@
 package com.sms.student.model;
 
 import com.sms.student.enums.ClassLevel;
+import com.sms.student.enums.ClassShift;
 import com.sms.student.enums.ClassStatus;
 import com.sms.student.enums.ClassType;
 import jakarta.persistence.*;
@@ -61,6 +62,11 @@ public class SchoolClass {
     @Column(nullable = false, length = 20)
     @Builder.Default
     private ClassType type = ClassType.NORMAL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private ClassShift shift = ClassShift.MORNING;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

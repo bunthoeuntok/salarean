@@ -1,6 +1,7 @@
 package com.sms.student.dto;
 
 import com.sms.student.enums.ClassLevel;
+import com.sms.student.enums.ClassShift;
 import com.sms.student.enums.ClassStatus;
 import com.sms.student.enums.ClassType;
 import lombok.AllArgsConstructor;
@@ -70,6 +71,11 @@ public class ClassSummaryDto {
      * Class type (NORMAL, SCIENCE, or SOCIAL_SCIENCE).
      */
     private ClassType type;
+
+    /**
+     * Class shift (MORNING, AFTERNOON, or FULLDAY).
+     */
+    private ClassShift shift;
 
     /**
      * Class status (ACTIVE, INACTIVE, or COMPLETED).

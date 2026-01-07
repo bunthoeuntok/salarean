@@ -1,6 +1,7 @@
 package com.sms.student.dto;
 
 import com.sms.student.enums.ClassLevel;
+import com.sms.student.enums.ClassShift;
 import com.sms.student.enums.ClassType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -99,4 +100,14 @@ public class ClassUpdateRequest {
         example = "SCIENCE"
     )
     private ClassType type;
+
+    /**
+     * Class shift (optional).
+     * Defines the time of day: MORNING, AFTERNOON, or FULLDAY.
+     */
+    @Schema(
+        description = "Class shift: MORNING, AFTERNOON, or FULLDAY. Only provide if changing shift",
+        example = "AFTERNOON"
+    )
+    private ClassShift shift;
 }

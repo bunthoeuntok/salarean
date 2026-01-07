@@ -5,6 +5,7 @@
 export type ClassStatus = 'ACTIVE' | 'INACTIVE' | 'COMPLETED'
 export type ClassLevel = 'PRIMARY' | 'SECONDARY' | 'HIGH_SCHOOL'
 export type ClassType = 'NORMAL' | 'SCIENCE' | 'SOCIAL_SCIENCE'
+export type ClassShift = 'MORNING' | 'AFTERNOON' | 'FULLDAY'
 
 export interface Class {
   id: string
@@ -18,6 +19,7 @@ export interface Class {
   studentCount: number
   level: ClassLevel
   type: ClassType
+  shift: ClassShift
   status: ClassStatus
   createdAt: string
   updatedAt: string
@@ -42,6 +44,7 @@ export interface CreateClassRequest {
   maxCapacity: number
   level: ClassLevel
   type: ClassType
+  shift?: ClassShift
 }
 
 export interface UpdateClassRequest {
@@ -51,6 +54,7 @@ export interface UpdateClassRequest {
   maxCapacity?: number
   level?: ClassLevel
   type?: ClassType
+  shift?: ClassShift
   status?: ClassStatus
 }
 
