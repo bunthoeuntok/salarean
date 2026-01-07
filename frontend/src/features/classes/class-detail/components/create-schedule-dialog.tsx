@@ -9,6 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -17,7 +22,7 @@ import { useTimeSlotTemplates, useCreateTemplate } from '@/hooks/use-schedule'
 import type { ClassShift, TimeSlot, TimeSlotTemplate } from '@/types/schedule.types'
 import { SHIFT_NAMES } from '@/types/schedule.types'
 import { cn } from '@/lib/utils'
-import { Check, Settings2, Plus, Trash2, ArrowLeft, Coffee } from 'lucide-react'
+import { Check, Settings2, Plus, Trash2, ArrowLeft, Coffee, Eye } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 
 interface CreateScheduleDialogProps {
@@ -354,40 +359,103 @@ interface TemplateCardProps {
 }
 
 function TemplateCard({ template, isSelected, onSelect, language }: TemplateCardProps) {
+  // Sort slots by start time for preview
+  const sortedSlots = [...template.slots].sort((a, b) => a.startTime.localeCompare(b.startTime))
+
   return (
     <div
       className={cn(
-        'flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors',
+        'rounded-lg border p-4 transition-colors',
         isSelected
           ? 'border-primary bg-primary/5'
           : 'hover:border-muted-foreground/50'
       )}
-      onClick={onSelect}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onSelect()
-        }
-      }}
     >
-      <div>
-        <div className="font-medium">
-          {language === 'km' ? template.nameKm : template.name}
+      <div
+        className="flex cursor-pointer items-center justify-between"
+        onClick={onSelect}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelect()
+          }
+        }}
+      >
+        <div>
+          <div className="font-medium">
+            {language === 'km' ? template.nameKm : template.name}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {template.periodCount} {language === 'km' ? 'មុខវិជ្ជា' : 'periods'}
+            {template.isDefault && (
+              <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs">
+                {language === 'km' ? 'លំនាំដើម' : 'Default'}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="text-sm text-muted-foreground">
-          {template.periodCount} {language === 'km' ? 'មុខវិជ្ជា' : 'periods'}
-          {template.isDefault && (
-            <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs">
-              {language === 'km' ? 'លំនាំដើម' : 'Default'}
-            </span>
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1.5 px-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Eye className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {language === 'km' ? 'មើល' : 'Preview'}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="end">
+              <div className="border-b bg-muted/50 px-3 py-2">
+                <div className="font-medium">
+                  {language === 'km' ? template.nameKm : template.name}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {template.periodCount} {language === 'km' ? 'មុខវិជ្ជា' : 'periods'}
+                </div>
+              </div>
+              <ScrollArea className="max-h-64">
+                <div className="divide-y">
+                  {sortedSlots.map((slot, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2',
+                        slot.isBreak && 'bg-amber-50/50 dark:bg-amber-950/20'
+                      )}
+                    >
+                      <div className="w-20 shrink-0 text-xs text-muted-foreground">
+                        {slot.startTime} - {slot.endTime}
+                      </div>
+                      <div className="flex-1">
+                        {slot.isBreak ? (
+                          <span className="flex items-center gap-1 text-xs text-amber-700 dark:text-amber-400">
+                            <Coffee className="h-3 w-3" />
+                            {language === 'km' ? slot.labelKm : slot.label}
+                          </span>
+                        ) : (
+                          <span className="text-sm">
+                            {language === 'km' ? slot.labelKm : slot.label}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </PopoverContent>
+          </Popover>
+          {isSelected && (
+            <Check className="h-5 w-5 text-primary" />
           )}
         </div>
       </div>
-      {isSelected && (
-        <Check className="h-5 w-5 text-primary" />
-      )}
     </div>
   )
 }
