@@ -36,7 +36,6 @@ public class SemesterConfigController {
     public ResponseEntity<ApiResponse<SemesterConfigResponse>> getConfig(
             @PathVariable String academicYear,
             @PathVariable String semesterExamCode) {
-        log.debug("Getting config for academic year {} semester exam code {}", academicYear, semesterExamCode);
         SemesterConfigResponse config = configService.getConfig(academicYear, semesterExamCode);
         return ResponseEntity.ok(ApiResponse.success(config));
     }
@@ -53,8 +52,6 @@ public class SemesterConfigController {
     @Operation(summary = "Save teacher-specific configuration")
     public ResponseEntity<ApiResponse<SemesterConfigResponse>> saveTeacherConfig(
             @Valid @RequestBody SemesterConfigRequest request) {
-        log.info("Saving teacher config for academic year {} semester exam code {}",
-                request.getAcademicYear(), request.getSemesterExamCode());
         SemesterConfigResponse config = configService.saveTeacherConfig(request);
         return ResponseEntity.ok(ApiResponse.success(config));
     }
@@ -64,7 +61,6 @@ public class SemesterConfigController {
     public ResponseEntity<ApiResponse<Void>> deleteTeacherConfig(
             @PathVariable String academicYear,
             @PathVariable String semesterExamCode) {
-        log.info("Deleting teacher config for academic year {} semester exam code {}", academicYear, semesterExamCode);
         configService.deleteTeacherConfig(academicYear, semesterExamCode);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -92,8 +88,6 @@ public class SemesterConfigController {
     @Operation(summary = "Create or update default configuration (admin only)")
     public ResponseEntity<ApiResponse<SemesterConfigResponse>> saveDefaultConfig(
             @Valid @RequestBody SemesterConfigRequest request) {
-        log.info("Saving default config for academic year {} semester exam code {}",
-                request.getAcademicYear(), request.getSemesterExamCode());
         SemesterConfigResponse config = configService.saveDefaultConfig(request);
         return ResponseEntity.ok(ApiResponse.success(config));
     }
@@ -103,7 +97,6 @@ public class SemesterConfigController {
     public ResponseEntity<ApiResponse<Void>> deleteDefaultConfig(
             @PathVariable String academicYear,
             @PathVariable String semesterExamCode) {
-        log.info("Deleting default config for academic year {} semester exam code {}", academicYear, semesterExamCode);
         configService.deleteDefaultConfig(academicYear, semesterExamCode);
         return ResponseEntity.ok(ApiResponse.success(null));
     }

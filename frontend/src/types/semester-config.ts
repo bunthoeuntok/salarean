@@ -4,7 +4,7 @@
 
 export interface ExamScheduleItem {
   assessmentCode: string
-  month: number
+  title: string
   displayOrder: number
 }
 
@@ -26,21 +26,6 @@ export interface SemesterConfigRequest {
   examSchedule: ExamScheduleItem[]
 }
 
-// Month names for display
-export const MONTH_NAMES: Record<number, { en: string; km: string }> = {
-  1: { en: 'January', km: 'មករា' },
-  2: { en: 'February', km: 'កុម្ភៈ' },
-  3: { en: 'March', km: 'មីនា' },
-  4: { en: 'April', km: 'មេសា' },
-  5: { en: 'May', km: 'ឧសភា' },
-  6: { en: 'June', km: 'មិថុនា' },
-  7: { en: 'July', km: 'កក្កដា' },
-  8: { en: 'August', km: 'សីហា' },
-  9: { en: 'September', km: 'កញ្ញា' },
-  10: { en: 'October', km: 'តុលា' },
-  11: { en: 'November', km: 'វិច្ឆិកា' },
-  12: { en: 'December', km: 'ធ្នូ' },
-}
 
 // Assessment type display names
 export const ASSESSMENT_NAMES: Record<string, { en: string; km: string }> = {

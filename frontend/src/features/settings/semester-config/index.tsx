@@ -22,22 +22,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { semesterConfigService } from '@/services/semester-config.service'
 import type { ExamScheduleItem } from '@/types/semester-config'
 import { ASSESSMENT_NAMES } from '@/types/semester-config'
-import { DraggableExamItem } from './components/draggable-exam-item'
 import { SemesterDropZone } from './components/semester-drop-zone'
+import { AvailableExamsZone } from './components/available-exams-zone'
 import { useAcademicYearStore } from '@/store/academic-year-store'
 
 // All available monthly exam codes
 const ALL_MONTHLY_EXAMS = ['MONTHLY_1', 'MONTHLY_2', 'MONTHLY_3', 'MONTHLY_4', 'MONTHLY_5', 'MONTHLY_6']
-
-// Default month assignments
-const DEFAULT_MONTHS: Record<string, number> = {
-  MONTHLY_1: 11, // November
-  MONTHLY_2: 12, // December
-  MONTHLY_3: 1,  // January
-  MONTHLY_4: 2,  // February
-  MONTHLY_5: 3,  // March
-  MONTHLY_6: 4,  // April
-}
 
 // Query key factory
 const semesterConfigKeys = {
@@ -55,6 +45,9 @@ export function SettingsSemesterConfig() {
   const [semester2Items, setSemester2Items] = useState<ExamScheduleItem[]>([])
   const [hasChanges, setHasChanges] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
+
+  // Store titles from database (assessmentCode -> title mapping)
+  const [titleMap, setTitleMap] = useState<Record<string, string>>({})
 
   // Sensors for drag and drop
   const sensors = useSensors(
@@ -83,13 +76,20 @@ export function SettingsSemesterConfig() {
 
   const isLoading = loading1 || loading2
 
-  // Initialize state from configs
+  // Initialize state from configs and build title map from database
   useEffect(() => {
     if (semester1Config?.examSchedule) {
       const monthlyExams = semester1Config.examSchedule.filter(
         (item) => item.assessmentCode.startsWith('MONTHLY_')
       )
       setSemester1Items(monthlyExams)
+
+      // Build title map from API response (database values)
+      const newTitles: Record<string, string> = {}
+      semester1Config.examSchedule.forEach((item) => {
+        newTitles[item.assessmentCode] = item.title
+      })
+      setTitleMap((prev) => ({ ...prev, ...newTitles }))
     }
   }, [semester1Config])
 
@@ -99,6 +99,13 @@ export function SettingsSemesterConfig() {
         (item) => item.assessmentCode.startsWith('MONTHLY_')
       )
       setSemester2Items(monthlyExams)
+
+      // Build title map from API response (database values)
+      const newTitles: Record<string, string> = {}
+      semester2Config.examSchedule.forEach((item) => {
+        newTitles[item.assessmentCode] = item.title
+      })
+      setTitleMap((prev) => ({ ...prev, ...newTitles }))
     }
   }, [semester2Config])
 
@@ -119,8 +126,8 @@ export function SettingsSemesterConfig() {
           ...item,
           displayOrder: idx + 1,
         })),
-        // Add semester exam at the end
-        { assessmentCode: 'SEMESTER_1', month: 3, displayOrder: semester1Items.length + 1 },
+        // Add semester exam at the end (use title from database)
+        { assessmentCode: 'SEMESTER_1', title: titleMap['SEMESTER_1'] || 'SEMESTER_1', displayOrder: semester1Items.length + 1 },
       ]
       return semesterConfigService.saveTeacherConfig({
         academicYear,
@@ -138,8 +145,8 @@ export function SettingsSemesterConfig() {
           ...item,
           displayOrder: idx + 1,
         })),
-        // Add semester exam at the end
-        { assessmentCode: 'SEMESTER_2', month: 8, displayOrder: semester2Items.length + 1 },
+        // Add semester exam at the end (use title from database)
+        { assessmentCode: 'SEMESTER_2', title: titleMap['SEMESTER_2'] || 'SEMESTER_2', displayOrder: semester2Items.length + 1 },
       ]
       return semesterConfigService.saveTeacherConfig({
         academicYear,
@@ -239,13 +246,14 @@ export function SettingsSemesterConfig() {
     const isFromSemester1 = semester1Items.some((i) => i.assessmentCode === activeCode)
     const isFromSemester2 = semester2Items.some((i) => i.assessmentCode === activeCode)
 
+    const isToAvailable = overId === 'AVAILABLE'
     const isToSemester1 = overId === 'SEMESTER_1' || semester1Items.some((i) => i.assessmentCode === overId)
     const isToSemester2 = overId === 'SEMESTER_2' || semester2Items.some((i) => i.assessmentCode === overId)
 
-    // Create new item
+    // Create new item with title from database (titleMap)
     const createItem = (code: string): ExamScheduleItem => ({
       assessmentCode: code,
-      month: DEFAULT_MONTHS[code] || 1,
+      title: titleMap[code] || code,
       displayOrder: 1,
     })
 
@@ -258,6 +266,20 @@ export function SettingsSemesterConfig() {
         setSemester2Items([...semester2Items, createItem(activeCode)])
         setHasChanges(true)
       }
+      return
+    }
+
+    // Moving from semester1 to available
+    if (isFromSemester1 && isToAvailable) {
+      setSemester1Items(semester1Items.filter((i) => i.assessmentCode !== activeCode))
+      setHasChanges(true)
+      return
+    }
+
+    // Moving from semester2 to available
+    if (isFromSemester2 && isToAvailable) {
+      setSemester2Items(semester2Items.filter((i) => i.assessmentCode !== activeCode))
+      setHasChanges(true)
       return
     }
 
@@ -282,34 +304,6 @@ export function SettingsSemesterConfig() {
       }
       return
     }
-  }
-
-  // Handle month change
-  const handleMonthChange = (semesterId: string, assessmentCode: string, month: number) => {
-    if (semesterId === 'SEMESTER_1') {
-      setSemester1Items(
-        semester1Items.map((item) =>
-          item.assessmentCode === assessmentCode ? { ...item, month } : item
-        )
-      )
-    } else {
-      setSemester2Items(
-        semester2Items.map((item) =>
-          item.assessmentCode === assessmentCode ? { ...item, month } : item
-        )
-      )
-    }
-    setHasChanges(true)
-  }
-
-  // Handle remove
-  const handleRemove = (semesterId: string, assessmentCode: string) => {
-    if (semesterId === 'SEMESTER_1') {
-      setSemester1Items(semester1Items.filter((i) => i.assessmentCode !== assessmentCode))
-    } else {
-      setSemester2Items(semester2Items.filter((i) => i.assessmentCode !== assessmentCode))
-    }
-    setHasChanges(true)
   }
 
   // Check if using custom config
@@ -377,21 +371,7 @@ export function SettingsSemesterConfig() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {availableExams.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    {t.semesterConfig?.allAssigned || 'All exams assigned'}
-                  </p>
-                ) : (
-                  availableExams.map((code) => (
-                    <DraggableExamItem
-                      key={code}
-                      id={code}
-                      assessmentCode={code}
-                    />
-                  ))
-                )}
-              </div>
+              <AvailableExamsZone availableExams={availableExams} titleMap={titleMap} />
             </CardContent>
           </Card>
 
@@ -412,8 +392,6 @@ export function SettingsSemesterConfig() {
                   id="SEMESTER_1"
                   title=""
                   items={semester1Items}
-                  onMonthChange={(code, month) => handleMonthChange('SEMESTER_1', code, month)}
-                  onRemove={(code) => handleRemove('SEMESTER_1', code)}
                 />
               </CardContent>
             </Card>
@@ -433,8 +411,6 @@ export function SettingsSemesterConfig() {
                   id="SEMESTER_2"
                   title=""
                   items={semester2Items}
-                  onMonthChange={(code, month) => handleMonthChange('SEMESTER_2', code, month)}
-                  onRemove={(code) => handleRemove('SEMESTER_2', code)}
                 />
               </CardContent>
             </Card>
@@ -446,9 +422,7 @@ export function SettingsSemesterConfig() {
           {activeItem && (
             <div className="rounded-lg border bg-card p-3 shadow-lg ring-2 ring-primary">
               <span className="text-sm font-medium">
-                {language === 'km'
-                  ? ASSESSMENT_NAMES[activeItem]?.km
-                  : ASSESSMENT_NAMES[activeItem]?.en}
+                {titleMap[activeItem] || activeItem}
               </span>
             </div>
           )}

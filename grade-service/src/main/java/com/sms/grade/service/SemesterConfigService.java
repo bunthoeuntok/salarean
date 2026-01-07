@@ -186,7 +186,7 @@ public class SemesterConfigService implements ISemesterConfigService {
         List<SemesterConfig.ExamScheduleItem> scheduleItems = request.getExamSchedule().stream()
                 .map(dto -> SemesterConfig.ExamScheduleItem.builder()
                         .assessmentCode(dto.getAssessmentCode())
-                        .month(dto.getMonth())
+                        .title(dto.getTitle())
                         .displayOrder(dto.getDisplayOrder())
                         .build())
                 .collect(Collectors.toList());
@@ -198,7 +198,7 @@ public class SemesterConfigService implements ISemesterConfigService {
         List<ExamScheduleItemDto> scheduleItems = config.getExamSchedule().stream()
                 .map(item -> ExamScheduleItemDto.builder()
                         .assessmentCode(item.getAssessmentCode())
-                        .month(item.getMonth())
+                        .title(item.getTitle())
                         .displayOrder(item.getDisplayOrder())
                         .build())
                 .collect(Collectors.toList());

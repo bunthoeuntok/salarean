@@ -2,22 +2,20 @@ import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ASSESSMENT_NAMES } from '@/types/semester-config'
-import { useLanguage } from '@/context/language-provider'
 
 interface DraggableExamItemProps {
   id: string
   assessmentCode: string
-  month?: number
+  title?: string
   isInDropZone?: boolean
 }
 
 export function DraggableExamItem({
   id,
   assessmentCode,
+  title,
   isInDropZone = false,
 }: DraggableExamItemProps) {
-  const { language } = useLanguage()
   const {
     attributes,
     listeners,
@@ -26,7 +24,7 @@ export function DraggableExamItem({
     isDragging,
   } = useDraggable({
     id,
-    data: { assessmentCode },
+    data: { assessmentCode, title },
   })
 
   const style: React.CSSProperties = {
@@ -34,10 +32,8 @@ export function DraggableExamItem({
     opacity: isDragging ? 0.5 : 1,
   }
 
-  const assessmentName = ASSESSMENT_NAMES[assessmentCode]
-  const displayName = assessmentName
-    ? (language === 'km' ? assessmentName.km : assessmentName.en)
-    : assessmentCode
+  // Display title from database, fallback to assessmentCode
+  const displayName = title || assessmentCode
 
   return (
     <div

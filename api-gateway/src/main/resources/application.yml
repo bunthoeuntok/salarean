@@ -80,7 +80,7 @@ spring:
         - id: grade-service
           uri: lb://GRADE-SERVICE
           predicates:
-            - Path=/api/grades/**
+            - Path=/api/grades/**,/api/semester-configs/**
           filters:
             - JwtAuthenticationFilter
 

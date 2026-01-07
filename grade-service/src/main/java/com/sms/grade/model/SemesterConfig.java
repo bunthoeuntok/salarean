@@ -51,7 +51,7 @@ public class SemesterConfig {
 
     /**
      * Exam schedule stored as JSON array.
-     * Example: [{"assessmentCode": "MONTHLY_1", "month": 11, "displayOrder": 1}, ...]
+     * Example: [{"assessmentCode": "MONTHLY_1", "title": "November", "displayOrder": 1}, ...]
      */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "exam_schedule", columnDefinition = "jsonb", nullable = false)
@@ -96,9 +96,9 @@ public class SemesterConfig {
         private String assessmentCode;
 
         /**
-         * Month number (1-12) when this exam occurs.
+         * Display title for this exam (e.g., "November", "December", or custom text).
          */
-        private Integer month;
+        private String title;
 
         /**
          * Display order for UI.

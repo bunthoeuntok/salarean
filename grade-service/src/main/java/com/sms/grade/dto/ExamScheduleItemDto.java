@@ -1,9 +1,8 @@
 package com.sms.grade.dto;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,12 +24,11 @@ public class ExamScheduleItemDto {
     private String assessmentCode;
 
     /**
-     * Month number (1-12) when this exam occurs.
+     * Display title for this exam (e.g., "November", "December", or custom text).
      */
-    @NotNull(message = "Month is required")
-    @Min(value = 1, message = "Month must be between 1 and 12")
-    @Max(value = 12, message = "Month must be between 1 and 12")
-    private Integer month;
+    @NotBlank(message = "Title is required")
+    @Size(max = 100, message = "Title must not exceed 100 characters")
+    private String title;
 
     /**
      * Display order for UI.

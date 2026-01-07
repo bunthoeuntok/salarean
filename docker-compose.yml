@@ -274,6 +274,8 @@ services:
   postgres-auth:
     image: postgres:15-alpine
     container_name: sms-postgres-auth
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_DB=auth_db
       - POSTGRES_USER=sms_user
